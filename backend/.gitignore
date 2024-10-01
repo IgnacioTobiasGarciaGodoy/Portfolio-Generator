@@ -1,0 +1,55 @@
+# Dependencias de Node.js
+node_modules/
+
+# Archivos de logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Datos de runtime
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Cobertura de pruebas (por ejemplo, Istanbul)
+coverage/
+.nyc_output/
+
+# Directorios temporales
+tmp/
+temp/
+
+# Directorios de compilación
+dist/
+build/
+
+# Variables de entorno
+.env
+.env.test
+.env.production
+
+# Archivos de lock
+package-lock.json
+yarn.lock
+
+# Archivos de depuración
+debug.log*
+error.log*
+
+# IDEs y editores
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Sistemas operativos
+.DS_Store
+Thumbs.db
+
+# Otros
+*.swp
+*.bak
+*.orig
