@@ -1,19 +1,11 @@
-import { ObjectId } from "mongodb";
-import getConnection from "./conn.js";
-const DATABASE = "portfolio_generator";
-const ABOUTME = "portfolio_aboutMe";
+import AboutMe from "../models/AboutMe.js"
 
-export async function getPortfoliobyId(userId) {
-    const connectiondb = await getConnection();
-    const aboutMe = await connectiondb
-        .db(DATABASE)
-        .collection(ABOUTME)
-        .findOne({ userId: new ObjectId(userId) });
-
-    const education = await connectiondb
-        .db(DATABASE)
-        .collection(ABOUTME)
-        .findOne({ userId: new ObjectId(userId) });
-
-    return {aboutMe: aboutMe, education: education};
+export async function getAboutMeById(userId) {
+    try {
+        const aboutMe = await AboutMe.findOne({ userId: userId });
+        return aboutMe;
+    } catch (err) {
+        console.error("Error al obtener el portafolio:", err.message);
+        throw err;
+    }
 }

@@ -1,9 +1,13 @@
 import "dotenv/config";
 import express from "express";
-import portfolioRouter from "./routes/portfolio"
+import connectDB from "./data/conn.js";
+import portfolioRouter from "./routes/portfolio.js"
 
 const PORT = process.env.PORT;
 const app = express();
+
+connectDB();
+
 app.use(express.json());
 app.use("/portfolio", portfolioRouter);
 
