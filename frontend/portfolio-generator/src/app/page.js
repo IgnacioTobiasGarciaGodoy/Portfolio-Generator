@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
-const DEFAULT_USER = 0;
+const DEFAULT_USER = "nombre_usuario1";
 
 export default function Home() {
     const [portfolio, setPortfolio] = useState(null);

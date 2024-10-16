@@ -1,30 +1,48 @@
 import express from "express";
-import { getAboutMeById } from "../data/portfolio.js";
-import AboutMe from "../models/AboutMe.js"
+import getPortfolioById from "../data/portfolio.js";
+import Portfolio from "../models/Portfolio.js";
 
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-    const { userId, mainText, userImage, auxText } = req.body;
+    const { 
+        user,
+        aboutMe, 
+        certificates, 
+        contact, 
+        education, 
+        experience, 
+        presentation, 
+        projects, 
+        technologies 
+    } = req.body;
 
     try {
-        const newAboutMe = new AboutMe({
-            userId,
-            mainText,
-            userImage,
-            auxText,
+        // Crear un nuevo portafolio con los datos recibidos
+        const portfolio = new Portfolio({
+            user: user || {},
+            aboutMe: aboutMe || {},  // Si no se proveen datos, usar objeto vacío
+            certificates: certificates || [],  // Si no se proveen, usar array vacío
+            contact: contact || {},
+            education: education || [],
+            experience: experience || [],
+            presentation: presentation || {},
+            projects: projects || [],
+            technologies: technologies || []
         });
 
-        const savedAboutMe = await newAboutMe.save();
-        res.status(201).json(savedAboutMe);
+        // Guardar el portafolio en la base de datos
+        const savedPortfolio = await portfolio.save();
+        res.status(201).json(savedPortfolio);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-router.get("/", async (req, res) => {
-    const userId = req.params.userId;
-    const aboutMe = await getAboutMeById(userId);
+
+router.get("/:userName", async (req, res) => {
+    const userName = req.params.userName;
+    const aboutMe = await getPortfolioById(userName);
     res.json(aboutMe);
 });
 

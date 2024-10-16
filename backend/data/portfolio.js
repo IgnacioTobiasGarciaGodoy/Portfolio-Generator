@@ -1,9 +1,9 @@
-import AboutMe from "../models/AboutMe.js"
+import Portfolio from "../models/Portfolio.js"
 
-export async function getAboutMeById(userId) {
+export default async function getPortfolioById(userName) {
     try {
-        const aboutMe = await AboutMe.findOne({ userId: userId });
-        return aboutMe;
+        const portfolio = await Portfolio.findOne({ 'user.userName': userName });
+        return portfolio;
     } catch (err) {
         console.error("Error al obtener el portafolio:", err.message);
         throw err;
