@@ -18,6 +18,12 @@ router.post("/", async (req, res) => {
     } = req.body;
 
     try {
+        
+        const existingPortfolio = await Portfolio.findOne({ 'user.userName': user.userName });
+        if (existingPortfolio) {
+            return res.status(400).json({ message: "El nombre de usuario ya está en uso." });
+        }
+        
         // Crear un nuevo portafolio con los datos recibidos
         const portfolio = new Portfolio({
             user: user || {},
