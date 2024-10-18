@@ -1,6 +1,8 @@
 "use client"
 import { useEffect, useState } from "react";
 const DEFAULT_USER = "nombre_usuario1";
+import Experience from "./Experience";
+import Presentation from "./Presentation";
 import AboutMe from "./AboutMe";
 import Certificates from "./Certificates";
 
@@ -39,6 +41,9 @@ export default function Home() {
 		<div>
 			<AboutMe aboutMe={ portfolio.aboutMe }/>
 			<Certificates certificates={ portfolio.certificates }/>
+			<Experience experiences={portfolio.experience}/>
+			<Presentation presentation={portfolio.presentation}/>
+			
 		</div>
 	);
 }
