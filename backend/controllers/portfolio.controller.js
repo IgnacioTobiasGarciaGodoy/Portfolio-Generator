@@ -1,10 +1,7 @@
-import express from "express";
-import getPortfolioById from "../data/portfolio.js";
-import Portfolio from "../models/Portfolio.js";
+import Portfolio from "../models/portfolio.model.js";
 
-const router = express.Router();
-
-router.post("/", async (req, res) => {
+// Controlador para crear un nuevo portafolio
+export const createPortfolio = async (req, res) => {
     const { 
         user,
         aboutMe, 
@@ -18,8 +15,8 @@ router.post("/", async (req, res) => {
     } = req.body;
 
     try {
-        
-        const existingPortfolio = await Portfolio.findOne({ 'user.userName': user.userName });
+        const existingPortfolio = await Portfolio.findOne({ 'user.name': user.name });
+        //? Revisar logica (probablemente deje de tener sentido tener esto aca cuando este lo del logeo)
         if (existingPortfolio) {
             return res.status(400).json({ message: "El nombre de usuario ya está en uso." });
         }
@@ -27,8 +24,8 @@ router.post("/", async (req, res) => {
         // Crear un nuevo portafolio con los datos recibidos
         const portfolio = new Portfolio({
             user: user || {},
-            aboutMe: aboutMe || {},  // Si no se proveen datos, usar objeto vacío
-            certificates: certificates || [],  // Si no se proveen, usar array vacío
+            aboutMe: aboutMe || {},
+            certificates: certificates || [],
             contact: contact || {},
             education: education || [],
             experience: experience || [],
@@ -43,13 +40,18 @@ router.post("/", async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-});
+};
 
-
-router.get("/:userName", async (req, res) => {
-    const userName = req.params.userName;
-    const aboutMe = await getPortfolioById(userName);
-    res.json(aboutMe);
-});
-
-export default router;
+// Controlador para obtener un portafolio por nombre de usuario
+export const getPortfolioByName = async (req, res) => {
+    const name = req.params.name;
+    try {
+        const aboutMe = await Portfolio.findOne({ 'user.name': name });
+        if (!aboutMe) {
+          return res.status(404).json({ message: "No se encontró el portafolio" });
+        }
+        res.json(aboutMe);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
