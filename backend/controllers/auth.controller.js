@@ -33,7 +33,7 @@ export const signup = async (req, res) => {
     const hashedPassword = await bcryptjs.hash(password, 10);
 
     //* Genera el codigo de verificacion
-    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString()
+    const verificationToken = Math.floor(100000 + Math.random() * 999999).toString();
 
     //* Creamos al usuario
     const newUser = {
@@ -53,19 +53,22 @@ export const signup = async (req, res) => {
 
     //* Generamos un token de autenticacion y lo guardamos como una cookie
     //* Esto permite que el usuario se mantenga autenticado y pueda acceder a recursos protegidos en la aplicación.
-    generateTokenAndSetCookie(res, newPortfolio.user._id)
+    generateTokenAndSetCookie(res, newPortfolio.user._id);
 
     //* Enviamos el mail con el codigo de verificacion al usuario
-    sendVerificationEmail( newPortfolio.user.email, verificationToken);
+    //TODO Descomentar sendVerificationEmail y eliminar el console.log() cuando este solucionado el tema del mail
+    //sendVerificationEmail( newPortfolio.user.email, verificationToken);
+    console.log(newPortfolio.user);
 
     res.status(201).json({ 
       success: true, 
       message: "Usuario registrado exitosamente.",
-      user:{
-        ...newPortfolio.user._doc,
+      user: newPortfolio.user ? {
+        ...newPortfolio.user.toObject(),
         password: undefined,
-      }
-     });
+      } : null
+    });
+
 
   } catch (error) {
     res.status(400).json({success: false, message: error.message });
@@ -99,7 +102,8 @@ export const verifyEmail = async (req, res) => {
     await userPortfolio.save();
 
     //* Mandamos un mail de bienvenida al usuario
-    await sendWelcomeEmail(userPortfolio.user.email, userPortfolio.user.name);
+    //TODO Descomentar sendVerificationEmail y eliminar el console.log() cuando este solucionado el tema del mail
+    //await sendWelcomeEmail(userPortfolio.user.email, userPortfolio.user.userName);
 
     res.status(200).json({ 
       success: true, 
@@ -178,6 +182,7 @@ export const forgotPassword = async (req, res) => {
 
     //* Mandamos el mail
     //* Guardamos como parametro la url para poder reemplarla en el boton del mail que vamos a mandar
+    //TODO Descomentar sendVerificationEmail y eliminar el console.log() cuando este solucionado el tema del mail
     await sendPasswordResetEmail(userPortfolio.user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`)
 
     res.status(200).json({ success: true, message: "Se mando el mail para restablecer la contraseña del usuario", token: userPortfolio.user.resetPasswordToken})
@@ -211,7 +216,8 @@ export const resetPassword = async (req, res) => {
     await userPortfolio.save();
 
     //* Mandamos el mail del cambio de constraseña
-    sendResetPasswordSuccess(userPortfolio.user.email)
+    //TODO Descomentar sendVerificationEmail y eliminar el console.log() cuando este solucionado el tema del mail
+    //sendResetPasswordSuccess(userPortfolio.user.email)
 
     res.status(200).json({ success: true, message: "Se mando el mail de que la contraseña del usuario fue restablecida correctamente"})
   } catch (error) {
