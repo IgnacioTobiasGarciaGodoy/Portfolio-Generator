@@ -5,10 +5,18 @@ import Experience from "./Experience";
 import Presentation from "./Presentation";
 import AboutMe from "./AboutMe";
 import Certificates from "./Certificates";
+import Projects from "./Projects.jsx"
+import Technologies from "./Technologies.jsx"
 
 export default function Home() {
     const [portfolio, setPortfolio] = useState({});
 	const [isLoading, setIsLoading] = useState(true)
+
+	const techList = [
+		{ name: 'GitHub', logo: '/images/github-logo.png' },
+		{ name: 'React', logo: '/images/react-logo.png' },
+		{ name: 'Node.js', logo: '/images/nodejs-logo.png' },
+	  ];
 
 	console.log("Portfolio", portfolio);
 
@@ -43,7 +51,31 @@ export default function Home() {
 			<Certificates certificates={ portfolio.certificates }/>
 			<Experience experiences={portfolio.experience}/>
 			<Presentation presentation={portfolio.presentation}/>
+
+			<div className="flex justify-center space-x-4">
+				<Projects 
+					title="Project 1"
+					imageSrc="/images/project1.png" 
+					projectUrl="https://example.com"
+					description="This is a cool project." 
+				/>
+
+				<Projects 
+					title="Project 2"
+					imageSrc="/images/project1.png" 
+					projectUrl="https://example.com"
+					description="This is a cool project." 
+				/>
+
+				<Projects 
+					title="Project 3"
+					imageSrc="/images/project1.png" 
+					projectUrl="https://example.com"
+					description="This is a cool project." 
+				/>
+			</div>
 			
+			<Technologies techList={techList} />
 		</div>
 	);
 }
