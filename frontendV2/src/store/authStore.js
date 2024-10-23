@@ -43,7 +43,9 @@ export const useAuthStore = create(set => ({
         userName,
       });
 
+      //TODO Usado para debugear, eliminar cuando sea necesario!
       console.log("AuthStore -> ", response.data.user);
+
       // Si la solicitud tiene éxito, actualiza el estado del store
       set({
         user: response.data.user, // Guarda la información del usuario recibido de la respuesta del servidor
@@ -54,7 +56,7 @@ export const useAuthStore = create(set => ({
       // Si la solicitud falla, captura el error y actualiza el estado del store
       set({
         error:
-          error.response.data.message || "Error iniciando sesión", // Muestra el mensaje de error recibido o uno genérico
+          error.response.data.message || "Error iniciando sesión", // Muestra el mensaje de error recibido por el backend o uno genérico
         isLoading: false, // Indica que la operación ha terminado, incluso si hubo un error
       });
 

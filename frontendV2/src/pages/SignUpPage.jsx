@@ -49,7 +49,7 @@ const SignUpPage = () => {
           />
 					<Input
             icon={Mail}
-            type="text"
+            type="email"
             placeholder="Correo Electrónico"
             value={email}
             onChange={e => setEmail(e.target.value)}

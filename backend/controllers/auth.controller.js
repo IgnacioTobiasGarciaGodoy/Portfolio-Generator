@@ -4,14 +4,14 @@ import crypto from "crypto";
 import Portfolio from "../models/portfolio.model.js";
 
 import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js"
-import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendResetPasswordSuccess } from "../mailtrap/emails.js"
+import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendResetPasswordSuccess } from "../nodemailer/emails.js"
 
 export const signup = async (req, res) => {
   const { email, password, userName } = req.body;
   try {
     //* Validaciones para asegurarse de que los campos no estén vacíos o nulos
     if(!email || !password || !userName){
-      throw new Error("All fields are required")
+      throw new Error("Todos los campos son requeridos")
     }
 
     //* Verifica que el usuario no exista ya en la base de datos
@@ -21,7 +21,8 @@ export const signup = async (req, res) => {
         { 'user.userName': userName }
       ]
     });
-    
+
+    //* Si el mail o userName ya fueron utilizados mandamos el msj para ser utilizado en el frontend
     if (userExists) {
       const message = userExists.user.email === email
         ? "El email ya está en uso."
@@ -45,7 +46,6 @@ export const signup = async (req, res) => {
     };
 
     //* Creamos un nuevo documento Portfolio con el usuario
-    //? Aca deberiamos de emepezar con la creacion del portfolio entiendo
     const newPortfolio = new Portfolio({ user: newUser });
 
     //* Guardamos en la base de datos
@@ -56,8 +56,7 @@ export const signup = async (req, res) => {
     generateTokenAndSetCookie(res, newPortfolio.user._id);
 
     //* Enviamos el mail con el codigo de verificacion al usuario
-    //TODO Descomentar sendVerificationEmail y eliminar el console.log() cuando este solucionado el tema del mail
-    //sendVerificationEmail( newPortfolio.user.email, verificationToken);
+    sendVerificationEmail( newPortfolio.user.email, verificationToken);
     console.log(newPortfolio.user);
 
     res.status(201).json({ 
@@ -68,7 +67,6 @@ export const signup = async (req, res) => {
         password: undefined,
       } : null
     });
-
 
   } catch (error) {
     res.status(400).json({success: false, message: error.message });
@@ -102,8 +100,7 @@ export const verifyEmail = async (req, res) => {
     await userPortfolio.save();
 
     //* Mandamos un mail de bienvenida al usuario
-    //TODO Descomentar sendVerificationEmail y eliminar el console.log() cuando este solucionado el tema del mail
-    //await sendWelcomeEmail(userPortfolio.user.email, userPortfolio.user.userName);
+    await sendWelcomeEmail(userPortfolio.user.email, userPortfolio.user.userName);
 
     res.status(200).json({ 
       success: true, 
@@ -150,13 +147,14 @@ export const login = async (req, res) => {
         password: undefined,
       }
     })
+
   } catch (error) {
     res.status(400).json({success: false, message: error.message });
   }
 }
 
 export const logout = async (req, res) => {
-  //* Eliminamos la cookie que creamos anteriormente
+  //* Eliminamos la cookie que creamos en el log in
   res.clearCookie("authToken");
   res.status(200).json({success: true, message: "Sesion cerrada exitosamente"});
 }
@@ -182,7 +180,6 @@ export const forgotPassword = async (req, res) => {
 
     //* Mandamos el mail
     //* Guardamos como parametro la url para poder reemplarla en el boton del mail que vamos a mandar
-    //TODO Descomentar sendVerificationEmail y eliminar el console.log() cuando este solucionado el tema del mail
     await sendPasswordResetEmail(userPortfolio.user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`)
 
     res.status(200).json({ success: true, message: "Se mando el mail para restablecer la contraseña del usuario", token: userPortfolio.user.resetPasswordToken})
@@ -194,9 +191,11 @@ export const forgotPassword = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
+    //* Recibimos por body la contraseña nueva y el token que generamos en forgotPassword()
     const {token} = req.params;
     const {password} = req.body;
 
+    //* Buscamos en la BD el usuario que tenga asignada esa token
     const userPortfolio = await Portfolio.findOne({ 
       "user.resetPasswordToken": token,
       "user.resetPasswordExperiesAt": { $gt: Date.now() }
@@ -207,17 +206,16 @@ export const resetPassword = async (req, res) => {
     }
 
     //* Si todo esta bien, actualizamos la contraseña y borramos de la BD el token
-    const hashedPassword = await bcryptjs.hash(password, 10);
-    userPortfolio.user.password = hashedPassword;
-    userPortfolio.user.resetPasswordToken = undefined;
+    const hashedPassword = await bcryptjs.hash(password, 10); // Encriptamos la contraseña
+    userPortfolio.user.password = hashedPassword; // Se la asignamos al usuario encontrado anteriormente
+    userPortfolio.user.resetPasswordToken = undefined; // Borramos de la BD el token de reseteo de contraseña 
     userPortfolio.user.resetPasswordExperiesAt= undefined;
 
     //* Guardamos en la BD
     await userPortfolio.save();
 
-    //* Mandamos el mail del cambio de constraseña
-    //TODO Descomentar sendVerificationEmail y eliminar el console.log() cuando este solucionado el tema del mail
-    //sendResetPasswordSuccess(userPortfolio.user.email)
+    //* Mandamos el mail del cambio de constraseña exitoso
+    sendResetPasswordSuccess(userPortfolio.user.email)
 
     res.status(200).json({ success: true, message: "Se mando el mail de que la contraseña del usuario fue restablecida correctamente"})
   } catch (error) {
