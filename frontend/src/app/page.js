@@ -5,6 +5,8 @@ import Experience from "./Experience";
 import Presentation from "./Presentation";
 import AboutMe from "./AboutMe";
 import Certificates from "./Certificates";
+import Projects from "./Projects.jsx"
+import Technologies from "./Technologies.jsx"
 
 export default function Home() {
     const [portfolio, setPortfolio] = useState({});
@@ -43,7 +45,20 @@ export default function Home() {
 			<Certificates certificates={ portfolio.certificates }/>
 			<Experience experiences={portfolio.experience}/>
 			<Presentation presentation={portfolio.presentation}/>
+
+			<div className="flex justify-center space-x-4">
+				{projects.map((project) => (
+					<Projects
+					key={project.id}
+					title={project.title}
+					imageSrc={project.imageSrc}
+					projectUrl={project.projectUrl}
+					description={project.description}
+					/>
+				))}
+			</div>
 			
+			<Technologies techList={techList} />
 		</div>
 	);
 }
