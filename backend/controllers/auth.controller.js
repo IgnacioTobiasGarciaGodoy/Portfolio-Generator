@@ -46,7 +46,32 @@ export const signup = async (req, res) => {
     };
 
     //* Creamos un nuevo documento Portfolio con el usuario
-    const newPortfolio = new Portfolio({ user: newUser });
+    const newPortfolio = new Portfolio({
+      user: newUser,
+      presentationSection: {},
+      aboutMeSection: {},
+      experienceSection: {
+          sectionTitle: {},
+          experiences: [{}]
+      },
+      educationSection: {
+          sectionTitle: {},
+          educations: [{}]
+      },
+      certificateSection: {
+          sectionTitle: {},
+          certificates: [{}]
+      },
+      technologySection: {
+          sectionTitle: {},
+          technologies: [{}]
+      },
+      projectSection: {
+          sectionTitle: {},
+          projects: [{}]
+      },
+      contactSection: {},
+  });
 
     //* Guardamos en la base de datos
     await newPortfolio.save();
@@ -104,7 +129,11 @@ export const verifyEmail = async (req, res) => {
 
     res.status(200).json({ 
       success: true, 
-      message: "Usuario verificado exitosamente."
+      message: "Usuario verificado exitosamente.",
+      user:{
+        ...userPortfolio.user._doc,
+        password: undefined,
+      }
     });
 
   } catch (error) {

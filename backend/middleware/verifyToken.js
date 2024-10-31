@@ -20,6 +20,11 @@ export const verifyToken = async (req, res, next) => {
       return res.status(401).json({ success: false, message: "No Autorizado - Usuario no encontrado" });
     }
 
+    //* Verifica si el nombre de usuario en la URL coincide con el del token decodificado
+    if (userPortfolio.user.userName !== req.params.userName) {
+      return res.status(403).json({ success: false, message: "No Autorizado - No tienes permiso para editar estos datos" });
+    }
+
     //* Si se encuentra al usuario, adjuntamos el ID al objeto req para que las siguientes funciones puedan acceder a él.
     req.userId = decoded.userId;
 

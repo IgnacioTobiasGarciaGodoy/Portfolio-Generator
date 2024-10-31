@@ -68,3 +68,27 @@ export const sendResetPasswordSuccess = async (email) => {
     throw new Error("Error enviando el email de reestablecimiento de contraseña exitoso");
   }
 }
+
+export const sendContactEmail = async (name, email, subject, message, userEmail) => {
+  const mailOptions = {
+    from: '"Portfolio Generator" <portfoliogenerator.ort@gmail.com>',
+    to: userEmail,
+    subject: subject,
+    html: 
+      `
+        <h2>Correo de contacto</h2>
+        <p><strong>Nombre:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Mensaje:</strong></p>
+        <p>${message}</p>
+      `
+  }
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("El email de contacto fue enviado correctamente: ", info.response);
+  } catch (error) {
+    console.log("Error enviando el mail de contacto", error)
+    throw new Error("Error enviando el mail de contacto");
+  }
+}
