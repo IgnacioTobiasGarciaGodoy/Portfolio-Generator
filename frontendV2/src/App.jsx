@@ -1,6 +1,6 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import SignUpPage from "./pages/SignUpPage"
 import LoginPage from "./pages/LoginPage"
@@ -8,115 +8,92 @@ import EmailVerification from "./pages/EmailVerificationPage.jsx"
 import Portfolio from "./pages/PortfolioPage.jsx";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 
+import EditPresentationPage from "./editPages/EditPresentationPage.jsx"
+import EditAboutMePage from "./editPages/EditAboutMePage.jsx"
+import EditExperiencePage from "./editPages/EditExperiencePage.jsx"
+import EditProjectsPage from "./editPages/EditProjectsPage.jsx"
+import EditEducationPage from "./editPages/EditEducationPage.jsx"
+import EditCertificatesPage from "./editPages/EditCertificatesPage.jsx"
+import EditSkillsPage from "./editPages/EditSkillsPage.jsx"
+import EditContactPage from "./editPages/EditContactPage.jsx"
+
+import AddExperienceForm from "./addPages/AddExperienceForm.jsx"
+import AddProjectForm from "./addPages/AddProjectForm.jsx"
+import AddEducationForm from "./addPages/AddEducationForm.jsx"
+import AddCertificateForm from "./addPages/AddCertificateForm.jsx"
+import AddTechnologyForm from "./addPages/AddTechnologyForm.jsx"
+
 import { useAuthStore } from "./store/authStore";
 import FloatingShape from "./components/FloatingShape"
 import LoadingSpinner from "./components/LoadingSpinner.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
-
-// Protejer las rutas que necesitan que el usuario este autenticado
-// children = a la pagina a la que queres acceder
-//TODO Resolver error al registrarse
-const ProtectedRoute = ({children}) => {
-  const { isAuthenticated, user } = useAuthStore();
-  console.log("User", user);
-
-  if(!isAuthenticated){
-    return <Navigate to="/login" replace/>
-  }
-
-  if(!user.isVerified){
-    return <Navigate to="/verify-email" replace/>
-  }
-
-  return children;
-}
-
-// Funcion para redirigir a los usuarios que ya esten con sesion iniciada cuando intentan acceder a "/signup" o "/login"
-// children = a la pagina a la que queres acceder
-const RedirectAuthenticatedUser = ({children}) => {
-  const {isAuthenticated, user} = useAuthStore();
-  
-  if(isAuthenticated && user.isVerified){
-    return <Navigate to="/portfolio" replace/>
-  }
-
-  return children;
-}
+import ProtectedRoute from "./utils/ProtectedRoute.jsx"
 
 function App() {
-  const { isCheckingAuth, checkAuth } = useAuthStore();
+  const { isCheckingAuth, checkAuth, isAuthenticated } = useAuthStore();
+  const location = useLocation();
+  const [backgroundClass, setBackgroundClass] = useState("");
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth])
 
+  useEffect(() => {
+    // Actualiza la clase del fondo según la URL
+    setBackgroundClass(location.pathname.includes('/portfolio') 
+      ? "bg-black" 
+      : "bg-gradient-to-br from-gray-800 via-blue-900 to-cyan-700"
+    );
+  }, [location.pathname]);
+
   if(isCheckingAuth) return <LoadingSpinner/>
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 flex items-center justify-center relative overflow-hidden">
+    <div className={`min-h-screen ${backgroundClass} flex items-center justify-center relative overflow-hidden`}>
       
-      {/* Fondo con las 3 esferas verdes */}
-      <FloatingShape color="bg-green-500" size="w-64 h-64" top="-5%" left="10%" delay={0}/>
-      <FloatingShape color="bg-emerald-500" size="w-48 h-48" top="70%" left="80%" delay={5}/>
-      <FloatingShape color="bg-lime-500" size="w-32 h-32" top="40%" left="10%" delay={2}/>
+      {!location.pathname.includes('/portfolio') && (
+        <>
+          <FloatingShape color="bg-white" size="w-40 h-40" top="-5%" left="10%" delay={0} />
+          <FloatingShape color="bg-white" size="w-48 h-48" top="70%" left="80%" delay={5} />
+          <FloatingShape color="bg-white" size="w-32 h-32" top="40%" left="10%" delay={2} />
+        </>
+      )}
 
-      {/* Ruteo */}
       <Routes>
-        <Route 
-          path='/portfolio' 
-          element={
-            <ProtectedRoute>
-              <Portfolio />
-            </ProtectedRoute>
-          }
-        />
         
-        <Route 
-          path='/signup' 
-          element={
-            <RedirectAuthenticatedUser>
-              <SignUpPage/>
-            </RedirectAuthenticatedUser>
-          }
-        />
+        {/* Ruteo para el portafolio */}
+        <Route path='/portfolio/:userName' element={<Portfolio />} />
         
-        <Route 
-          path='/login' 
-          element={
-            <RedirectAuthenticatedUser>
-              <LoginPage/>
-            </RedirectAuthenticatedUser>
-          }
-        />
-        
-        <Route path='/verify-email' element={<EmailVerification/>}/>
-        
-        <Route 
-          path='/forgot-password' 
-          element={
-           <RedirectAuthenticatedUser>
-            <ForgotPasswordPage/>
-           </RedirectAuthenticatedUser>
-          }
-        />
+        {/* Ruteo para la edicion de las secciones */}
+        <Route path='/portfolio/:userName/edit-presentation' element={<EditPresentationPage />} />
+        <Route path='/portfolio/:userName/edit-aboutme' element={<EditAboutMePage />} />
+        <Route path='/portfolio/:userName/edit-experience' element={<EditExperiencePage />} />
+        <Route path='/portfolio/:userName/edit-projects' element={<EditProjectsPage />} />
+        <Route path='/portfolio/:userName/edit-education' element={<EditEducationPage />} />
+        <Route path='/portfolio/:userName/edit-certificates' element={<EditCertificatesPage />} />
+        <Route path='/portfolio/:userName/edit-skills' element={<EditSkillsPage />} />
+        <Route path='/portfolio/:userName/edit-contact' element={<EditContactPage />} />
 
-        <Route
-          path='/reset-password/:token'
-          element={
-            <RedirectAuthenticatedUser>
-              <ResetPasswordPage/>
-            </RedirectAuthenticatedUser>
-          }
-        />
-      
-      {/* Redirigir a /signup si la ruta es desconocida */}
-      <Route path="*" element={<Navigate to="/signup" replace />} />
-      
+        {/* Ruteo para agregar */}
+        <Route path="/portfolio/:userName/add-experience" element={<AddExperienceForm />} />
+        <Route path="/portfolio/:userName/add-project" element={<AddProjectForm />} />
+        <Route path="/portfolio/:userName/add-education" element={<AddEducationForm />} />
+        <Route path="/portfolio/:userName/add-certificate" element={<AddCertificateForm />} />
+        <Route path="/portfolio/:userName/add-technology" element={<AddTechnologyForm />} />
+        
+        {/* Ruteo para el registro/inicio de sesion/verificacion de email/cambio de contraseña/cierre de sesión */}
+        <Route path='/signup' element={<ProtectedRoute><SignUpPage /></ProtectedRoute>} />
+        <Route path='/login' element={<ProtectedRoute><LoginPage /></ProtectedRoute>} />
+        <Route path='/verify-email' element={<ProtectedRoute><EmailVerification /></ProtectedRoute>} />
+        <Route path='/forgot-password' element={<ProtectedRoute><ForgotPasswordPage /></ProtectedRoute>} />
+        <Route path='/reset-password/:token' element={<ProtectedRoute><ResetPasswordPage /></ProtectedRoute>} />
+
+        {/* Redirigir a /signup si la ruta es desconocida */}
+        <Route path="*" element={<Navigate to="/signup" replace />} />
       </Routes>
 
-
       {/* Para poder usar el Toaster */}
-      <Toaster/>
+      <Toaster />
     </div>
   );
 }

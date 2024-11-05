@@ -7,10 +7,10 @@ import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js"
 import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendResetPasswordSuccess } from "../nodemailer/emails.js"
 
 export const signup = async (req, res) => {
-  const { email, password, userName } = req.body;
+  const { email, password, userName, name } = req.body;
   try {
     //* Validaciones para asegurarse de que los campos no estén vacíos o nulos
-    if(!email || !password || !userName){
+    if(!email || !password || !userName || !name){
       throw new Error("Todos los campos son requeridos")
     }
 
@@ -41,6 +41,7 @@ export const signup = async (req, res) => {
       email,
       password: hashedPassword,
       userName,
+      name,
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 15 * 60 * 1000, //! Expira en 15 minutos
     };
@@ -48,26 +49,25 @@ export const signup = async (req, res) => {
     //* Creamos un nuevo documento Portfolio con el usuario
     const newPortfolio = new Portfolio({
       user: newUser,
-      presentationSection: {},
+      presentationSection: {
+        name:{
+          text: name
+        }
+      },
       aboutMeSection: {},
       experienceSection: {
-          sectionTitle: {},
           experiences: [{}]
       },
       educationSection: {
-          sectionTitle: {},
           educations: [{}]
       },
       certificateSection: {
-          sectionTitle: {},
           certificates: [{}]
       },
       technologySection: {
-          sectionTitle: {},
           technologies: [{}]
       },
       projectSection: {
-          sectionTitle: {},
           projects: [{}]
       },
       contactSection: {},
@@ -87,10 +87,10 @@ export const signup = async (req, res) => {
     res.status(201).json({ 
       success: true, 
       message: "Usuario registrado exitosamente.",
-      user: newPortfolio.user ? {
-        ...newPortfolio.user.toObject(),
-        password: undefined,
-      } : null
+      user: {
+				...newPortfolio.user._doc,
+				password: undefined,
+			},
     });
 
   } catch (error) {

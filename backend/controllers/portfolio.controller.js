@@ -1,22 +1,18 @@
 import Portfolio from "../models/portfolio.model.js";
-import { sendContactEmail } from "../nodemailer/emails.js";
 
 //* About Me
 export const getAboutMe = async (req, res) => {
   const { userName } = req.params;
-
   try {
     const userPortfolio = await Portfolio.findOne({
       "user.userName": userName,
     });
-
     if (!userPortfolio) {
       return res.status(404).json({
         success: false,
         message: "Portafolio no encontrado",
       });
     }
-
     res.status(200).json({
       success: true,
       aboutMeSection: userPortfolio.aboutMeSection,
@@ -29,26 +25,25 @@ export const getAboutMe = async (req, res) => {
 export const editAboutMe = async (req, res) => {
   const { aboutMeSection } = req.body;
   const { userName } = req.params;
+  const userId = req.userId; // Este ID proviene del middleware verifyToken
 
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
-
+    // Busca el portafolio por el nombre de usuario
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Portfolio no encontrado" });
+      return res.status(404).json({ success: false, message: "Portafolio no encontrado" });
     }
 
-    //TODO Validate data
+    // Verifica si el usuario autenticado es el dueño del portafolio
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
+    }
+
+    // Si es el dueño, actualiza la sección
     userPortfolio.aboutMeSection = aboutMeSection;
     await userPortfolio.save();
 
-    res.status(200).json({
-      success: true,
-      message: "Seccion 'About Me' actualizada exitosamente",
-    });
+    res.status(200).json({ success: true, message: "Sección 'About Me' actualizada exitosamente" });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -57,52 +52,97 @@ export const editAboutMe = async (req, res) => {
 //* Certificates
 export const getAllCertificates = async (req, res) => {
   const { userName } = req.params;
-
   try {
     const userPortfolio = await Portfolio.findOne({
       "user.userName": userName,
     });
-
     if (!userPortfolio) {
-      return res.status(404).json({
-        success: false,
-        message: "Portafolio no encontrado",
-      });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Portafolio no encontrado",
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      certificates: userPortfolio.certificates,
-    });
+    res
+      .status(200)
+      .json({
+        success: true,
+        certificateSection: userPortfolio.certificateSection,
+      });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-export const addCertificate = async (req, res) => {
-  const { name, image, description } = req.body;
-  const { userName } = req.params;
+export const editCertificatesSection = async (req, res) => {
+  const { certificatesSection } = req.body; // Extrae certificatesSection del cuerpo de la solicitud
+  const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
+  const userId = req.userId;
 
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
+    // Busca el portafolio del usuario
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
       return res.status(404).json({
         success: false,
         message: "Portafolio no encontrado",
       });
     }
-    userPortfolio.certificates.push({ name, image, description });
+
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
+    }
+
+    // Actualiza el sectionTitle de certificatesSection
+    userPortfolio.certificateSection.sectionTitle = certificatesSection.sectionTitle;
+
+    // Guarda los cambios en la base de datos
     await userPortfolio.save();
 
+    // Responde con un mensaje de éxito
     res.status(200).json({
       success: true,
-      message: "Certificado añadido.",
-      certificates: userPortfolio.certificates,
+      message: "Sección 'Certificados' actualizada exitosamente",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const addCertificate = async (req, res) => {
+  const { certificate } = req.body;
+  const { userName } = req.params;
+  const userId = req.userId;
+
+  try {
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
+    if (!userPortfolio) {
+      return res.status(404).json({
+        success: false,
+        message: "Portafolio no encontrado",
+      });
+    }
+
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
+    }
+
+    userPortfolio.certificateSection.certificates.push({
+      name: certificate.name,
+      image: certificate.image,
+      description: certificate.description,
+    });
+
+    await userPortfolio.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Certificado agregado exitosamente",
+      certificate,
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -110,20 +150,31 @@ export const updateCertificate = async (req, res) => {
   const { id } = req.params;
   const { name, image, description } = req.body;
   const { userName } = req.params;
-
   try {
-    const userPortfolio = await Portfolio.findOneAndUpdate(
-      { "user.userName": userName, "certificates._id": id },
-      { $set: { "certificates.$": { name, image, description } } },
-      { new: true }
-    );
-    //! Tener en cuenta que cuando se actualiza, el ID del certificado cambia!
-
-    res.status(200).json({
-      success: true,
-      message: "Certificado actualizado.",
-      certificates: userPortfolio.certificates,
+    const userPortfolio = await Portfolio.findOne({
+      "user.userName": userName,
     });
+    const certificate =
+      userPortfolio.certificateSection.certificates.id(id);
+    if (!certificate) {
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Certificado no encontrado",
+        });
+    }
+    certificate.name = name || certificate.name;
+    certificate.image = image || certificate.image;
+    certificate.description = description || certificate.description;
+    await userPortfolio.save();
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Certificado actualizado",
+        certificateSection: userPortfolio.certificateSection,
+      });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -132,27 +183,27 @@ export const updateCertificate = async (req, res) => {
 export const deleteCertificate = async (req, res) => {
   const { id } = req.params;
   const { userName } = req.params;
-
   try {
-    // Buscar el portafolio del usuario y eliminar el certificado usando `$pull`
     const userPortfolio = await Portfolio.findOneAndUpdate(
-      { "user.userName": userName }, // Encontrar por el ID del usuario
-      { $pull: { certificates: { _id: id } } }, // Eliminar el certificado por su id
-      { new: true } // Retornar el documento actualizado
+      { "user.userName": userName },
+      { $pull: { "certificateSection.certificates": { _id: id } } },
+      { new: true }
     );
-
     if (!userPortfolio) {
-      return res.status(404).json({
-        success: false,
-        message: "Portafolio no encontrado.",
-      });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Portafolio no encontrado",
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      message: "Certificado eliminado.",
-      certificates: userPortfolio.certificates,
-    });
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Certificado eliminado",
+        certificateSection: userPortfolio.certificateSection,
+      });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -160,49 +211,49 @@ export const deleteCertificate = async (req, res) => {
 
 //* Contact
 export const sendContactSectionEmail = async (req, res) => {
-
   const { name, email, subject, message, userEmail } = req.body;
-
   try {
     sendContactEmail(name, email, subject, message, userEmail);
-    res.status(200).json({ message: "Email de contacto enviado exitosamente" });
+    res
+      .status(200)
+      .json({ message: "Email de contacto enviado exitosamente" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};
 
 export const getContact = async (req, res) => {
   const { userName } = req.params;
-
   try {
     const userPortfolio = await Portfolio.findOne({
       "user.userName": userName,
     });
-
     if (!userPortfolio) {
-      return res.status(404).json({
-        success: false,
-        message: "Portafolio no encontrado",
-      });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Portafolio no encontrado",
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      contact: userPortfolio.contact,
-    });
+    res
+      .status(200)
+      .json({
+        success: true,
+        contactSection: userPortfolio.contactSection,
+      });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-export const editContact = async (req, res) => {
-  const { mail, linkedin, github, location } = req.body;
+export const editContactSection = async (req, res) => {
+  const { contactSection } = req.body;
   const { userName } = req.params;
+  const userId = req.userId;
 
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
       return res.status(404).json({
         success: false,
@@ -210,59 +261,56 @@ export const editContact = async (req, res) => {
       });
     }
 
-    userPortfolio.contact.mail = mail || userPortfolio.contact.mail;
-    
-    userPortfolio.contact.linkedin = linkedin || userPortfolio.contact.linkedin;
-    
-    userPortfolio.contact.github = github || userPortfolio.contact.github;
-    
-    userPortfolio.contact.location = location || userPortfolio.contact.location;
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
+    }
 
+    userPortfolio.contactSection = contactSection;
     await userPortfolio.save();
 
     res.status(200).json({
       success: true,
-      message: "Información de contacto actualizada.",
-      contact: userPortfolio.contact,
+      message: "Información de contacto actualizada exitosamente",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
 //* Education
 export const getAllEducation = async (req, res) => {
   const { userName } = req.params;
-
   try {
     const userPortfolio = await Portfolio.findOne({
       "user.userName": userName,
     });
-
     if (!userPortfolio) {
-      return res.status(404).json({
-        success: false,
-        message: "Portafolio no encontrado",
-      });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Portafolio no encontrado",
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      education: userPortfolio.education,
-    });
+    res
+      .status(200)
+      .json({
+        success: true,
+        educationSection: userPortfolio.educationSection,
+      });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-export const addEducation = async (req, res) => {
-  const { name, description, date } = req.body;
-  const { userName } = req.params;
+export const editEducationSection = async (req, res) => {
+  const { educationSection } = req.body; // Extrae educationSection del cuerpo de la solicitud
+  const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
+  const userId = req.userId;
 
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
+    // Busca el portafolio del usuario
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
       return res.status(404).json({
         success: false,
@@ -270,16 +318,59 @@ export const addEducation = async (req, res) => {
       });
     }
 
-    userPortfolio.education.push({ name, description, date });
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
+    }
+
+    // Actualiza el sectionTitle de educationSection
+    userPortfolio.educationSection.sectionTitle = educationSection.sectionTitle;
+
+    // Guarda los cambios en la base de datos
     await userPortfolio.save();
 
+    // Responde con un mensaje de éxito
     res.status(200).json({
       success: true,
-      message: "Educación añadida.",
-      education: userPortfolio.education,
+      message: "Sección 'Educación' actualizada exitosamente",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const addEducation = async (req, res) => {
+  const { education } = req.body;
+  const { userName } = req.params;
+  const userId = req.userId;
+
+  try {
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
+    if (!userPortfolio) {
+      return res.status(404).json({
+        success: false,
+        message: "Portafolio no encontrado",
+      });
+    }
+
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
+    }
+
+    userPortfolio.educationSection.educations.push({
+      name: education.name,
+      description: education.description,
+      date: education.date,
+    });
+
+    await userPortfolio.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Educación agregada exitosamente",
+      education,
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -287,25 +378,28 @@ export const updateEducation = async (req, res) => {
   const { id } = req.params;
   const { name, description, date } = req.body;
   const { userName } = req.params;
-
   try {
-    const userPortfolio = await Portfolio.findOneAndUpdate(
-      { "user.userName": userName, "education._id": id },
-      {
-        $set: {
-          "education.$.name": name,
-          "education.$.description": description,
-          "education.$.date": date,
-        },
-      },
-      { new: true }
-    );
-
-    res.status(200).json({
-      success: true,
-      message: "Educación actualizada.",
-      education: userPortfolio.education,
+    const userPortfolio = await Portfolio.findOne({
+      "user.userName": userName,
     });
+    const education =
+      userPortfolio.educationSection.educations.id(id);
+    if (!education) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Educación no encontrada" });
+    }
+    education.name = name || education.name;
+    education.description = description || education.description;
+    education.date = date || education.date;
+    await userPortfolio.save();
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Educación actualizada",
+        educationSection: userPortfolio.educationSection,
+      });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -314,26 +408,27 @@ export const updateEducation = async (req, res) => {
 export const deleteEducation = async (req, res) => {
   const { id } = req.params;
   const { userName } = req.params;
-
   try {
     const userPortfolio = await Portfolio.findOneAndUpdate(
       { "user.userName": userName },
-      { $pull: { education: { _id: id } } },
+      { $pull: { "educationSection.educations": { _id: id } } },
       { new: true }
     );
-
     if (!userPortfolio) {
-      return res.status(404).json({
-        success: false,
-        message: "Portafolio no encontrado",
-      });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Portafolio no encontrado",
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      message: "Educación eliminada.",
-      education: userPortfolio.education,
-    });
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Educación eliminada",
+        educationSection: userPortfolio.educationSection,
+      });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -342,36 +437,24 @@ export const deleteEducation = async (req, res) => {
 //* Experience
 export const getAllExperience = async (req, res) => {
   const { userName } = req.params;
-
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
-
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
-      return res.status(404).json({
-        success: false,
-        message: "Portafolio no encontrado",
-      });
+      return res.status(404).json({ success: false, message: "Portafolio no encontrado" });
     }
-
-    res.status(200).json({
-      success: true,
-      experience: userPortfolio.experience,
-    });
+    res.status(200).json({ success: true, experienceSection: userPortfolio.experienceSection });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
 export const addExperience = async (req, res) => {
-  const { name, description, date } = req.body;
+  const { experience } = req.body;
   const { userName } = req.params;
+  const userId = req.userId;
 
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
       return res.status(404).json({
         success: false,
@@ -379,16 +462,60 @@ export const addExperience = async (req, res) => {
       });
     }
 
-    userPortfolio.experience.push({ name, description, date });
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
+    }
+
+    userPortfolio.experienceSection.experiences.push({
+      workName: experience.workName,
+      description: experience.description,
+      date: experience.date,
+    });
+
     await userPortfolio.save();
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
-      message: "Experiencia añadida.",
-      experience: userPortfolio.experience,
+      message: "Experiencia agregada exitosamente",
+      experience,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const editExperienceSection = async (req, res) => {
+  const { experienceSection } = req.body; // Extrae el objeto experienceSection del cuerpo
+  const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
+  const userId = req.userId;
+
+  try {
+    // Busca el portafolio del usuario
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
+    if (!userPortfolio) {
+      return res.status(404).json({
+        success: false,
+        message: "Portafolio no encontrado",
+      });
+    }
+
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
+    }
+
+    // Actualiza el sectionTitle de experienceSection
+    userPortfolio.experienceSection.sectionTitle = experienceSection.sectionTitle;
+
+    // Guarda los cambios en la base de datos
+    await userPortfolio.save();
+
+    // Responde con un mensaje de éxito
+    res.status(200).json({
+      success: true,
+      message: "Sección 'Experience' actualizada exitosamente",
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -396,25 +523,17 @@ export const updateExperience = async (req, res) => {
   const { id } = req.params;
   const { name, description, date } = req.body;
   const { userName } = req.params;
-
   try {
-    const userPortfolio = await Portfolio.findOneAndUpdate(
-      { "user.userName": userName, "experience._id": id },
-      {
-        $set: {
-          "experience.$.name": name,
-          "experience.$.description": description,
-          "experience.$.date": date,
-        },
-      },
-      { new: true }
-    );
-
-    res.status(200).json({
-      success: true,
-      message: "Experiencia actualizada.",
-      experience: userPortfolio.experience,
-    });
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
+    const experience = userPortfolio.experienceSection.experiences.id(id);
+    if (!experience) {
+      return res.status(404).json({ success: false, message: "Experiencia no encontrada" });
+    }
+    experience.name = name || experience.name;
+    experience.description = description || experience.description;
+    experience.date = date || experience.date;
+    await userPortfolio.save();
+    res.status(200).json({ success: true, message: "Experiencia actualizada", experienceSection: userPortfolio.experienceSection });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -423,26 +542,16 @@ export const updateExperience = async (req, res) => {
 export const deleteExperience = async (req, res) => {
   const { id } = req.params;
   const { userName } = req.params;
-
   try {
     const userPortfolio = await Portfolio.findOneAndUpdate(
       { "user.userName": userName },
-      { $pull: { experience: { _id: id } } },
+      { $pull: { "experienceSection.experiences": { _id: id } } },
       { new: true }
     );
-
     if (!userPortfolio) {
-      return res.status(404).json({
-        success: false,
-        message: "Portafolio no encontrado",
-      });
+      return res.status(404).json({ success: false, message: "Portafolio no encontrado" });
     }
-
-    res.status(200).json({
-      success: true,
-      message: "Experiencia eliminada.",
-      experience: userPortfolio.experience,
-    });
+    res.status(200).json({ success: true, message: "Experiencia eliminada", experienceSection: userPortfolio.experienceSection });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -451,37 +560,25 @@ export const deleteExperience = async (req, res) => {
 //* Presentation
 export const getPresentation = async (req, res) => {
   const { userName } = req.params;
-
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
-
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
-      return res.status(404).json({
-        success: false,
-        message: "Portafolio no encontrado",
-      });
+      return res.status(404).json({ success: false, message: "Portafolio no encontrado" });
     }
-
-    res.status(200).json({
-      success: true,
-      presentation: userPortfolio.presentation,
-    });
+    res.status(200).json({ success: true, presentationSection: userPortfolio.presentationSection });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-export const editPresentation = async (req, res) => {
-  const { userName } = req.params;
-  const { name, text, image } = req.body;
+export const editPresentationSection = async (req, res) => {
+  const { presentationSection } = req.body; // Extrae presentationSection del cuerpo de la solicitud
+  const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
+  const userId = req.userId;
 
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
-
+    // Busca el portafolio del usuario
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
       return res.status(404).json({
         success: false,
@@ -489,68 +586,50 @@ export const editPresentation = async (req, res) => {
       });
     }
 
-    if (name) userPortfolio.presentation.name = name;
-    if (text) {
-      userPortfolio.presentation.text = {
-        text: text.text,
-        isBold: text.isBold,
-        size: text.size,
-        color: text.color,
-        font: text.font,
-        isItalic: text.isItalic,
-      };
-    }
-    if (image) {
-      userPortfolio.presentation.image = {
-        image: image.image,
-      };
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
     }
 
+    // Actualiza el name y rol de presentationSection
+    userPortfolio.presentationSection.name = presentationSection.name;
+    userPortfolio.presentationSection.rol = presentationSection.rol;
+    userPortfolio.presentationSection.image = presentationSection.image;
+
+    // Guarda los cambios en la base de datos
     await userPortfolio.save();
 
+    // Responde con un mensaje de éxito
     res.status(200).json({
       success: true,
-      message: "Presentación actualizada.",
-      presentation: userPortfolio.presentation,
+      message: "Sección 'Presentation' actualizada exitosamente",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
 //* Projects
 export const getAllProjects = async (req, res) => {
   const { userName } = req.params;
-
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
-
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
-      return res.status(404).json({
-        success: false,
-        message: "Portafolio no encontrado",
-      });
+      return res.status(404).json({ success: false, message: "Portafolio no encontrado" });
     }
-
-    res.status(200).json({
-      success: true,
-      projects: userPortfolio.projects,
-    });
+    res.status(200).json({ success: true, projectSection: userPortfolio.projectSection });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-export const addProject = async (req, res) => {
-  const { name, description, image, link } = req.body;
-  const { userName } = req.params;
+export const editProjectsSection = async (req, res) => {
+  const { projectsSection } = req.body; // Extrae projectsSection del cuerpo de la solicitud
+  const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
+  const userId = req.userId;
 
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
+    // Busca el portafolio del usuario
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
       return res.status(404).json({
         success: false,
@@ -558,42 +637,80 @@ export const addProject = async (req, res) => {
       });
     }
 
-    userPortfolio.projects.push({ name, description, image, link });
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
+    }
+
+    // Actualiza el sectionTitle de projectsSection
+    userPortfolio.projectSection.sectionTitle = projectsSection.sectionTitle;
+
+    // Guarda los cambios en la base de datos
     await userPortfolio.save();
 
+    // Responde con un mensaje de éxito
     res.status(200).json({
       success: true,
-      message: "Proyecto añadido.",
-      projects: userPortfolio.projects,
+      message: "Sección 'Projects' actualizada exitosamente",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const addProject = async (req, res) => {
+  const { project } = req.body;
+  const { userName } = req.params;
+  const userId = req.userId;
+
+  try {
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
+    if (!userPortfolio) {
+      return res.status(404).json({
+        success: false,
+        message: "Portafolio no encontrado",
+      });
+    }
+
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
+    }
+
+    userPortfolio.projectSection.projects.push({
+      name: project.name,
+      description: project.description,
+      image: project.image,
+      demoLink: project.demoLink,
+      gitHubLink: project.gitHubLink,
+    });
+
+    await userPortfolio.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Proyecto agregado exitosamente",
+      project,
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const updateProject = async (req, res) => {
   const { id } = req.params;
-  const { name, description, image } = req.body;
+  const { name, description, image, link } = req.body;
   const { userName } = req.params;
-
   try {
-    const userPortfolio = await Portfolio.findOneAndUpdate(
-      { "user.userName": userName, "projects._id": id },
-      {
-        $set: {
-          "projects.$.name": name,
-          "projects.$.description": description,
-          "projects.$.image": image,
-        },
-      },
-      { new: true }
-    );
-
-    res.status(200).json({
-      success: true,
-      message: "Proyecto actualizado.",
-      projects: userPortfolio.projects,
-    });
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
+    const project = userPortfolio.projectSection.projects.id(id);
+    if (!project) {
+      return res.status(404).json({ success: false, message: "Proyecto no encontrado" });
+    }
+    project.name = name || project.name;
+    project.description = description || project.description;
+    project.image = image || project.image;
+    project.link = link || project.link;
+    await userPortfolio.save();
+    res.status(200).json({ success: true, message: "Proyecto actualizado", projectSection: userPortfolio.projectSection });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -602,26 +719,16 @@ export const updateProject = async (req, res) => {
 export const deleteProject = async (req, res) => {
   const { id } = req.params;
   const { userName } = req.params;
-
   try {
     const userPortfolio = await Portfolio.findOneAndUpdate(
       { "user.userName": userName },
-      { $pull: { projects: { _id: id } } },
+      { $pull: { "projectSection.projects": { _id: id } } },
       { new: true }
     );
-
     if (!userPortfolio) {
-      return res.status(404).json({
-        success: false,
-        message: "Portafolio no encontrado",
-      });
+      return res.status(404).json({ success: false, message: "Portafolio no encontrado" });
     }
-
-    res.status(200).json({
-      success: true,
-      message: "Proyecto eliminado.",
-      projects: userPortfolio.projects,
-    });
+    res.status(200).json({ success: true, message: "Proyecto eliminado", projectSection: userPortfolio.projectSection });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -630,12 +737,25 @@ export const deleteProject = async (req, res) => {
 //* Technologies
 export const getSelectedTechnologies = async (req, res) => {
   const { userName } = req.params;
+  try {
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
+    if (!userPortfolio) {
+      return res.status(404).json({ success: false, message: "Portafolio no encontrado" });
+    }
+    res.status(200).json({ success: true, technologySection: userPortfolio.technologySection });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const editTechnologiesSection = async (req, res) => {
+  const { technologiesSection } = req.body; // Extrae technologiesSection del cuerpo de la solicitud
+  const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
+  const userId = req.userId;
 
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
-
+    // Busca el portafolio del usuario
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
       return res.status(404).json({
         success: false,
@@ -643,24 +763,33 @@ export const getSelectedTechnologies = async (req, res) => {
       });
     }
 
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
+    }
+
+    // Actualiza el sectionTitle de technologiesSection
+    userPortfolio.technologySection.sectionTitle = technologiesSection.sectionTitle;
+
+    // Guarda los cambios en la base de datos
+    await userPortfolio.save();
+
+    // Responde con un mensaje de éxito
     res.status(200).json({
       success: true,
-      technologies: userPortfolio.technologies,
+      message: "Sección 'Technologies' actualizada exitosamente",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
 export const addTechnology = async (req, res) => {
-  const { name } = req.body;
+  const { technology } = req.body;
   const { userName } = req.params;
+  const userId = req.userId;
 
   try {
-    const userPortfolio = await Portfolio.findOne({
-      "user.userName": userName,
-    });
-
+    const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
     if (!userPortfolio) {
       return res.status(404).json({
         success: false,
@@ -668,49 +797,40 @@ export const addTechnology = async (req, res) => {
       });
     }
 
-    if (userPortfolio.technologies.some(tech => tech.name === name)) {
-      return res.status(400).json({
-        success: false,
-        message: "La tecnología ya está seleccionada.",
-      });
+    if (userPortfolio.user._id.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "No autorizado" });
     }
 
-    userPortfolio.technologies.push({ name });
+    userPortfolio.technologySection.technologies.push({
+      name: technology.name,
+      image: technology.image,
+    });
+
     await userPortfolio.save();
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
-      message: "Tecnología añadida.",
-      technologies: userPortfolio.technologies,
+      message: "Tecnología agregada exitosamente",
+      technology,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
-export const removeTechnology = async (req, res) => {
+export const deleteTechnology = async (req, res) => {
   const { name } = req.body;
   const { userName } = req.params;
-
   try {
     const userPortfolio = await Portfolio.findOneAndUpdate(
       { "user.userName": userName },
-      { $pull: { technologies: { name } } },
+      { $pull: { "technologySection.technologies": { name } } },
       { new: true }
     );
-
     if (!userPortfolio) {
-      return res.status(404).json({
-        success: false,
-        message: "Portafolio no encontrado",
-      });
+      return res.status(404).json({ success: false, message: "Portafolio no encontrado" });
     }
-
-    res.status(200).json({
-      success: true,
-      message: "Tecnología eliminada.",
-      technologies: userPortfolio.technologies,
-    });
+    res.status(200).json({ success: true, message: "Tecnología eliminada", technologySection: userPortfolio.technologySection });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

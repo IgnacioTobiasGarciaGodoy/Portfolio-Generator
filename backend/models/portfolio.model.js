@@ -1,111 +1,3 @@
-// import mongoose from "mongoose";
-
-// const TextSchema = new mongoose.Schema({
-//   text: {type: String, default: "No hay información disponible sobre mí."},
-//   isBold: { type: Boolean, default: false },
-//   size: { type: Number, default: 12 },
-//   color: { type: String, default: "black" },
-//   font: { type: String, default: "Arial" },
-//   isItalic: { type: Boolean, default: false },
-// });
-
-// const LinkSchema = new mongoose.Schema({
-//   text: String,
-//   link: String,
-//   isBold: { type: Boolean, default: false },
-//   size: { type: Number, default: 12 },
-// });
-
-// const DateSchema = new mongoose.Schema({
-//   from: String,
-//   to: String,
-//   isBold: { type: Boolean, default: false },
-//   size: { type: Number, default: 12 },
-// });
-
-// const ImageSchema = new mongoose.Schema({
-//   image: String,
-// });
-
-// //* Al usar timestamps agrega automáticamente dos campos a cada documento de la colección: 
-// //* createdAt: Registra la fecha y hora en que se creó el documento.
-// //* updatedAt: Registra la fecha y hora en que se actualizó por última vez el documento.
-
-//* _id: true lo que hace es generar un _id para este subdocumento
-// const userSchema = new mongoose.Schema({
-//   email: { type: String, required: true, unique: true},
-//   password: { type: String, required: true },
-//   name: { type: String },
-//   userName: { type: String, required: true, unique: true },
-//   lastLogin: {type: Date, default: Date.now},
-//   isVerified: {type: Boolean, default: false},
-//   resetPasswordToken: String,//?  Almacena un token que se genera cuando un usuario solicita restablecer su contraseña -> Se utiliza para verificar que el usuario tenga permiso para cambiar la contraseña.
-//   resetPasswordExperiesAt: Date,//? Define la fecha y hora en la que expira el resetPasswordToken -> Esto asegura que el enlace para restablecer la contraseña solo sea válido por un período de tiempo limitado.
-//   verificationToken: String,//? Almacena un token que se genera cuando un usuario se registra -> Este token se envía al correo electrónico del usuario para verificar su dirección de correo y activar su cuenta.
-//   verificationTokenExpiresAt: Date,//? Define la fecha y hora en la que expira el verificationToken. -> Asegura que el token de verificación solo sea válido por un tiempo limitado.
-// },{timestamps: true}, { _id: true }) 
-
-// const PortfolioSchema = new mongoose.Schema({
-//   user: { type: userSchema, default: () => ({})},
-//   aboutMe: {
-//     bodyText: { type: TextSchema, default: () => ({}) },
-//   },
-//   certificates: [
-//     {
-//       name: { type: String, default: "" },
-//       image: { type: ImageSchema, default: () => ({}) },
-//       description: { type: TextSchema, default: () => ({}) },
-//     },
-//   ],
-//   contact: {
-//     mail: { type: TextSchema, default: () => ({}) },
-//     linkedin: { type: LinkSchema, default: () => ({}) },
-//     github: { type: LinkSchema, default: () => ({}) },
-//     location: { type: TextSchema, default: () => ({}) },
-//   },
-//   education: [
-//     {
-//       _id: { type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
-//       name: { type: String, default: "" },
-//       description: { type: String, default: "" },
-//       date: { type: DateSchema, default: () => ({}) },
-//     },
-//   ],
-//   experience: [
-//     {
-//       _id: { type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
-//       name: { type: String, default: "" },
-//       description: { type: String, default: "" },
-//       date: { type: DateSchema, default: () => ({}) },
-//     },
-//   ],
-//   presentation: {
-//     name: { type: String, default: "" },
-//     text: { type: TextSchema, default: () => ({}) },
-//     image: { type: ImageSchema, default: () => ({}) },
-//   },
-//   projects: [
-//     {
-//       _id: { type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
-//       name: { type: String, default: "" },
-//       description: { type: String, default: "" },
-//       image: { type: ImageSchema, default: () => ({}) },
-//       link: { type: LinkSchema, default: () => ({}) },
-//     },
-//   ],
-//   technologies: [
-//     {
-//       _id: { type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
-//       name: { type: String, default: "" },
-//       image: { type: ImageSchema, default: () => ({}) },
-//     },
-//   ],
-// });
-
-// const Portfolio = mongoose.model("Portfolio", PortfolioSchema, "portfolio");
-
-// export default Portfolio;
-
 import mongoose from "mongoose";
 
 const TitleSchema = new mongoose.Schema({
@@ -115,8 +7,11 @@ const TitleSchema = new mongoose.Schema({
 	color: { type: String, default: "black" },
 	font: { type: String, default: "Arial" },
 	isItalic: { type: Boolean, default: false },
-});
+}, {_id: false});
 
+//* Al usar timestamps agrega automáticamente dos campos a cada documento de la colección: 
+//* createdAt: Registra la fecha y hora en que se creó el documento.
+//* updatedAt: Registra la fecha y hora en que se actualizó por última vez el documento.
 //* _id: true lo que hace es generar un _id para este subdocumento
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true},
@@ -163,11 +58,11 @@ const PortfolioSchema = new mongoose.Schema({
 	presentationSection: {
 		name: {
 			type: TitleSchema, default: () => ({
-				text: "Juan"
+				text: "User Full Name"
 			})
 		},
-		text: {
-			type: TitleSchema, default: () => ({
+		rol: {
+			type: TextSchema, default: () => ({
 				text: "I'm a developer!"
 			})
 		},
@@ -180,7 +75,7 @@ const PortfolioSchema = new mongoose.Schema({
 	aboutMeSection: {
 		sectionTitle: {
 			type: TitleSchema, default: () => ({
-				text: "About Me"
+				text: "Acerca de mí"
 			})
 		},
 		bodyText: {
@@ -192,12 +87,14 @@ const PortfolioSchema = new mongoose.Schema({
 	experienceSection: {
 		sectionTitle: {
 			type: TitleSchema, default: () => ({
-				text: "Work Experience"
+				text: "Mi Experiencia"
 			})
 		},
 		experiences: [
 			{
-				workName: { type: TextSchema, default: () => ({}) },
+				workName: { type: TextSchema, default: () => ({
+					text: "Experience"
+				}) },
 				description: { type: TextSchema, default: () => ({}) },
 				date: { type: DateSchema, default: () => ({}) },
 			},
@@ -206,7 +103,7 @@ const PortfolioSchema = new mongoose.Schema({
 	educationSection: {
 		sectionTitle: {
 			type: TitleSchema, default: () => ({
-				text: "Education"
+				text: "Mi Educación"
 			})
 		},
 		educations: [
@@ -220,10 +117,10 @@ const PortfolioSchema = new mongoose.Schema({
 	certificateSection: {
 		sectionTitle: {
 			type: TitleSchema, default: () => ({
-				text: "Certificates"
+				text: "Mis Certificados"
 			})
 		},
-		cetificates: [
+		certificates: [
 			{
 				name: { type: String, default: "" },
 				image: { type: ImageSchema, default: () => ({}) },
@@ -247,7 +144,7 @@ const PortfolioSchema = new mongoose.Schema({
 	projectSection: {
 		sectionTitle: {
 			type: TitleSchema, default: () => ({
-				text: "Projects"
+				text: "Mis Proyectos"
 			})
 		},
 		projects: [
@@ -255,13 +152,15 @@ const PortfolioSchema = new mongoose.Schema({
 				name: { type: String, default: "" },
 				description: { type: String, default: "" },
 				image: { type: ImageSchema, default: () => ({}) },
+				demoLink: { type: String, default: "" },
+				gitHubLink: { type: String, default: "" },
 			},
 		],
 	},
 	contactSection: {
 		sectionTitle: {
 			type: TitleSchema, default: () => ({
-				text: "Contact"
+				text: "Contactame"
 			})
 		},
 		mailTitle: {
@@ -283,7 +182,7 @@ const PortfolioSchema = new mongoose.Schema({
 		},
 		githubTitle: {
 			type: TitleSchema, default: () => ({
-				text: "GitBub"
+				text: "GitHub"
 			})
 		},
 		github: {
@@ -310,6 +209,11 @@ const PortfolioSchema = new mongoose.Schema({
 		location: {
 			type: TextSchema, default: () => ({
 				text: "Chipre"
+			})
+		},
+		bodyText: {
+			type: TextSchema, default: () => ({
+				text: "This sections its for contact me!"
 			})
 		},
 	},
