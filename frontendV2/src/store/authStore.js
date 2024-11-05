@@ -31,7 +31,7 @@ export const useAuthStore = create(set => ({
   message: null,
 
   // Función para registrar un nuevo usuario
-  signup: async (email, password, userName) => {
+  signup: async (email, password, userName, name) => {
     // Actualiza el estado para indicar que la operación está en progreso y reinicia errores previos
     set({ isLoading: true, error: null });
 
@@ -41,15 +41,13 @@ export const useAuthStore = create(set => ({
         email,
         password,
         userName,
+        name,
       });
 
-      //TODO Usado para debugear, eliminar cuando sea necesario!
-      console.log("AuthStore -> ", response.data.user);
-
+      console.log(response.data.user)
       // Si la solicitud tiene éxito, actualiza el estado del store
       set({
         user: response.data.user, // Guarda la información del usuario recibido de la respuesta del servidor
-        isAuthenticated: true, // Marca al usuario como autenticado
         isLoading: false, // Indica que la operación ha terminado
       });
     } catch (error) {
@@ -74,10 +72,11 @@ export const useAuthStore = create(set => ({
       });
       set({
         isAuthenticated: true,
-        user: response.data.user,
+        user: response.data.user, // Guarda el objeto usuario, que incluye el nombre de usuario
         error: null,
         isLoading: false,
       });
+      return response.data.user.userName; // Retorna el nombre de usuario
     } catch (error) {
       set({
         error: error.response?.data?.message || "Error logging in",
@@ -88,17 +87,23 @@ export const useAuthStore = create(set => ({
   },
 
   logout: async () => {
-    set({ isLoading: true, error: null});
+    set({ isLoading: true, error: null });
     try {
       await axios.post(`${API_URL}/logout`);
-      set({ user: null, isAuthenticated: false, error: null, isLoading: false});
+      set({
+        user: null,
+        isAuthenticated: false,
+        error: null,
+        isLoading: false,
+        isCheckingAuth: false,
+      });
     } catch (error) {
-      set({error: "Error cerrando sesion", isLoading: false })
+      set({ error: "Error cerrando sesion", isLoading: false });
       throw error;
     }
   },
 
-  verifyEmail: async (code) => {
+  verifyEmail: async code => {
     // Actualiza el estado para indicar que la operación de verificación de email está en progreso
     // También restablece cualquier error anterior a null
     set({ isLoading: true, error: null });
@@ -140,41 +145,59 @@ export const useAuthStore = create(set => ({
   },
 
   checkAuth: async () => {
-		set({ isCheckingAuth: true, error: null });
-		try {
-			const response = await axios.get(`${API_URL}/check-auth`);
-			set({ user: response.data.user, isAuthenticated: true, isCheckingAuth: false });
-		} catch (error) {
-			set({ error: null, isCheckingAuth: false, isAuthenticated: false });
-		}
-	},
-
-  forgotPassword: async (email) => {
-    set({ isLoading: true, error: null});
-    
+    set({ isCheckingAuth: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/forgot-password`, { email });
+      const response = await axios.get(`${API_URL}/check-auth`);
+      set({
+        user: response.data.user,
+        isAuthenticated: true,
+        isCheckingAuth: false,
+      });
+    } catch (error) {
+      set({
+        error: null,
+        isCheckingAuth: false,
+        isAuthenticated: false,
+      });
+    }
+  },
+
+  forgotPassword: async email => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/forgot-password`,
+        { email }
+      );
       set({ message: response.data.message, isLoading: false });
     } catch (error) {
-      set({ 
+      set({
         isLoading: false,
-        error: error.response.data.message || "Error enviando el mail de reseteo de contraseña"
+        error:
+          error.response.data.message ||
+          "Error enviando el mail de reseteo de contraseña",
       });
       throw error;
     }
   },
 
   resetPassword: async (token, password) => {
-    set({ isLoading: true, error: null})
+    set({ isLoading: true, error: null });
     try {
-      const response = await axios.post(`${API_URL}/reset-password/${token}`, { password });
+      const response = await axios.post(
+        `${API_URL}/reset-password/${token}`,
+        { password }
+      );
       set({ message: response.data.message, isLoading: false });
     } catch (error) {
-      set({ 
+      set({
         isLoading: false,
-        error: error.response.data.message || "Error reseteando la contraseña"
+        error:
+          error.response.data.message ||
+          "Error reseteando la contraseña",
       });
       throw error;
     }
-  }
+  },
 }));

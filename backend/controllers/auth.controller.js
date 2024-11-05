@@ -7,10 +7,10 @@ import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js"
 import { sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendResetPasswordSuccess } from "../nodemailer/emails.js"
 
 export const signup = async (req, res) => {
-  const { email, password, userName } = req.body;
+  const { email, password, userName, name } = req.body;
   try {
     //* Validaciones para asegurarse de que los campos no estén vacíos o nulos
-    if(!email || !password || !userName){
+    if(!email || !password || !userName || !name){
       throw new Error("Todos los campos son requeridos")
     }
 
@@ -41,12 +41,37 @@ export const signup = async (req, res) => {
       email,
       password: hashedPassword,
       userName,
+      name,
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 15 * 60 * 1000, //! Expira en 15 minutos
     };
 
     //* Creamos un nuevo documento Portfolio con el usuario
-    const newPortfolio = new Portfolio({ user: newUser });
+    const newPortfolio = new Portfolio({
+      user: newUser,
+      presentationSection: {
+        name:{
+          text: name
+        }
+      },
+      aboutMeSection: {},
+      experienceSection: {
+          experiences: [{}]
+      },
+      educationSection: {
+          educations: [{}]
+      },
+      certificateSection: {
+          certificates: [{}]
+      },
+      technologySection: {
+          technologies: [{}]
+      },
+      projectSection: {
+          projects: [{}]
+      },
+      contactSection: {},
+  });
 
     //* Guardamos en la base de datos
     await newPortfolio.save();
@@ -62,10 +87,10 @@ export const signup = async (req, res) => {
     res.status(201).json({ 
       success: true, 
       message: "Usuario registrado exitosamente.",
-      user: newPortfolio.user ? {
-        ...newPortfolio.user.toObject(),
-        password: undefined,
-      } : null
+      user: {
+				...newPortfolio.user._doc,
+				password: undefined,
+			},
     });
 
   } catch (error) {
@@ -104,7 +129,11 @@ export const verifyEmail = async (req, res) => {
 
     res.status(200).json({ 
       success: true, 
-      message: "Usuario verificado exitosamente."
+      message: "Usuario verificado exitosamente.",
+      user:{
+        ...userPortfolio.user._doc,
+        password: undefined,
+      }
     });
 
   } catch (error) {
