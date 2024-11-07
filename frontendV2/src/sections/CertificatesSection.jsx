@@ -1,19 +1,30 @@
 import React, { useEffect } from "react";
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, Trash2, FilePenLine } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const CertificatesSection = ({ userName }) => {
   const {
     certificateSection,
     fetchCertificateSection,
+    deleteCertificate,
     isLoading,
     error,
   } = usePortfolioStore();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const isOwner = isAuthenticated && user?.userName === userName;
+
+  const handleDeleteCertificate = certificateId => {
+    if (
+      window.confirm(
+        "¿Estás seguro de que quieres eliminar este certificado?"
+      )
+    ) {
+      deleteCertificate(userName, certificateId);
+    }
+  };
 
   useEffect(() => {
     if (userName) {
@@ -52,28 +63,48 @@ const CertificatesSection = ({ userName }) => {
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {certificateSection?.certificates?.map((cert, index) => (
-          <div
-            key={index}
-            className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
-          >
-            <img
-              className="rounded-t-lg"
-              src={cert.image?.image}
-              alt={cert.name}
-            />
-            <div className="p-5">
-              <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                {cert.name}
-              </h5>
-              <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-                {cert.description.text}
-              </p>
+      {certificateSection?.certificates?.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {certificateSection.certificates.map((cert, index) => (
+            <div
+              key={index}
+              className="relative p-4 bg-gray-100 dark:bg-gray-800 rounded-lg"
+            >
+              <img
+                className="rounded-t-lg"
+                src={cert.image?.image}
+                alt={cert.name}
+              />
+              <div className="p-5">
+                <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                  {cert.name}
+                  {isOwner && (
+                    <>
+                    <FilePenLine 
+                      onClick={() => navigate(`/portfolio/${userName}/edit-certificate/${cert._id}`)}
+                      className="absolute bottom-2 right-7 cursor-pointer text-green-400 hover:text-green-900"
+                      size={20}
+                    />
+                    <Trash2
+                      onClick={() => handleDeleteCertificate(cert._id)}
+                      className="absolute bottom-2 right-2 cursor-pointer text-red-600 hover:text-red-900"
+                      size={20}
+                    />
+                  </>
+                  )}
+                </h5>
+                <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
+                  {cert.description.text}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-300 col-span-full">
+          No hay certificados disponibles.
+        </p>
+      )}
     </section>
   );
 };
