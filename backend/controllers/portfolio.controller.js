@@ -521,7 +521,7 @@ export const editExperienceSection = async (req, res) => {
 
 export const updateExperience = async (req, res) => {
   const { id } = req.params;
-  const { name, description, date } = req.body;
+  const { workName, description, date } = req.body;
   const { userName } = req.params;
   try {
     const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
@@ -529,7 +529,7 @@ export const updateExperience = async (req, res) => {
     if (!experience) {
       return res.status(404).json({ success: false, message: "Experiencia no encontrada" });
     }
-    experience.name = name || experience.name;
+    experience.workName = workName || experience.workName;
     experience.description = description || experience.description;
     experience.date = date || experience.date;
     await userPortfolio.save();
@@ -697,7 +697,7 @@ export const addProject = async (req, res) => {
 
 export const updateProject = async (req, res) => {
   const { id } = req.params;
-  const { name, description, image, link } = req.body;
+  const { name, description, image, demoLink, gitHubLink } = req.body;
   const { userName } = req.params;
   try {
     const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
@@ -708,7 +708,8 @@ export const updateProject = async (req, res) => {
     project.name = name || project.name;
     project.description = description || project.description;
     project.image = image || project.image;
-    project.link = link || project.link;
+    project.demoLink = demoLink || project.demoLink;
+    project.gitHubLink = demoLink || project.gitHubLink;
     await userPortfolio.save();
     res.status(200).json({ success: true, message: "Proyecto actualizado", projectSection: userPortfolio.projectSection });
   } catch (error) {
@@ -819,12 +820,12 @@ export const addTechnology = async (req, res) => {
 };
 
 export const deleteTechnology = async (req, res) => {
-  const { name } = req.body;
+  const { id } = req.params;
   const { userName } = req.params;
   try {
     const userPortfolio = await Portfolio.findOneAndUpdate(
       { "user.userName": userName },
-      { $pull: { "technologySection.technologies": { name } } },
+      { $pull: { "technologySection.technologies": { _id: id } } },
       { new: true }
     );
     if (!userPortfolio) {
