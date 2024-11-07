@@ -1,19 +1,30 @@
 import React, { useEffect } from "react";
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, Trash2, FilePenLine } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ExperienceSection = ({ userName }) => {
   const {
     experienceSection,
     fetchExperienceSection,
+    deleteExperience,
     isLoading,
     error,
   } = usePortfolioStore();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const isOwner = isAuthenticated && user?.userName === userName;
+
+  const handleDeleteExperience = experienceId => {
+    if (
+      window.confirm(
+        "¿Estás seguro de que quieres eliminar esta experiencia?"
+      )
+    ) {
+      deleteExperience(userName, experienceId);
+    }
+  };
 
   useEffect(() => {
     if (userName) {
@@ -56,10 +67,24 @@ const ExperienceSection = ({ userName }) => {
           experienceSection.experiences.map((exp, index) => (
             <div
               key={index}
-              className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg"
+              className="relative p-4 bg-gray-100 dark:bg-gray-800 rounded-lg"
             >
-              <h4 className="text-2xl font-bold dark:text-white">
+              <h4 className="text-2xl font-bold dark:text-white ">
                 {exp.workName.text || "Nombre de la experiencia"}
+                {isOwner && (
+                  <>
+                    <FilePenLine 
+                      onClick={() => navigate(`/portfolio/${userName}/edit-experience/${exp._id}`)}
+                      className="absolute bottom-2 right-7 cursor-pointer text-green-400 hover:text-green-900"
+                      size={20}
+                    />
+                    <Trash2
+                      onClick={() => handleDeleteExperience(exp._id)}
+                      className="absolute bottom-2 right-2 cursor-pointer text-red-600 hover:text-red-900"
+                      size={20}
+                    />
+                  </>
+                )}
               </h4>
               <span className="italic">
                 {exp.date.from || "Fecha inicio"} -{" "}

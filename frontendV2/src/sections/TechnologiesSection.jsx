@@ -1,19 +1,30 @@
 import React, { useEffect } from "react";
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const TechnologiesSection = ({ userName }) => {
   const {
     technologySection,
     fetchTechnologySection,
+    deleteTechnology,
     isLoading,
     error,
   } = usePortfolioStore();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const isOwner = isAuthenticated && user?.userName === userName;
+
+  const handleDeleteTechnology = technologyId => {
+    if (
+      window.confirm(
+        "¿Estás seguro de que quieres eliminar esta tecnología?"
+      )
+    ) {
+      deleteTechnology(userName, technologyId);
+    }
+  };
 
   useEffect(() => {
     if (userName) {
@@ -52,22 +63,40 @@ const TechnologiesSection = ({ userName }) => {
         </h2>
       </div>
 
-      <div className="flex justify-center gap-4 flex-wrap">
-        {technologySection?.technologies?.map((tech, index) => (
-          <div key={index} className="flex flex-col items-center">
-            <div className="w-16 h-16 dark:bg-gray-800 flex items-center justify-center rounded-md shadow-lg">
-              <img
-                src={tech.image?.image}
-                className="h-12 w-12 object-contain transition-all duration-300 rounded-lg filter grayscale hover:grayscale-0"
-                alt={tech.name}
-              />
-            </div>
-            <p className="text-base font-bold text-white dark:text-white mt-2">
-              {tech.name}
-            </p>
+      {technologySection?.technologies?.length > 0 ? (
+        <div className="flex justify-center">
+          <div className="grid grid-cols-4 gap-8 max-w-screen-lg">
+            {technologySection.technologies.map((tech, index) => (
+              <div
+                key={index}
+                className="relative flex flex-col items-center p-4 bg-gray-700 rounded-lg shadow-lg transform transition-transform hover:scale-105"
+              >
+                <div className="w-20 h-20 dark:bg-gray-800 flex items-center justify-center rounded-md">
+                  <img
+                    src={tech.image?.image}
+                    className="h-16 w-16 object-contain transition-all duration-300 rounded-lg filter grayscale hover:grayscale-0"
+                    alt={tech.name}
+                  />
+                </div>
+                <p className="text-lg font-bold text-white dark:text-white mt-4">
+                  {tech.name}
+                </p>
+                {isOwner && (
+                  <Trash2
+                    onClick={() => handleDeleteTechnology(tech._id)}
+                    className="absolute bottom-2 right-2 cursor-pointer text-red-600 hover:text-blue-600"
+                    size={14}
+                  />
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <p className="text-gray-300 col-span-full">
+          No hay tecnologías disponibles.
+        </p>
+      )}
     </section>
   );
 };

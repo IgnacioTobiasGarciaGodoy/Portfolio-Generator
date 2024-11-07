@@ -23,7 +23,12 @@ import AddEducationForm from "./addPages/AddEducationForm.jsx"
 import AddCertificateForm from "./addPages/AddCertificateForm.jsx"
 import AddTechnologyForm from "./addPages/AddTechnologyForm.jsx"
 
-import { useAuthStore } from "./store/authStore";
+import UpdateExperienceItemForm from "./updateItemsPages/UpdateExperienceItemForm.jsx"
+import UpdateProjectItemForm from "./updateItemsPages/UpdateProjectItemForm.jsx"
+import UpdateEducationItemForm from "./updateItemsPages/UpdateEducationItemForm.jsx"
+import UpdateCertificateItemForm from "./updateItemsPages/UpdateCertificateItemForm.jsx"
+
+import { useAuthStore } from "./store/authStore.js";
 import FloatingShape from "./components/FloatingShape"
 import LoadingSpinner from "./components/LoadingSpinner.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
@@ -80,6 +85,12 @@ function App() {
         <Route path="/portfolio/:userName/add-education" element={<AddEducationForm />} />
         <Route path="/portfolio/:userName/add-certificate" element={<AddCertificateForm />} />
         <Route path="/portfolio/:userName/add-technology" element={<AddTechnologyForm />} />
+
+        {/* Ruteo para editar los items en las secciones */}
+        <Route path="/portfolio/:userName/edit-experience/:experienceId" element={<UpdateExperienceItemForm />} />
+        <Route path="/portfolio/:userName/edit-project/:projectId" element={<UpdateProjectItemForm />} />
+        <Route path="/portfolio/:userName/edit-education/:educationId" element={<UpdateEducationItemForm />} />
+        <Route path="/portfolio/:userName/edit-certificate/:certificateId" element={<UpdateCertificateItemForm />} />
         
         {/* Ruteo para el registro/inicio de sesion/verificacion de email/cambio de contraseña/cierre de sesión */}
         <Route path='/signup' element={<ProtectedRoute><SignUpPage /></ProtectedRoute>} />

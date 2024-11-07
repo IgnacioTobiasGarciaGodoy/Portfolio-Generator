@@ -1,17 +1,39 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { ExternalLink, Github } from "lucide-react";
+import {
+  ExternalLink,
+  Github,
+  Trash2,
+  Pencil,
+  Plus,
+  FilePenLine,
+} from "lucide-react";
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
-import { Pencil, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ProjectsSection = ({ userName }) => {
-  const { projectSection, fetchProjectSection, isLoading, error } = usePortfolioStore();
+  const {
+    projectSection,
+    fetchProjectSection,
+    deleteProject,
+    isLoading,
+    error,
+  } = usePortfolioStore();
   const [hoveredProject, setHoveredProject] = useState(null);
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const isOwner = isAuthenticated && user?.userName === userName;
+
+  const handleDeleteProject = projectId => {
+    if (
+      window.confirm(
+        "¿Estás seguro de que quieres eliminar este proyecto?"
+      )
+    ) {
+      deleteProject(userName, projectId);
+    }
+  };
 
   useEffect(() => {
     if (userName) {
@@ -62,6 +84,20 @@ const ProjectsSection = ({ userName }) => {
                 onMouseLeave={() => setHoveredProject(null)}
                 style={{ height: "400px", width: "100%" }}
               >
+                {isOwner && (
+                  <>
+                    <FilePenLine
+                      onClick={() => navigate(`/portfolio/${userName}/edit-project/${project._id}`)}
+                      className="absolute top-2 right-7 cursor-pointer text-green-400 hover:text-green-900 z-50"
+                      size={20}
+                    />
+                    <Trash2
+                      onClick={() => handleDeleteProject(project._id)}
+                      className="absolute top-2 right-2 cursor-pointer text-red-600 hover:text-red-900 z-50"
+                      size={20}
+                    />
+                  </>
+                )}
                 <img
                   src={
                     project.image?.image ||
