@@ -2,14 +2,18 @@ import React, { useEffect, useState } from "react";
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
 import { motion } from "framer-motion";
-import { Mail, Github, Linkedin, Pencil } from "lucide-react";
-import axios from "axios";
-import toast from "react-hot-toast";
+import {
+  Mail,
+  Github,
+  Linkedin,
+  Pencil,
+  Phone,
+  MapPinHouse,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const contactSectionSection = ({ userName }) => {
-  const { contactSection, fetchContactSection, isLoading, error } =
-    usePortfolioStore();
+  const { contactSection, fetchContactSection, sendContactMessage, isLoading, error } = usePortfolioStore();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const isOwner = isAuthenticated && user?.userName === userName;
@@ -36,19 +40,7 @@ const contactSectionSection = ({ userName }) => {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    try {
-      await axios.post(
-        `http://localhost:4000/portfolio/${userName}/send-email`,
-        {
-          ...formData,
-          userEmail: contactSection?.mail.text || "info@example.com",
-        }
-      );
-      toast.success("Mensaje enviado correctamente");
-    } catch (error) {
-      toast.error("Lo lamento! No he podido enviar el email");
-      console.log(error.message);
-    }
+    await sendContactMessage(userName, formData, contactSection?.mail.text);
   };
 
   if (isLoading) return <p>Cargando contactSectiono...</p>;
@@ -62,7 +54,7 @@ const contactSectionSection = ({ userName }) => {
       className="mb-8"
     >
       <div className="mt-6">
-        <div className="grid sm:grid-cols-2 items-start gap-14 p-8 mx-auto max-w-4xl bg-white shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-md font-[sans-serif]">
+        <div className="grid sm:grid-cols-2 items-start gap-14 p-8 mx-auto max-w-4xl bg-white rounded-md font-[sans-serif]">
           <div>
             <h1 className="text-gray-800 text-3xl font-extrabold">
               {contactSection
@@ -79,31 +71,42 @@ const contactSectionSection = ({ userName }) => {
               )}
             </h1>
             <p className="text-sm text-gray-500 mt-4">
-              Me encantaría escuchar sobre tu proyecto y cómo podría
-              ayudarte. Por favor, completa el formulario y te
-              responderé lo antes posible.
+              {contactSection?.bodyText.text || ""}
             </p>
 
             <div className="mt-12">
               <h2 className="text-gray-800 text-base font-bold">
-                Email
+                Datos de contacto
               </h2>
               <ul className="mt-4">
-                <li className="flex items-center">
-                  <div className="bg-[#e6e6e6cf] h-10 w-10 rounded-full flex items-center justify-center shrink-0">
-                    <Mail size={20} color="#007bff" />
-                  </div>
-                  <a
-                    href={`mailto:${
-                      contactSection?.mail.text || "info@example.com"
-                    }`}
-                    className="text-[#007bff] text-sm ml-4"
-                  >
+                <li className="flex flex-col items-start space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="bg-[#e6e6e6cf] h-10 w-10 rounded-full flex items-center justify-center shrink-0">
+                      <Mail size={20} color="#007bff" />
+                    </div>
                     <strong>
                       {contactSection?.mail.text ||
                         "info@example.com"}
                     </strong>
-                  </a>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="bg-[#e6e6e6cf] h-10 w-10 rounded-full flex items-center justify-center shrink-0">
+                      <Phone size={20} color="#007bff" />
+                    </div>
+                    <strong>
+                      {contactSection?.phone.text ||
+                        "Número de teléfono"}
+                    </strong>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="bg-[#e6e6e6cf] h-10 w-10 rounded-full flex items-center justify-center shrink-0">
+                      <MapPinHouse size={20} color="#007bff" />
+                    </div>
+                    <strong>
+                      {contactSection?.location.text ||
+                        "Ciudad, País"}
+                    </strong>
+                  </div>
                 </li>
               </ul>
             </div>
@@ -135,7 +138,7 @@ const contactSectionSection = ({ userName }) => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="ml-auto space-y-4">
+          <form onSubmit={handleSubmit} className="ml-auto space-y-6">
             <input
               type="text"
               name="name"

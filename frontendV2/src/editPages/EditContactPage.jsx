@@ -5,7 +5,8 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditContactPage = () => {
   const { userName } = useParams();
-  const { contactSection, fetchContactSection, editContactSection } = usePortfolioStore();
+  const { contactSection, fetchContactSection, editContactSection } =
+    usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -24,6 +25,21 @@ const EditContactPage = () => {
     bodyText: { text: "" },
   });
 
+  const labels = {
+    sectionTitle: "Título de la Sección",
+    mailTitle: "Título de Email",
+    mail: "Correo Electrónico",
+    linkdinTitle: "Título de LinkedIn",
+    linkedin: "Enlace de LinkedIn",
+    githubTitle: "Título de GitHub",
+    github: "Enlace de GitHub",
+    phoneTitle: "Título de Teléfono",
+    phone: "Teléfono",
+    locationTitle: "Título de Ubicación",
+    location: "Ubicación",
+    bodyText: "Texto del Cuerpo",
+  };
+
   useEffect(() => {
     fetchContactSection(userName);
   }, [userName, fetchContactSection]);
@@ -35,15 +51,14 @@ const EditContactPage = () => {
   }, [contactSection]);
 
   useEffect(() => {
-    // Si el usuario está autenticado y el userName en la URL no coincide, redirige
     if (isAuthenticated && user?.userName !== userName) {
       navigate(`/portfolio/${userName}`);
     }
   }, [isAuthenticated, user, userName, navigate]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
-    setContactData((prevData) => {
+    setContactData(prevData => {
       const updatedData = { ...prevData };
       const keys = name.split(".");
       if (keys.length === 2) {
@@ -55,7 +70,7 @@ const EditContactPage = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     await editContactSection(userName, contactData);
     navigate(`/portfolio/${userName}`);
@@ -63,24 +78,39 @@ const EditContactPage = () => {
 
   return (
     <div className="max-w-3xl mx-auto mt-12 p-8 bg-gray-800 rounded-lg shadow-md">
-      <h1 className="text-3xl text-white font-bold mb-6">Editar Información de Contacto</h1>
+      <h1 className="text-3xl text-white font-bold mb-6">
+        Editar Información de Contacto
+      </h1>
       <form onSubmit={handleSubmit}>
-        {["sectionTitle", "mailTitle", "mail", "linkdinTitle", "linkedin", "githubTitle", "github", "phoneTitle", "phone", "locationTitle", "location", "bodyText"].map((field) => (
+        {[
+          "sectionTitle",
+          "bodyText",
+          "mail",
+          "phone",
+          "location",
+          "linkedin",
+          "github",
+        ].map(field => (
           <div key={field} className="mb-6">
-            <label className="block text-gray-300 mb-2">{field.replace(/([A-Z])/g, " $1")}</label>
+            <label className="block text-gray-300 mb-2">
+              {labels[field] || field.replace(/([A-Z])/g, " $1")}
+            </label>
             <input
               type="text"
               name={field}
-              value={field.includes("link") ? contactData[field]?.link || "" : contactData[field]?.text || ""}
+              value={
+                field.includes("link")
+                  ? contactData[field]?.link || ""
+                  : contactData[field]?.text || ""
+              }
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
-              placeholder={`Editar ${field.replace(/([A-Z])/g, " $1")}`}
+              placeholder={`Editar ${
+                labels[field] || field.replace(/([A-Z])/g, " $1")
+              }`}
             />
           </div>
         ))}
-        <button type="submit" className="w-full mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 font-semibold">
-          Guardar Cambios
-        </button>
       </form>
     </div>
   );
