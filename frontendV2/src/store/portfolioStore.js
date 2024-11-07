@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const API_URL = "http://localhost:4000/portfolio";
 axios.defaults.withCredentials = true;
@@ -249,6 +250,22 @@ export const usePortfolioStore = create(set => ({
       });
     }
   },
+
+  sendContactMessage: async (userName, formData, userEmail) => {
+    set({ isLoading: true, error: null });
+    try {
+      await axios.post(`${API_URL}/${userName}/send-email`, {
+        formData,
+        userEmail,
+      });
+      set(state => ({ isLoading: false }));
+      toast.success("Mensaje enviado correctamente");
+    } catch (error) {
+      toast.error("Lo lamento! No he podido enviar el email");
+      console.error("Error al enviar el mensaje:", error.message);
+      set({ error: error.message });
+    }
+  },  
 
   //* Funciones para EducationSection
   fetchEducationSection: async userName => {
