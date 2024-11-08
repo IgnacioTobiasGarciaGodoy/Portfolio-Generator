@@ -22,7 +22,7 @@ const AboutMeSection = ({ userName }) => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="w-full px-4">
+    <div>
       <h2 className="text-4xl text-white font-bold dark:text-white mt-8">
         {aboutMeSection?.sectionTitle?.text || "About Me Section"}
         {isOwner && (

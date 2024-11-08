@@ -67,33 +67,34 @@ const ExperienceSection = ({ userName }) => {
           experienceSection.experiences.map((exp, index) => (
             <div
               key={index}
-              className="relative p-4 bg-gray-100 dark:bg-gray-800 rounded-lg"
+              className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg flex flex-col justify-between"
             >
-              <h4 className="text-2xl font-bold dark:text-white ">
-                {exp.workName.text || "Nombre de la experiencia"}
-                {isOwner && (
-                  <>
-                    <FilePenLine 
-                      onClick={() => navigate(`/portfolio/${userName}/edit-experience/${exp._id}`)}
-                      className="absolute bottom-2 right-7 cursor-pointer text-green-400 hover:text-green-900"
-                      size={20}
-                    />
-                    <Trash2
-                      onClick={() => handleDeleteExperience(exp._id)}
-                      className="absolute bottom-2 right-2 cursor-pointer text-red-600 hover:text-red-900"
-                      size={20}
-                    />
-                  </>
-                )}
-              </h4>
-              <span className="italic">
-                {exp.date.from || "Fecha inicio"} -{" "}
-                {exp.date.to || "Fecha fin"}
-              </span>
-              <p className="text-left text-lg font-medium text-gray-900 dark:text-white">
-                {exp.description.text ||
-                  "Descripción de la experiencia"}
-              </p>
+              <div>
+                <h4 className="text-2xl font-bold dark:text-white">
+                  {exp.workName.text || "Nombre de la experiencia"}
+                </h4>
+                <span className="italic">
+                  {exp.date.from || "Fecha inicio"} -{" "}
+                  {exp.date.to || "Fecha fin"}
+                </span>
+                <p className="text-left text-lg font-medium text-gray-900 dark:text-white">
+                  {exp.description.text || "Descripción de la experiencia"}
+                </p>
+              </div>
+              {isOwner && (
+                <div className="flex justify-end gap-4 mt-4">
+                  <FilePenLine 
+                    onClick={() => navigate(`/portfolio/${userName}/edit-experience/${exp._id}`)}
+                    className="cursor-pointer text-green-400 hover:text-green-900"
+                    size={20}
+                  />
+                  <Trash2
+                    onClick={() => handleDeleteExperience(exp._id)}
+                    className="cursor-pointer text-red-600 hover:text-red-900"
+                    size={20}
+                  />
+                </div>
+              )}
             </div>
           ))
         ) : (
@@ -104,6 +105,6 @@ const ExperienceSection = ({ userName }) => {
       </div>
     </div>
   );
-};
+}  
 
 export default ExperienceSection;
