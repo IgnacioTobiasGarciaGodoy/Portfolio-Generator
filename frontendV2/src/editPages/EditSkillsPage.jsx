@@ -35,10 +35,14 @@ const EditSkillsPage = () => {
     const updatedTechnologiesSection = {
       sectionTitle,
     };
-
     await editTechnologiesSection(userName, updatedTechnologiesSection);
     navigate(`/portfolio/${userName}`);
   };
+
+  const handleCancel = async e => {
+    e.preventDefault();
+    navigate(`/portfolio/${userName}`);
+  }
 
   return (
     <div className="max-w-3xl mx-auto mt-12 p-8 bg-gray-800 rounded-lg shadow-md">
@@ -60,6 +64,12 @@ const EditSkillsPage = () => {
         className="w-full mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 font-semibold"
       >
         Guardar Cambios
+      </button>
+      <button
+        onClick={handleCancel}
+        className="w-full mt-4 bg-red-600 text-white px-6 py-3 rounded hover:bg-red-700 font-semibold"
+      >
+        Cancelar
       </button>
     </div>
   );

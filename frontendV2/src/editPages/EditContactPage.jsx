@@ -76,6 +76,11 @@ const EditContactPage = () => {
     navigate(`/portfolio/${userName}`);
   };
 
+  const handleCancel = async e => {
+    e.preventDefault();
+    navigate(`/portfolio/${userName}`);
+  }
+
   return (
     <div className="max-w-3xl mx-auto mt-12 p-8 bg-gray-800 rounded-lg shadow-md">
       <h1 className="text-3xl text-white font-bold mb-6">
@@ -95,23 +100,48 @@ const EditContactPage = () => {
             <label className="block text-gray-300 mb-2">
               {labels[field] || field.replace(/([A-Z])/g, " $1")}
             </label>
-            <input
-              type="text"
-              name={field}
-              value={
-                field.includes("link")
-                  ? contactData[field]?.link || ""
-                  : contactData[field]?.text || ""
-              }
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
-              placeholder={`Editar ${
-                labels[field] || field.replace(/([A-Z])/g, " $1")
-              }`}
-            />
+            {field === "bodyText" ? (
+              <textarea
+                name={field}
+                value={contactData[field]?.text || ""}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
+                placeholder={`Editar ${
+                  labels[field] || field.replace(/([A-Z])/g, " $1")
+                }`}
+                rows={4}
+              />
+            ) : (
+              <input
+                type="text"
+                name={field}
+                value={
+                  field.includes("link")
+                    ? contactData[field]?.link || ""
+                    : contactData[field]?.text || ""
+                }
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
+                placeholder={`Editar ${
+                  labels[field] || field.replace(/([A-Z])/g, " $1")
+                }`}
+              />
+            )}
           </div>
         ))}
       </form>
+      <button
+        onClick={handleSubmit}
+        className="w-full mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 font-semibold"
+      >
+        Guardar Cambios
+      </button>
+      <button
+        onClick={handleCancel}
+        className="w-full mt-4 bg-red-600 text-white px-6 py-3 rounded hover:bg-red-700 font-semibold"
+      >
+        Cancelar
+      </button>
     </div>
   );
 };
