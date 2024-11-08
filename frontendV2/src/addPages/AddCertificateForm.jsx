@@ -40,6 +40,11 @@ const AddCertificateForm = () => {
     navigate(`/portfolio/${userName}`);
   };
 
+  const handleCancel = async e => {
+    e.preventDefault();
+    navigate(`/portfolio/${userName}`);
+  }
+
   return (
     <div className="max-w-3xl mx-auto mt-12 p-8 bg-gray-800 rounded-lg shadow-md">
       <h1 className="text-3xl text-white font-bold mb-6">Agregar Nuevo Certificado</h1>
@@ -80,6 +85,12 @@ const AddCertificateForm = () => {
         >
           Agregar Certificado
         </button>
+        <button
+        onClick={handleCancel}
+        className="w-full mt-4 bg-red-600 text-white px-6 py-3 rounded hover:bg-red-700 font-semibold"
+      >
+        Cancelar
+      </button>
       </form>
     </div>
   );
