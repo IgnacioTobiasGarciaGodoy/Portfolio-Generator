@@ -33,7 +33,7 @@ const TextSchema = new mongoose.Schema({
 	color: { type: String, default: "black" },
 	font: { type: String, default: "Arial" },
 	isItalic: { type: Boolean, default: false },
-});
+}, {_id: false});
 
 const LinkSchema = new mongoose.Schema({
 	text: { type: String, default: "esto es un link" },
@@ -50,7 +50,7 @@ const DateSchema = new mongoose.Schema({
 });
 
 const ImageSchema = new mongoose.Schema({
-	image: { type: String, default: "iamge" },
+	url: { type: String, default: "image" },
 });
 
 const PortfolioSchema = new mongoose.Schema({
@@ -68,9 +68,10 @@ const PortfolioSchema = new mongoose.Schema({
 		},
 		image: {
 			type: ImageSchema, default: () => ({
-				image: "storage/profile_picture/default_profile.jpg"
+				url: "storage/presentation/default-presentation.jpg"
 			})
 		},
+		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 	},
 	aboutMeSection: {
 		sectionTitle: {
@@ -83,6 +84,7 @@ const PortfolioSchema = new mongoose.Schema({
 				text: "This sections its to talk about me!"
 			})
 		},
+		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 	},
 	experienceSection: {
 		sectionTitle: {
@@ -97,8 +99,10 @@ const PortfolioSchema = new mongoose.Schema({
 				}) },
 				description: { type: TextSchema, default: () => ({}) },
 				date: { type: DateSchema, default: () => ({}) },
+				_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 			},
 		],
+		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 	},
 	educationSection: {
 		sectionTitle: {
@@ -111,8 +115,10 @@ const PortfolioSchema = new mongoose.Schema({
 				name: { type: TextSchema, default: () => ({}) },
 				description: { type: TextSchema, default: () => ({}) },
 				date: { type: DateSchema, default: () => ({}) },
+				_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 			},
 		],
+		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 	},
 	certificateSection: {
 		sectionTitle: {
@@ -123,10 +129,14 @@ const PortfolioSchema = new mongoose.Schema({
 		certificates: [
 			{
 				name: { type: String, default: "" },
-				image: { type: ImageSchema, default: () => ({}) },
+				image: { type: ImageSchema, default: () => ({
+					url: "storage/certificates/default-certificate.jpg"
+				}) },
 				description: { type: TextSchema, default: () => ({}) },
+				_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 			}
-		]
+		],
+		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 	},
 	technologySection: {
 		sectionTitle: {
@@ -137,9 +147,13 @@ const PortfolioSchema = new mongoose.Schema({
 		technologies: [
 			{
 				name: { type: String, default: "" },
-				image: { type: ImageSchema, default: () => ({}) },
-			},
+				image: { type: ImageSchema, default: () => ({
+					url: "storage/technologies/default-technology.jpg"
+				}) },
+				_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
+			}
 		],
+		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 	},
 	projectSection: {
 		sectionTitle: {
@@ -151,11 +165,15 @@ const PortfolioSchema = new mongoose.Schema({
 			{
 				name: { type: String, default: "" },
 				description: { type: String, default: "" },
-				image: { type: ImageSchema, default: () => ({}) },
+				image: { type: ImageSchema, default: () => ({
+					url: "storage/projects/default-project.jpg"
+				}) },
 				demoLink: { type: String, default: "" },
 				gitHubLink: { type: String, default: "" },
+				_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 			},
 		],
+		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 	},
 	contactSection: {
 		sectionTitle: {
@@ -216,7 +234,8 @@ const PortfolioSchema = new mongoose.Schema({
 				text: "This sections its for contact me!"
 			})
 		},
-	},
+		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
+	}
 });
 
 const Portfolio = mongoose.model(

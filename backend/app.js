@@ -14,6 +14,8 @@ app.use(cors({ origin: "http://localhost:5173", credentials: true })); //* Permi
 app.use(express.json()); //* Parsea automáticamente las solicitudes con formato JSON.
 app.use(cookieParser()); //* Parsea las cookies de la solicitud
 
+app.use('/storage', express.static('storage'));
+
 app.use("/portfolio", portfolioRouter);
 app.use("/auth", authRouter);
 
