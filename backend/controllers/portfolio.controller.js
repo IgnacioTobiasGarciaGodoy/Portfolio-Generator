@@ -27,28 +27,20 @@ export const getPresentation = async (req, res) => {
 };
 
 export const editPresentationSection = async (req, res) => {
-	const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
+	const { userName } = req.params;
 	const userId = req.userId;
 
 	try {
-		// Busca el portafolio del usuario
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
-
-		// Actualiza el name y rol de presentationSection
 		const presentationSection = JSON.parse(req.body.presentationSection);
 
 		userPortfolio.presentationSection.name = presentationSection.name;
 		userPortfolio.presentationSection.rol = presentationSection.rol;
 		userPortfolio.presentationSection.image.url = req.imagePath;
 
-		// Guarda los cambios en la base de datos
 		await userPortfolio.save();
 
-		// Responde con un mensaje de éxito
 		res.status(200).json({ message: "Sección 'Presentation' actualizada exitosamente" });
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
@@ -67,21 +59,17 @@ export const getAboutMe = async (req, res) => {
 };
 
 export const editAboutMe = async (req, res) => {
-	const { aboutMeSection } = req.body;
 	const { userName } = req.params;
-	const userId = req.userId; // Este ID proviene del middleware verifyToken
+	const userId = req.userId;
 
 	try {
-		// Busca el portafolio por el nombre de usuario
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		// Verifica si el usuario autenticado es el dueño del portafolio
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
+		const aboutMeSection = JSON.parse(req.body.aboutMeSection);
 
-		// Si es el dueño, actualiza la sección
-		userPortfolio.aboutMeSection = aboutMeSection;
+		userPortfolio.aboutMeSection.sectionTitle.text = aboutMeSection.sectionTitle.text;
+		userPortfolio.aboutMeSection.bodyText.text = aboutMeSection.bodyText.text;
+
 		await userPortfolio.save();
 
 		res.status(200).json({
@@ -103,22 +91,37 @@ export const getAllExperience = async (req, res) => {
 	}
 };
 
-export const addExperience = async (req, res) => {
-	const { experience } = req.body;
+export const editExperienceSection = async (req, res) => {
 	const { userName } = req.params;
 	const userId = req.userId;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
+		const experienceSection = JSON.parse(req.body.experienceSection);
+		userPortfolio.experienceSection.sectionTitle.text = experienceSection.sectionTitle.text;
+
+		await userPortfolio.save();
+
+		res.status(200).json({ message: "Sección 'Experience' actualizada exitosamente" });
+	} catch (error) {
+		res.status(error.status || 500).json({ message: error.message });
+	}
+};
+
+export const addExperience = async (req, res) => {
+	const { userName } = req.params;
+	const userId = req.userId;
+
+	try {
+		const userPortfolio = await findPortfolioByUserName(userName);
+
+		const experienceSection = JSON.parse(req.body.experienceSection);
 
 		userPortfolio.experienceSection.experiences.push({
-			workName: experience.workName,
-			description: experience.description,
-			date: experience.date,
+			workName: { text: experienceSection.experience.workName.text },
+			description: { text: experienceSection.experience.description.text },
+			date: { from: experienceSection.experience.date.from, to: experienceSection.experience.date.to }
 		});
 
 		await userPortfolio.save();
@@ -131,35 +134,8 @@ export const addExperience = async (req, res) => {
 	}
 };
 
-export const editExperienceSection = async (req, res) => {
-	const { experienceSection } = req.body; // Extrae el objeto experienceSection del cuerpo
-	const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
-	const userId = req.userId;
-
-	try {
-		// Busca el portafolio del usuario
-		const userPortfolio = await findPortfolioByUserName(userName);
-
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
-
-		// Actualiza el sectionTitle de experienceSection
-		userPortfolio.experienceSection.sectionTitle = experienceSection.sectionTitle;
-
-		// Guarda los cambios en la base de datos
-		await userPortfolio.save();
-
-		// Responde con un mensaje de éxito
-		res.status(200).json({ message: "Sección 'Experience' actualizada exitosamente" });
-	} catch (error) {
-		res.status(error.status || 500).json({ message: error.message });
-	}
-};
-
-export const updateExperience = async (req, res) => {
+export const editExperience = async (req, res) => {
 	const { id } = req.params;
-	const { workName, description, date } = req.body;
 	const { userName } = req.params;
 	try {
 		const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
@@ -167,11 +143,15 @@ export const updateExperience = async (req, res) => {
 		if (!experience) {
 			return res.status(404).json({ message: "Experiencia no encontrada" });
 		}
-		experience.workName = workName || experience.workName;
-		experience.description = description || experience.description;
-		experience.date = date || experience.date;
+
+		const experienceSection = JSON.parse(req.body.experienceSection);
+
+		experience.workName.text = experienceSection.experience.workName.text || experience.workName.text;
+		experience.description.text = experienceSection.experience.description.text || experience.description.text;
+		experience.date = { from: experienceSection.experience.date.from, to: experienceSection.experience.date.to } || experience.date;
+
 		await userPortfolio.save();
-		res.status(200).json({ message: "Experiencia actualizada", experienceSection: userPortfolio.experienceSection });
+		res.status(200).json({ message: "Experiencia actualizada exitosamente" });
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
 	}
@@ -207,28 +187,20 @@ export const getAllProjects = async (req, res) => {
 };
 
 export const editProjectsSection = async (req, res) => {
-	const { projectsSection } = req.body; // Extrae projectsSection del cuerpo de la solicitud
-	const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
-	const userId = req.userId;
+	const { projectsSection } = req.body;
+	const { userName } = req.params;
 
 	try {
-		// Busca el portafolio del usuario
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
-
-		// Actualiza el sectionTitle de projectsSection
 		userPortfolio.projectSection.sectionTitle = projectsSection.sectionTitle;
 
-		// Guarda los cambios en la base de datos
+		const experienceSection = JSON.parse(req.body.experienceSection);
+		userPortfolio.experienceSection.sectionTitle.text = experienceSection.sectionTitle.text;
+
 		await userPortfolio.save();
 
-		// Responde con un mensaje de éxito
-		res.status(200).json({
-			message: "Sección 'Projects' actualizada exitosamente",
-		});
+		res.status(200).json({ message: "Sección 'Projects' actualizada exitosamente" });
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
 	}
@@ -241,10 +213,6 @@ export const addProject = async (req, res) => {
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
-
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
 
 		userPortfolio.projectSection.projects.push({
 			name: project.name,
@@ -265,7 +233,7 @@ export const addProject = async (req, res) => {
 	}
 };
 
-export const updateProject = async (req, res) => {
+export const editProject = async (req, res) => {
 	const { id } = req.params;
 	const { name, description, image, demoLink, gitHubLink } = req.body;
 	const { userName } = req.params;
@@ -317,25 +285,17 @@ export const getAllEducation = async (req, res) => {
 };
 
 export const editEducationSection = async (req, res) => {
-	const { educationSection } = req.body; // Extrae educationSection del cuerpo de la solicitud
-	const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
+	const { educationSection } = req.body;
+	const { userName } = req.params;
 	const userId = req.userId;
 
 	try {
-		// Busca el portafolio del usuario
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
-
-		// Actualiza el sectionTitle de educationSection
 		userPortfolio.educationSection.sectionTitle = educationSection.sectionTitle;
 
-		// Guarda los cambios en la base de datos
 		await userPortfolio.save();
 
-		// Responde con un mensaje de éxito
 		res.status(200).json({ message: "Sección 'Educación' actualizada exitosamente", });
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
@@ -345,14 +305,9 @@ export const editEducationSection = async (req, res) => {
 export const addEducation = async (req, res) => {
 	const { education } = req.body;
 	const { userName } = req.params;
-	const userId = req.userId;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
-
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
 
 		userPortfolio.educationSection.educations.push({
 			name: education.name,
@@ -368,7 +323,7 @@ export const addEducation = async (req, res) => {
 	}
 };
 
-export const updateEducation = async (req, res) => {
+export const editEducation = async (req, res) => {
 	const { id } = req.params;
 	const { name, description, date } = req.body;
 	const { userName } = req.params;
@@ -405,12 +360,7 @@ export const deleteEducation = async (req, res) => {
 		if (!userPortfolio) {
 			return res.status(404).json({ message: "Portafolio no encontrado" });
 		}
-		res
-			.status(200)
-			.json({
-				message: "Educación eliminada",
-				educationSection: userPortfolio.educationSection,
-			});
+		res.status(200).json({ message: "Educación eliminada" });
 	} catch (error) {
 		res.status(500).json({ message: error.message });
 	}
@@ -428,17 +378,12 @@ export const getAllCertificates = async (req, res) => {
 };
 
 export const editCertificatesSection = async (req, res) => {
-	const { certificatesSection } = req.body; // Extrae certificatesSection del cuerpo de la solicitud
-	const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
-	const userId = req.userId;
+	const { certificatesSection } = req.body;
+	const { userName } = req.params;
 
 	try {
 		// Busca el portafolio del usuario
 		const userPortfolio = await findPortfolioByUserName(userName);
-
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
 
 		// Actualiza el sectionTitle de certificatesSection
 		userPortfolio.certificateSection.sectionTitle = certificatesSection.sectionTitle;
@@ -447,9 +392,7 @@ export const editCertificatesSection = async (req, res) => {
 		await userPortfolio.save();
 
 		// Responde con un mensaje de éxito
-		res.status(200).json({
-			message: "Sección 'Certificados' actualizada exitosamente",
-		});
+		res.status(200).json({ message: "Sección 'Certificados' actualizada exitosamente" });
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
 	}
@@ -458,14 +401,9 @@ export const editCertificatesSection = async (req, res) => {
 export const addCertificate = async (req, res) => {
 	const { certificate } = req.body;
 	const { userName } = req.params;
-	const userId = req.userId;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
-
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
 
 		userPortfolio.certificateSection.certificates.push({
 			name: certificate.name,
@@ -481,7 +419,7 @@ export const addCertificate = async (req, res) => {
 	}
 };
 
-export const updateCertificate = async (req, res) => {
+export const editCertificate = async (req, res) => {
 	const { id } = req.params;
 	const { name, image, description } = req.body;
 	const { userName } = req.params;
@@ -540,25 +478,16 @@ export const getSelectedTechnologies = async (req, res) => {
 };
 
 export const editTechnologiesSection = async (req, res) => {
-	const { technologiesSection } = req.body; // Extrae technologiesSection del cuerpo de la solicitud
-	const { userName } = req.params; // Obtén el userName de los parámetros de la ruta
-	const userId = req.userId;
+	const { technologiesSection } = req.body;
+	const { userName } = req.params;
 
 	try {
-		// Busca el portafolio del usuario
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
-
-		// Actualiza el sectionTitle de technologiesSection
 		userPortfolio.technologySection.sectionTitle = technologiesSection.sectionTitle;
 
-		// Guarda los cambios en la base de datos
 		await userPortfolio.save();
 
-		// Responde con un mensaje de éxito
 		res.status(200).json({ message: "Sección 'Technologies' actualizada exitosamente" });
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
@@ -568,14 +497,9 @@ export const editTechnologiesSection = async (req, res) => {
 export const addTechnology = async (req, res) => {
 	const { technology } = req.body;
 	const { userName } = req.params;
-	const userId = req.userId;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
-
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
 
 		userPortfolio.technologySection.technologies.push({
 			name: technology.name,
@@ -589,6 +513,9 @@ export const addTechnology = async (req, res) => {
 		res.status(error.status || 500).json({ message: error.message });
 	}
 };
+
+export const editTechnology = async (req, res) => {
+}
 
 export const deleteTechnology = async (req, res) => {
 	const { id } = req.params;
@@ -632,14 +559,9 @@ export const getContact = async (req, res) => {
 export const editContactSection = async (req, res) => {
 	const { contactSection } = req.body;
 	const { userName } = req.params;
-	const userId = req.userId;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
-
-		if (userPortfolio.user._id.toString() !== userId) {
-			return res.status(403).json({ message: "No autorizado" });
-		}
 
 		userPortfolio.contactSection = contactSection;
 		await userPortfolio.save();

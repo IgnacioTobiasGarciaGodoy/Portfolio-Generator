@@ -104,6 +104,26 @@ const PortfolioSchema = new mongoose.Schema({
 		],
 		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 	},
+	projectSection: {
+		sectionTitle: {
+			type: TitleSchema, default: () => ({
+				text: "Mis Proyectos"
+			})
+		},
+		projects: [
+			{
+				name: { type: String, default: "" },
+				description: { type: String, default: "" },
+				image: { type: ImageSchema, default: () => ({
+					url: "storage/projects/default-project.jpg"
+				}) },
+				demoLink: { type: String, default: "" },
+				gitHubLink: { type: String, default: "" },
+				_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
+			},
+		],
+		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
+	},
 	educationSection: {
 		sectionTitle: {
 			type: TitleSchema, default: () => ({
@@ -152,26 +172,6 @@ const PortfolioSchema = new mongoose.Schema({
 				}) },
 				_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 			}
-		],
-		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
-	},
-	projectSection: {
-		sectionTitle: {
-			type: TitleSchema, default: () => ({
-				text: "Mis Proyectos"
-			})
-		},
-		projects: [
-			{
-				name: { type: String, default: "" },
-				description: { type: String, default: "" },
-				image: { type: ImageSchema, default: () => ({
-					url: "storage/projects/default-project.jpg"
-				}) },
-				demoLink: { type: String, default: "" },
-				gitHubLink: { type: String, default: "" },
-				_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
-			},
 		],
 		_id: { type: mongoose.Schema.Types.ObjectId, auto: true }
 	},

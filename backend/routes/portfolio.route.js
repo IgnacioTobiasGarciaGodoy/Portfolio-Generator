@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { authorizeOwner } from "../middleware/authorizeOwner.js";
 import {
@@ -11,43 +12,44 @@ import {
 	getAllExperience,
 	editExperienceSection,
 	addExperience,
-	updateExperience,
+	editExperience,
 	deleteExperience,
+
+	getAllProjects,
+	editProjectsSection,
+	addProject,
+	editProject,
+	deleteProject,
 
 	getAllEducation,
 	editEducationSection,
 	addEducation,
-	updateEducation,
+	editEducation,
 	deleteEducation,
 
 	getAllCertificates,
 	editCertificatesSection,
 	addCertificate,
-	updateCertificate,
+	editCertificate,
 	deleteCertificate,
 
 	getSelectedTechnologies,
 	editTechnologiesSection,
 	addTechnology,
+	editTechnology,
 	deleteTechnology,
-
-	getAllProjects,
-	editProjectsSection,
-	addProject,
-	updateProject,
-	deleteProject,
 
 	sendContactSectionEmail,
 	getContact,
-	editContactSection,
+	editContactSection
 } from "../controllers/portfolio.controller.js";
 
 import
 	presentationImage
 from '../middleware/images.js';
 
-
 const router = express.Router();
+const defaultMulter = multer()
 
 // Presentation
 router.get("/:userName/presentation", getPresentation);
@@ -55,40 +57,41 @@ router.put("/:userName/edit/presentation", verifyToken, authorizeOwner, presenta
 
 // About Me
 router.get("/:userName/aboutme", getAboutMe);
-router.put("/:userName/edit/aboutMe", verifyToken, authorizeOwner, editAboutMe);
+router.put("/:userName/edit/aboutMe", verifyToken, authorizeOwner, defaultMulter.none(), editAboutMe);
 
 // Experience
 router.get("/:userName/experience", getAllExperience);
-router.put("/:userName/edit/experiencesection", verifyToken, authorizeOwner, editExperienceSection);
-router.post("/:userName/add/experience", verifyToken, authorizeOwner, addExperience);
-router.put("/:userName/update/experience/:id", verifyToken, authorizeOwner, updateExperience);
+router.put("/:userName/edit/experiencesection", verifyToken, authorizeOwner, defaultMulter.none(), editExperienceSection);
+router.post("/:userName/add/experience", verifyToken, authorizeOwner, defaultMulter.none(), addExperience);
+router.put("/:userName/edit/experience/:id", verifyToken, authorizeOwner, defaultMulter.none(), editExperience);
 router.delete("/:userName/delete/experience/:id", verifyToken, authorizeOwner, deleteExperience);
 
 // Projects
 router.get("/:userName/projects", getAllProjects);
 router.put("/:userName/edit/projectssection", verifyToken, authorizeOwner, editProjectsSection);
 router.post("/:userName/add/project", verifyToken, authorizeOwner, addProject);
-router.put("/:userName/update/project/:id", verifyToken, authorizeOwner, updateProject);
+router.put("/:userName/edit/project/:id", verifyToken, authorizeOwner, editProject);
 router.delete("/:userName/delete/project/:id", verifyToken, authorizeOwner, deleteProject);
 
 // Education
 router.get("/:userName/education", getAllEducation);
 router.put("/:userName/edit/educationsection", verifyToken, authorizeOwner, editEducationSection);
 router.post("/:userName/add/education", verifyToken, authorizeOwner, addEducation);
-router.put("/:userName/update/education/:id", verifyToken, authorizeOwner, updateEducation);
+router.put("/:userName/edit/education/:id", verifyToken, authorizeOwner, editEducation);
 router.delete("/:userName/delete/education/:id", verifyToken, authorizeOwner, deleteEducation);
 
 // Certificates
 router.get("/:userName/certificates", getAllCertificates);
 router.put("/:userName/edit/certificatessection", verifyToken, authorizeOwner, editCertificatesSection);
 router.post("/:userName/add/certificate", verifyToken, authorizeOwner, addCertificate);
-router.put("/:userName/update/certificates/:id", verifyToken, authorizeOwner, updateCertificate);
+router.put("/:userName/edit/certificates/:id", verifyToken, authorizeOwner, editCertificate);
 router.delete("/:userName/delete/certificate/:id", verifyToken, authorizeOwner, deleteCertificate);
 
 // Techonologies
 router.get("/:userName/technologies", getSelectedTechnologies);
 router.put("/:userName/edit/technologiessection", verifyToken, authorizeOwner, editTechnologiesSection);
 router.post("/:userName/add/technology", verifyToken, authorizeOwner, addTechnology);
+router.put("/:userName/edit/technology/:id", verifyToken, authorizeOwner, editTechnology);
 router.delete("/:userName/delete/technology/:id", verifyToken, authorizeOwner, deleteTechnology);
 
 // Contact
