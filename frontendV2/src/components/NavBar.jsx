@@ -6,7 +6,8 @@ const NavBar = () => {
   const { user, logout, presentation } = useAuthStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate(); // Inicializa useNavigate
-  const defaultImage = "/assets/images/defaults/profile-picture-1.png";
+  const defaultImage =
+    "/assets/images/defaults/profile-picture-1.png";
   const profileImage = presentation?.image?.image || defaultImage;
 
   // Función para alternar la visibilidad del menú
@@ -18,21 +19,20 @@ const NavBar = () => {
   const handleLogout = async () => {
     await logout(); // Llama a la función logout del store para limpiar los datos
     navigate("/login", { replace: true }); // Redirige a la página de login
-};
+  };
 
   return (
     <nav className="bg-gray-900 border-b border-gray-600 fixed top-0 left-0 w-full z-50">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4">
-        
         {/* Logo */}
         <a href="/" className="flex items-center space-x-3">
-          <img 
-            src="/assets/images/logo/logo.png" 
-            className="h-10 object-contain" 
-            alt="Logo" 
+          <img
+            src="/assets/images/logo/logo.png"
+            className="h-10 object-contain"
+            alt="Logo"
           />
         </a>
-  
+
         {/* Menú de usuario */}
         <div className="relative flex items-center ml-auto">
           {/* Botón del menú */}
@@ -50,21 +50,11 @@ const NavBar = () => {
               alt={`${user?.name || "Usuario"} Avatar`}
             />
           </button>
-  
+
           {/* Dropdown */}
           {dropdownOpen && (
-            <div
-              className="absolute right-13 mt-40 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-50"
-            >
+            <div className="absolute right-0 mt-28 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-50 transform translate-x-1/2">
               <ul className="divide-y divide-gray-700">
-                <li>
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-3 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
-                  >
-                    Mis datos
-                  </Link>
-                </li>
                 <li>
                   <button
                     onClick={handleLogout}
