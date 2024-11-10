@@ -23,6 +23,7 @@ const NavBar = () => {
   return (
     <nav className="bg-gray-900 border-b border-gray-600 fixed top-0 left-0 w-full z-50">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4">
+        
         {/* Logo */}
         <a href="/" className="flex items-center space-x-3">
           <img 
@@ -53,7 +54,7 @@ const NavBar = () => {
           {/* Dropdown */}
           {dropdownOpen && (
             <div
-              className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-50"
+              className="absolute right-13 mt-40 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-50"
             >
               <ul className="divide-y divide-gray-700">
                 <li>

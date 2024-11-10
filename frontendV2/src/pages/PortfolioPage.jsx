@@ -10,13 +10,17 @@ import CertificatesSection from "../sections/CertificatesSection"
 import TechnologiesSection from "../sections/TechnologiesSection"
 import ContactSection from "../sections/ContactSection"
 import NavBar from "../components/NavBar";
+import { useAuthStore } from "../store/authStore";
 
 const PortfolioPage = () => {
   const { userName } = useParams();
+  const { isAuthenticated } = useAuthStore();
 
   return (
     <>
-      <NavBar/>
+      {isAuthenticated && (
+        <NavBar/>
+      )}
       <div className="flex justify-center">
         {/* Sección Presentation */}
         <div className="w-full max-w-5xl px-4">         

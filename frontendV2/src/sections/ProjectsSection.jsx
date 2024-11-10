@@ -48,7 +48,7 @@ const ProjectsSection = ({ userName }) => {
 
   return (
     <section className="w-full pb-8">
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4">
         <h2 className="text-4xl text-white font-bold text-left dark:text-white mt-8 mb-4">
           {projectSection
             ? projectSection.sectionTitle.text
@@ -76,70 +76,76 @@ const ProjectsSection = ({ userName }) => {
           {projectSection &&
           projectSection.projects &&
           projectSection.projects.length > 0 ? (
-            projectSection.projects.map((project) => (
+            projectSection.projects.map((project, index) => (
               <div
-                key={project._id}
-                className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 overflow-hidden flex flex-col"
+                key={project._id || index}
+                className="relative overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
+                onMouseEnter={() => setHoveredProject(index)}
+                onMouseLeave={() => setHoveredProject(null)}
+                style={{ height: "400px", width: "100%" }}
               >
-                <a href={project.demoLink || "#"} target="_blank" rel="noopener noreferrer">
-                  <img
-                    className="w-full h-56 object-cover object-center rounded-t-lg"
-                    src={project.image?.image || "/placeholder.svg?height=400&width=600"}
-                    alt={project.name || "Project image"}
-                  />
-                </a>
-                <div className="p-5 flex-grow flex flex-col justify-between">
-                  <div>
-                    <a href={project.demoLink || "#"} target="_blank" rel="noopener noreferrer">
-                      <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        {project.name || "Project Name"}
-                      </h5>
-                    </a>
-                    <p className="mb-3 font-normal text-gray-700 dark:text-gray-400 text-justify whitespace-normal break-words">
-                      {project.description || "Project description"}
-                    </p>
-                  </div>
-                  <div className="flex justify-between items-end">
+                {isOwner && (
+                  <>
+                    <FilePenLine
+                      onClick={() =>
+                        navigate(
+                          `/portfolio/${userName}/edit-project/${project._id}`
+                        )
+                      }
+                      className="absolute top-2 right-7 cursor-pointer text-green-400 hover:text-green-900 z-50"
+                      size={20}
+                    />
+                    <Trash2
+                      onClick={() => handleDeleteProject(project._id)}
+                      className="absolute top-2 right-2 cursor-pointer text-red-600 hover:text-red-900 z-50"
+                      size={20}
+                    />
+                  </>
+                )}
+                <img
+                  src={
+                    project.image?.image ||
+                    "/placeholder.svg?height=400&width=600"
+                  }
+                  alt={project.name || "Nombre del proyecto"}
+                  className="w-full h-full object-cover object-center"
+                />
+                <div
+                  className={`absolute inset-0 bg-black bg-opacity-70 flex flex-col justify-center items-center p-6 transition-opacity duration-300 ${
+                    hoveredProject === index
+                      ? "opacity-100"
+                      : "opacity-0"
+                  }`}
+                >
+                  <h3 className="text-white text-xl font-semibold mb-2">
+                    {project.name || "Nombre del proyecto"}
+                  </h3>
+                  <p className="text-gray-300 text-sm text-center mb-4">
+                    {project.description ||
+                      "Descripción del proyecto"}
+                  </p>
+                  <div className="flex space-x-4">
                     {project.demoLink && (
                       <a
                         href={project.demoLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800"
+                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full flex items-center"
                       >
-                        Visit project
-                        <svg
-                          className="rtl:rotate-180 w-3.5 h-3.5 ms-2"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 14 10"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M1 5h12m0 0L9 1m4 4L9 9"
-                          />
-                        </svg>
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Ver Proyecto
                       </a>
                     )}
-                    {isOwner && (
-                      <div className="flex space-x-4 ml-auto">
-                        <FilePenLine
-                          onClick={() =>
-                            navigate(`/portfolio/${userName}/edit-project/${project._id}`)
-                          }
-                          className="cursor-pointer text-green-400 hover:text-green-900"
-                          size={20}
-                        />
-                        <Trash2
-                          onClick={() => handleDeleteProject(project._id)}
-                          className="cursor-pointer text-red-600 hover:text-red-900"
-                          size={20}
-                        />
-                      </div>
+                    {project.gitHubLink && (
+                      <a
+                        href={project.gitHubLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded-full flex items-center"
+                      >
+                        <Github className="w-4 h-4 mr-2" />
+                        Código Fuente
+                      </a>
                     )}
                   </div>
                 </div>
@@ -154,9 +160,6 @@ const ProjectsSection = ({ userName }) => {
       </div>
     </section>
   );
-  
-  
-  
 };
 
 export default ProjectsSection;
