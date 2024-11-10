@@ -3,6 +3,7 @@ import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
 import { Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { baseUrl } from "../utils/connection.js"
 
 const presentationSectionSection = ({ userName }) => {
   const {
@@ -51,12 +52,11 @@ const presentationSectionSection = ({ userName }) => {
       <img
         src={
           presentationSection
-            ? presentationSection.image.image
-            : "/path"
+            ? `${baseUrl}${presentationSection.image.url}`
+            : "/public/assets/default/presentation.jpg"
         }
-        alt={`${
-          presentationSection ? presentationSection.name.text : "User"
-        } Avatar`}
+        alt={`${presentationSection ? presentationSection.name.text : "User"
+          } Avatar`}
         className="w-64 h-64 rounded-full object-cover"
       />
     </div>

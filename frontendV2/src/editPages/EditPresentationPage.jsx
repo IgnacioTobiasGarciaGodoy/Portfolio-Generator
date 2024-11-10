@@ -28,7 +28,7 @@ const EditPresentationPage = () => {
   });
 
   const [image, setImage] = useState({
-    text: presentationSection?.image?.image || "/assets/images/defaultPictures/stockProfilePicture.jpg",
+    text: presentationSection?.image?.url || "/assets/default/presentation.jpg",
   });
 
   useEffect(() => {

@@ -41,8 +41,13 @@ export const usePortfolioStore = create(set => ({
   editPresentationSection: async (userName, presentationSection) => {
     set({ isLoading: true, error: null });
     try {
-      await axios.put(`${API_URL}/${userName}/edit/presentation`, {
-        presentationSection,
+      const formData = new FormData();
+      formData.append('presentationSection', JSON.stringify(presentationSection));
+  
+      await axios.put(`${API_URL}/${userName}/edit/presentation`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
       set({
         presentationSection,
