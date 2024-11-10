@@ -26,4 +26,22 @@ const presentationImage = multer({
 		}
 	})
 });
-export default presentationImage;
+
+const projectImage = multer({
+	storage: multer.diskStorage({
+		destination: (req, file, cb) => {
+			req.imageBasePath = "storage/projects";
+			cb(null, req.imageBasePath);
+		},
+		filename: async (req, file, cb) => {
+			// Generate temp file name
+			const ext = path.extname(file.originalname); // Get the file extension
+			const filename = `temp${ext}`;
+
+			req.imagePath = `${req.imageBasePath}/${filename}`;
+			cb(null, filename);
+		}
+	})
+});
+
+export { presentationImage, projectImage };

@@ -16,7 +16,7 @@ import {
 	deleteExperience,
 
 	getAllProjects,
-	editProjectsSection,
+	editProjectSection,
 	addProject,
 	editProject,
 	deleteProject,
@@ -44,9 +44,10 @@ import {
 	editContactSection
 } from "../controllers/portfolio.controller.js";
 
-import
-	presentationImage
-from '../middleware/images.js';
+import {
+	presentationImage,
+	projectImage,
+} from '../middleware/images.js';
 
 const router = express.Router();
 const defaultMulter = multer()
@@ -68,8 +69,8 @@ router.delete("/:userName/delete/experience/:id", verifyToken, authorizeOwner, d
 
 // Projects
 router.get("/:userName/projects", getAllProjects);
-router.put("/:userName/edit/projectssection", verifyToken, authorizeOwner, editProjectsSection);
-router.post("/:userName/add/project", verifyToken, authorizeOwner, addProject);
+router.put("/:userName/edit/projectsection", verifyToken, authorizeOwner, defaultMulter.none(), editProjectSection);
+router.post("/:userName/add/project", verifyToken, authorizeOwner, projectImage.single('image'), addProject);
 router.put("/:userName/edit/project/:id", verifyToken, authorizeOwner, editProject);
 router.delete("/:userName/delete/project/:id", verifyToken, authorizeOwner, deleteProject);
 

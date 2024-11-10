@@ -1,4 +1,6 @@
 import Portfolio from "../models/portfolio.model.js";
+import fs from "fs";
+import path from 'path';
 
 class PortfolioError extends Error {
 	constructor(status, message) {
@@ -28,7 +30,6 @@ export const getPresentation = async (req, res) => {
 
 export const editPresentationSection = async (req, res) => {
 	const { userName } = req.params;
-	const userId = req.userId;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
@@ -60,7 +61,6 @@ export const getAboutMe = async (req, res) => {
 
 export const editAboutMe = async (req, res) => {
 	const { userName } = req.params;
-	const userId = req.userId;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
@@ -93,7 +93,6 @@ export const getAllExperience = async (req, res) => {
 
 export const editExperienceSection = async (req, res) => {
 	const { userName } = req.params;
-	const userId = req.userId;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
@@ -111,7 +110,6 @@ export const editExperienceSection = async (req, res) => {
 
 export const addExperience = async (req, res) => {
 	const { userName } = req.params;
-	const userId = req.userId;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
@@ -186,17 +184,14 @@ export const getAllProjects = async (req, res) => {
 	}
 };
 
-export const editProjectsSection = async (req, res) => {
-	const { projectsSection } = req.body;
+export const editProjectSection = async (req, res) => {
 	const { userName } = req.params;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		userPortfolio.projectSection.sectionTitle = projectsSection.sectionTitle;
-
-		const experienceSection = JSON.parse(req.body.experienceSection);
-		userPortfolio.experienceSection.sectionTitle.text = experienceSection.sectionTitle.text;
+		const projectSection = JSON.parse(req.body.projectSection);
+		userPortfolio.projectSection.sectionTitle.text = projectSection.sectionTitle.text;
 
 		await userPortfolio.save();
 
@@ -207,27 +202,43 @@ export const editProjectsSection = async (req, res) => {
 };
 
 export const addProject = async (req, res) => {
-	const { project } = req.body;
 	const { userName } = req.params;
-	const userId = req.userId;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
 
+		const projectSection = JSON.parse(req.body.projectSection);
+
 		userPortfolio.projectSection.projects.push({
-			name: project.name,
-			description: project.description,
-			image: project.image,
-			demoLink: project.demoLink,
-			gitHubLink: project.gitHubLink,
+			name: projectSection.name,
+			description: projectSection.description,
+			demoLink: projectSection.demoLink,
+			gitHubLink: projectSection.gitHubLink,
 		});
 
 		await userPortfolio.save();
 
-		res.status(201).json({
-			message: "Proyecto agregado exitosamente",
-			project,
-		});
+		const project = userPortfolio.projectSection.projects[userPortfolio.projectSection.projects.length - 1];
+		const projectId = project._id;
+
+		const ext = path.extname(req.imagePath)
+		const dir = path.dirname(req.imagePath);
+		const newPath = `${dir}/${userName}-${projectId}${ext}`;
+		fs.rename(req.imagePath, newPath, err => {
+			if (err) {
+				return res.status(500).json({ message: 'Error renaming image', error: err });
+			}
+			project.image.url = newPath;
+			userPortfolio.save()
+				.then(() => {
+					res.status(200).json({
+						message: 'Projecto agregado exitosamente',
+					});
+				})
+				.catch(err => {
+					res.status(500).json({ message: 'Error agregando proyecto', error: err });
+				});;
+		})
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
 	}
@@ -247,7 +258,7 @@ export const editProject = async (req, res) => {
 		project.description = description || project.description;
 		project.image = image || project.image;
 		project.demoLink = demoLink || project.demoLink;
-		project.gitHubLink = demoLink || project.gitHubLink;
+		project.gitHubLink = gitHubLink || project.gitHubLink;
 		await userPortfolio.save();
 		res.status(200).json({ message: "Proyecto actualizado", projectSection: userPortfolio.projectSection });
 	} catch (error) {
@@ -287,7 +298,6 @@ export const getAllEducation = async (req, res) => {
 export const editEducationSection = async (req, res) => {
 	const { educationSection } = req.body;
 	const { userName } = req.params;
-	const userId = req.userId;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
@@ -382,16 +392,12 @@ export const editCertificatesSection = async (req, res) => {
 	const { userName } = req.params;
 
 	try {
-		// Busca el portafolio del usuario
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		// Actualiza el sectionTitle de certificatesSection
 		userPortfolio.certificateSection.sectionTitle = certificatesSection.sectionTitle;
 
-		// Guarda los cambios en la base de datos
 		await userPortfolio.save();
 
-		// Responde con un mensaje de éxito
 		res.status(200).json({ message: "Sección 'Certificados' actualizada exitosamente" });
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });

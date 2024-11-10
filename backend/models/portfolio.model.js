@@ -40,18 +40,18 @@ const LinkSchema = new mongoose.Schema({
 	link: { type: String, default: "google.com" },
 	isBold: { type: Boolean, default: false },
 	size: { type: Number, default: 12 },
-});
+}, {_id: false});
 
 const DateSchema = new mongoose.Schema({
 	from: { type: String, default: "20/12/2022" },
 	to: { type: String, default: () => new Date().toLocaleDateString("es-ES") },
 	isBold: { type: Boolean, default: false },
 	size: { type: Number, default: 12 },
-});
+}, {_id: false});
 
 const ImageSchema = new mongoose.Schema({
 	url: { type: String, default: "image" },
-});
+}, {_id: false});
 
 const PortfolioSchema = new mongoose.Schema({
 	user: { type: userSchema, default: () => ({})},
