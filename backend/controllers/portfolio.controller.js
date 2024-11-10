@@ -1,4 +1,5 @@
 import Portfolio from "../models/portfolio.model.js";
+import { sendContactEmail } from "../nodemailer/emails.js"
 import fs from "fs";
 import path from 'path';
 
@@ -477,14 +478,14 @@ export const editTechnology = async (req, res) => {
 
 //* Contact
 export const sendContactSectionEmail = async (req, res) => {
-	const { name, email, subject, message, userEmail } = req.body;
+	const { formData, userEmail } = req.body;
 	try {
-		sendContactEmail(name, email, subject, message, userEmail);
-		res.status(200).json({ message: "Email de contacto enviado exitosamente" });
+	  sendContactEmail(formData.name, formData.email, formData.subject, formData.message, userEmail);
+	  res.status(200).json({ message: "Email de contacto enviado exitosamente" });
 	} catch (error) {
-		res.status(500).json({ message: error.message });
+	  res.status(500).json({ message: error.message });
 	}
-};
+  };
 
 export const editContactSection = async (req, res) => {
 	const { userName } = req.params;
