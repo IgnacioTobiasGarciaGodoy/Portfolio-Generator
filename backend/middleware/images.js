@@ -27,7 +27,7 @@ const presentationImage = multer({
 	})
 });
 
-const projectImage = multer({
+const addProjectImage = multer({
 	storage: multer.diskStorage({
 		destination: (req, file, cb) => {
 			req.imageBasePath = "storage/projects";
@@ -35,7 +35,7 @@ const projectImage = multer({
 		},
 		filename: async (req, file, cb) => {
 			// Generate temp file name
-			const ext = path.extname(file.originalname); // Get the file extension
+			const ext = path.extname(file.originalname);
 			const filename = `temp${ext}`;
 
 			req.imagePath = `${req.imageBasePath}/${filename}`;
@@ -44,4 +44,24 @@ const projectImage = multer({
 	})
 });
 
-export { presentationImage, projectImage };
+const editProjectImage = multer({
+	storage: multer.diskStorage({
+		destination: (req, file, cb) => {
+			req.imageBasePath = "storage/projects";
+			cb(null, req.imageBasePath);
+		},
+		filename: async (req, file, cb) => {
+			const { id, userName } = req.params;
+
+
+			// Generate the filename: "userId-sectionId.extension"
+			const ext = path.extname(file.originalname); // Get the file extension
+			const filename = `${userName}-${id}${ext}`;
+
+			req.imagePath = `${req.imageBasePath}/${filename}`;
+			cb(null, filename);
+		}
+	})
+});
+
+export { presentationImage, addProjectImage, editProjectImage };

@@ -46,7 +46,8 @@ import {
 
 import {
 	presentationImage,
-	projectImage,
+	addProjectImage,
+	editProjectImage,
 } from '../middleware/images.js';
 
 const router = express.Router();
@@ -70,15 +71,15 @@ router.delete("/:userName/delete/experience/:id", verifyToken, authorizeOwner, d
 // Projects
 router.get("/:userName/projects", getAllProjects);
 router.put("/:userName/edit/projectsection", verifyToken, authorizeOwner, defaultMulter.none(), editProjectSection);
-router.post("/:userName/add/project", verifyToken, authorizeOwner, projectImage.single('image'), addProject);
-router.put("/:userName/edit/project/:id", verifyToken, authorizeOwner, editProject);
+router.post("/:userName/add/project", verifyToken, authorizeOwner, addProjectImage.single('image'), addProject);
+router.put("/:userName/edit/project/:id", verifyToken, authorizeOwner, editProjectImage.single('image'), editProject);
 router.delete("/:userName/delete/project/:id", verifyToken, authorizeOwner, deleteProject);
 
 // Education
 router.get("/:userName/education", getAllEducation);
-router.put("/:userName/edit/educationsection", verifyToken, authorizeOwner, editEducationSection);
-router.post("/:userName/add/education", verifyToken, authorizeOwner, addEducation);
-router.put("/:userName/edit/education/:id", verifyToken, authorizeOwner, editEducation);
+router.put("/:userName/edit/educationsection", verifyToken, authorizeOwner, defaultMulter.none(), editEducationSection);
+router.post("/:userName/add/education", verifyToken, authorizeOwner, defaultMulter.none(), addEducation);
+router.put("/:userName/edit/education/:id", verifyToken, authorizeOwner, defaultMulter.none(), editEducation);
 router.delete("/:userName/delete/education/:id", verifyToken, authorizeOwner, deleteEducation);
 
 // Certificates

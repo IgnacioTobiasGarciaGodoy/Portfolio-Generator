@@ -36,9 +36,9 @@ export const editPresentationSection = async (req, res) => {
 
 		const presentationSection = JSON.parse(req.body.presentationSection);
 
-		userPortfolio.presentationSection.name = presentationSection.name;
-		userPortfolio.presentationSection.rol = presentationSection.rol;
-		userPortfolio.presentationSection.image.url = req.imagePath;
+		userPortfolio.presentationSection.name = presentationSection.name || userPortfolio.presentationSection.name;
+		userPortfolio.presentationSection.rol = presentationSection.rol || userPortfolio.presentationSection.rol;
+		userPortfolio.presentationSection.image.url = req.imagePath || userPortfolio.presentationSection.image.url;
 
 		await userPortfolio.save();
 
@@ -136,7 +136,7 @@ export const editExperience = async (req, res) => {
 	const { id } = req.params;
 	const { userName } = req.params;
 	try {
-		const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
+		const userPortfolio = await findPortfolioByUserName(userName);
 		const experience = userPortfolio.experienceSection.experiences.id(id);
 		if (!experience) {
 			return res.status(404).json({ message: "Experiencia no encontrada" });
@@ -209,12 +209,13 @@ export const addProject = async (req, res) => {
 
 		const projectSection = JSON.parse(req.body.projectSection);
 
-		userPortfolio.projectSection.projects.push({
-			name: projectSection.name,
-			description: projectSection.description,
-			demoLink: projectSection.demoLink,
-			gitHubLink: projectSection.gitHubLink,
-		});
+		const projectTmp = {
+			name: { text: projectSection.project.name.text },
+			description: { text: projectSection.project.description.text },
+			demoLink: { text: projectSection.project.demoLink.text, link: projectSection.project.demoLink.link },
+			gitHubLink: { text: projectSection.project.gitHubLink.text, link: projectSection.project.gitHubLink.link },
+		};
+		userPortfolio.projectSection.projects.push(projectTmp);
 
 		await userPortfolio.save();
 
@@ -246,21 +247,26 @@ export const addProject = async (req, res) => {
 
 export const editProject = async (req, res) => {
 	const { id } = req.params;
-	const { name, description, image, demoLink, gitHubLink } = req.body;
 	const { userName } = req.params;
+
 	try {
 		const userPortfolio = await Portfolio.findOne({ "user.userName": userName });
 		const project = userPortfolio.projectSection.projects.id(id);
 		if (!project) {
 			return res.status(404).json({ message: "Proyecto no encontrado" });
 		}
-		project.name = name || project.name;
-		project.description = description || project.description;
-		project.image = image || project.image;
-		project.demoLink = demoLink || project.demoLink;
-		project.gitHubLink = gitHubLink || project.gitHubLink;
+
+		const projectSection = JSON.parse(req.body.projectSection);
+
+		project.name.text = projectSection.project.name.text || project.name.text;
+		project.description.text = projectSection.project.description.text || project.description.text;
+		project.image.url = req.imagePath || project.image.url;
+		project.demoLink = { text: projectSection.project.demoLink.text, link: projectSection.project.demoLink.link } || project.demoLink;
+		project.gitHubLink = { text: projectSection.project.gitHubLink.text, link: projectSection.project.gitHubLink.link } || project.gitHubLink;
+
 		await userPortfolio.save();
-		res.status(200).json({ message: "Proyecto actualizado", projectSection: userPortfolio.projectSection });
+
+		res.status(200).json({ message: "Proyecto actualizado exitosamente" });
 	} catch (error) {
 		res.status(500).json({ message: error.message });
 	}
@@ -302,7 +308,8 @@ export const editEducationSection = async (req, res) => {
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		userPortfolio.educationSection.sectionTitle = educationSection.sectionTitle;
+		const educationSection = JSON.parse(req.body.educationSection);
+		userPortfolio.educationSection.sectionTitle.text = educationSection.sectionTitle.text;
 
 		await userPortfolio.save();
 
@@ -313,17 +320,20 @@ export const editEducationSection = async (req, res) => {
 };
 
 export const addEducation = async (req, res) => {
-	const { education } = req.body;
 	const { userName } = req.params;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		userPortfolio.educationSection.educations.push({
-			name: education.name,
-			description: education.description,
-			date: education.date,
-		});
+		const educationSection = JSON.parse(req.body.educationSection);
+
+		const educationTmp = {
+			name: { text: educationSection.education.name.text },
+			description: { text: educationSection.education.description.text },
+			date: { from: educationSection.education.date.from, to: educationSection.education.date.to }
+		};
+
+		userPortfolio.educationSection.educations.push(educationTmp);
 
 		await userPortfolio.save();
 
@@ -335,24 +345,23 @@ export const addEducation = async (req, res) => {
 
 export const editEducation = async (req, res) => {
 	const { id } = req.params;
-	const { name, description, date } = req.body;
 	const { userName } = req.params;
 	try {
-		const userPortfolio = await Portfolio.findOne({
-			"user.userName": userName,
-		});
+		const userPortfolio = await findPortfolioByUserName(userName)
 		const education = userPortfolio.educationSection.educations.id(id);
 		if (!education) {
 			return res.status(404).json({ message: "Educación no encontrada" });
 		}
-		education.name = name || education.name;
-		education.description = description || education.description;
-		education.date = date || education.date;
+
+		const educationSection = JSON.parse(req.body.educationSection);
+
+		education.name.text = educationSection.education.name.text || education.name.text;
+		education.description.text = educationSection.education.description.text || education.description.text;
+		education.date = { from: educationSection.education.date.from, to: educationSection.education.date.to } || education.date;
+
 		await userPortfolio.save();
-		res.status(200).json({
-			message: "Educación actualizada",
-			educationSection: userPortfolio.educationSection,
-		});
+
+		res.status(200).json({ message: "Educación actualizada" });
 	} catch (error) {
 		res.status(500).json({ message: error.message });
 	}
