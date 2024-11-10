@@ -87,7 +87,11 @@ const ProjectsSection = ({ userName }) => {
                 {isOwner && (
                   <>
                     <FilePenLine
-                      onClick={() => navigate(`/portfolio/${userName}/edit-project/${project._id}`)}
+                      onClick={() =>
+                        navigate(
+                          `/portfolio/${userName}/edit-project/${project._id}`
+                        )
+                      }
                       className="absolute top-2 right-7 cursor-pointer text-green-400 hover:text-green-900 z-50"
                       size={20}
                     />
