@@ -17,17 +17,45 @@ const findPortfolioByUserName = async (userName) => {
 	return userPortfolio;
 }
 
-//* Presentation
-export const getPresentation = async (req, res) => {
+export const getSection = async (req, res, section) => {
 	const { userName } = req.params;
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
-		res.status(200).json({ presentationSection: userPortfolio.presentationSection });
+		res.status(200).json({ [section]: userPortfolio[section] });
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
 	}
+}
+
+export const deleteSectionItem = async (req, res, section, subSection) => {
+	const { id } = req.params;
+	const { userName } = req.params;
+	try {
+		const userPortfolio = await Portfolio.findOneAndUpdate(
+			{ "user.userName": userName },
+			{ $pull: { [`${section}.${subSection}`]: { _id: id } } }
+		);
+
+		if (!userPortfolio) {
+			return res.status(404).json({ message: "Portafolio no encontrado" });
+		}
+
+		// delete the image asociated if exists and is not a default one
+		const deletedItem = userPortfolio[section][subSection].find(item => item._id.toString() === id);
+		if (deletedItem && deletedItem.image && deletedItem.image.url) {
+			await deleteImageIfNecessary(deletedItem.image.url);
+		}
+
+		res.status(200).json({
+			message: `${subSection} eliminado`,
+			[section]: userPortfolio[section]
+		});
+	} catch (error) {
+		res.status(500).json({ message: error.message });
+	}
 };
 
+//* Presentation
 export const editPresentationSection = async (req, res) => {
 	const { userName } = req.params;
 
@@ -49,16 +77,6 @@ export const editPresentationSection = async (req, res) => {
 };
 
 //* About Me
-export const getAboutMe = async (req, res) => {
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await findPortfolioByUserName(userName);
-		res.status(200).json({ aboutMeSection: userPortfolio.aboutMeSection });
-	} catch (error) {
-		res.status(error.status || 500).json({ message: error.message });
-	}
-};
-
 export const editAboutMe = async (req, res) => {
 	const { userName } = req.params;
 
@@ -81,16 +99,6 @@ export const editAboutMe = async (req, res) => {
 };
 
 //* Experience
-export const getAllExperience = async (req, res) => {
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await findPortfolioByUserName(userName);
-		res.status(200).json({ experienceSection: userPortfolio.experienceSection });
-	} catch (error) {
-		res.status(error.status || 500).json({ message: error.message });
-	}
-};
-
 export const editExperienceSection = async (req, res) => {
 	const { userName } = req.params;
 
@@ -155,35 +163,7 @@ export const editExperience = async (req, res) => {
 	}
 };
 
-export const deleteExperience = async (req, res) => {
-	const { id } = req.params;
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await Portfolio.findOneAndUpdate(
-			{ "user.userName": userName },
-			{ $pull: { "experienceSection.experiences": { _id: id } } },
-			{ new: true }
-		);
-		if (!userPortfolio) {
-			return res.status(404).json({ message: "Portafolio no encontrado" });
-		}
-		res.status(200).json({ message: "Experiencia eliminada", experienceSection: userPortfolio.experienceSection });
-	} catch (error) {
-		res.status(500).json({ message: error.message });
-	}
-};
-
 //* Projects
-export const getAllProjects = async (req, res) => {
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await findPortfolioByUserName(userName);
-		res.status(200).json({ projectSection: userPortfolio.projectSection });
-	} catch (error) {
-		res.status(error.status || 500).json({ message: error.message });
-	}
-};
-
 export const editProjectSection = async (req, res) => {
 	const { userName } = req.params;
 
@@ -222,14 +202,11 @@ export const addProject = async (req, res) => {
 		const project = userPortfolio.projectSection.projects[userPortfolio.projectSection.projects.length - 1];
 		const projectId = project._id;
 
-		const ext = path.extname(req.imagePath)
-		const dir = path.dirname(req.imagePath);
-		const newPath = `${dir}/${userName}-${projectId}${ext}`;
-		fs.rename(req.imagePath, newPath, err => {
-			if (err) {
+		renameFile(req.imagePath, userName, projectId, result => {
+			if (!result.success) {
 				return res.status(500).json({ message: 'Error renaming image', error: err });
 			}
-			project.image.url = newPath;
+			project.image.url = result.newPath;
 			userPortfolio.save()
 				.then(() => {
 					res.status(200).json({
@@ -272,37 +249,8 @@ export const editProject = async (req, res) => {
 	}
 };
 
-export const deleteProject = async (req, res) => {
-	const { id } = req.params;
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await Portfolio.findOneAndUpdate(
-			{ "user.userName": userName },
-			{ $pull: { "projectSection.projects": { _id: id } } },
-			{ new: true }
-		);
-		if (!userPortfolio) {
-			return res.status(404).json({ message: "Portafolio no encontrado" });
-		}
-		res.status(200).json({ message: "Proyecto eliminado", projectSection: userPortfolio.projectSection });
-	} catch (error) {
-		res.status(500).json({ message: error.message });
-	}
-};
-
 //* Education
-export const getAllEducation = async (req, res) => {
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await findPortfolioByUserName(userName);
-		res.status(200).json({ educationSection: userPortfolio.educationSection });
-	} catch (error) {
-		res.status(error.status || 500).json({ message: error.message });
-	}
-};
-
 export const editEducationSection = async (req, res) => {
-	const { educationSection } = req.body;
 	const { userName } = req.params;
 
 	try {
@@ -367,35 +315,7 @@ export const editEducation = async (req, res) => {
 	}
 };
 
-export const deleteEducation = async (req, res) => {
-	const { id } = req.params;
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await Portfolio.findOneAndUpdate(
-			{ "user.userName": userName },
-			{ $pull: { "educationSection.educations": { _id: id } } },
-			{ new: true }
-		);
-		if (!userPortfolio) {
-			return res.status(404).json({ message: "Portafolio no encontrado" });
-		}
-		res.status(200).json({ message: "Educación eliminada" });
-	} catch (error) {
-		res.status(500).json({ message: error.message });
-	}
-};
-
 //* Certificates
-export const getAllCertificates = async (req, res) => {
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await findPortfolioByUserName(userName);
-		res.status(200).json({ certificateSection: userPortfolio.certificateSection });
-	} catch (error) {
-		res.status(error.status || 500).json({ message: error.message });
-	}
-};
-
 export const editCertificatesSection = async (req, res) => {
 	const { userName } = req.params;
 
@@ -432,14 +352,11 @@ export const addCertificate = async (req, res) => {
 		const certificate = userPortfolio.certificateSection.certificates[userPortfolio.certificateSection.certificates.length - 1];
 		const certificateId = certificate._id;
 
-		const ext = path.extname(req.imagePath)
-		const dir = path.dirname(req.imagePath);
-		const newPath = `${dir}/${userName}-${certificateId}${ext}`;
-		fs.rename(req.imagePath, newPath, err => {
-			if (err) {
+		renameFile(req.imagePath, userName, certificateId, result => {
+			if (!result.success) {
 				return res.status(500).json({ message: 'Error renaming image', error: err });
 			}
-			certificate.image.url = newPath;
+			certificate.image.url = result.newPath;
 			userPortfolio.save()
 				.then(() => {
 					res.status(200).json({
@@ -479,38 +396,7 @@ export const editCertificate = async (req, res) => {
 	}
 };
 
-export const deleteCertificate = async (req, res) => {
-	const { id } = req.params;
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await Portfolio.findOneAndUpdate(
-			{ "user.userName": userName },
-			{ $pull: { "certificateSection.certificates": { _id: id } } },
-			{ new: true }
-		);
-		if (!userPortfolio) {
-			return res.status(404).json({ message: "Portafolio no encontrado" });
-		}
-		res.status(200).json({
-			message: "Certificado eliminado",
-			certificateSection: userPortfolio.certificateSection,
-		});
-	} catch (error) {
-		res.status(500).json({ message: error.message });
-	}
-};
-
 //* Technologies
-export const getSelectedTechnologies = async (req, res) => {
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await findPortfolioByUserName(userName);
-		res.status(200).json({ technologySection: userPortfolio.technologySection });
-	} catch (error) {
-		res.status(error.status || 500).json({ message: error.message });
-	}
-};
-
 export const editTechnologiesSection = async (req, res) => {
 	const { userName } = req.params;
 
@@ -546,14 +432,11 @@ export const addTechnology = async (req, res) => {
 		const technology = userPortfolio.technologySection.technologies[userPortfolio.technologySection.technologies.length - 1];
 		const technologyId = technology._id;
 
-		const ext = path.extname(req.imagePath)
-		const dir = path.dirname(req.imagePath);
-		const newPath = `${dir}/${userName}-${technologyId}${ext}`;
-		fs.rename(req.imagePath, newPath, err => {
-			if (err) {
+		renameFile(req.imagePath, userName, technologyId, result => {
+			if (!result.success) {
 				return res.status(500).json({ message: 'Error renaming image', error: err });
 			}
-			technology.image.url = newPath;
+			technology.image.url = result.newPath;
 			userPortfolio.save()
 				.then(() => {
 					res.status(200).json({
@@ -563,7 +446,7 @@ export const addTechnology = async (req, res) => {
 				.catch(err => {
 					res.status(500).json({ message: 'Error agregando tecnologia', error: err });
 				});
-		});
+		})
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
 	}
@@ -592,24 +475,6 @@ export const editTechnology = async (req, res) => {
 	}
 }
 
-export const deleteTechnology = async (req, res) => {
-	const { id } = req.params;
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await Portfolio.findOneAndUpdate(
-			{ "user.userName": userName },
-			{ $pull: { "technologySection.technologies": { _id: id } } },
-			{ new: true }
-		);
-		if (!userPortfolio) {
-			return res.status(404).json({ message: "Portafolio no encontrado" });
-		}
-		res.status(200).json({ message: "Tecnología eliminada", technologySection: userPortfolio.technologySection });
-	} catch (error) {
-		res.status(500).json({ message: error.message });
-	}
-};
-
 //* Contact
 export const sendContactSectionEmail = async (req, res) => {
 	const { name, email, subject, message, userEmail } = req.body;
@@ -618,16 +483,6 @@ export const sendContactSectionEmail = async (req, res) => {
 		res.status(200).json({ message: "Email de contacto enviado exitosamente" });
 	} catch (error) {
 		res.status(500).json({ message: error.message });
-	}
-};
-
-export const getContact = async (req, res) => {
-	const { userName } = req.params;
-	try {
-		const userPortfolio = await findPortfolioByUserName(userName);
-		res.status(200).json({ contactSection: userPortfolio.contactSection });
-	} catch (error) {
-		res.status(error.status || 500).json({ message: error.message });
 	}
 };
 
@@ -664,3 +519,31 @@ export const editContactSection = async (req, res) => {
 		res.status(error.status || 500).json({ message: error.message });
 	}
 };
+
+
+const renameFile = (oldPath, userName, itemId, updateReferenceCallback) => {
+	const ext = path.extname(oldPath);
+	const dir = path.dirname(oldPath);
+	const newPath = `${dir}/${userName}-${itemId}${ext}`;
+
+	fs.rename(oldPath, newPath, (err) => {
+		if (err) {
+			return updateReferenceCallback({ success: false, error: err });
+		}
+		updateReferenceCallback({ success: true, newPath });
+	});
+}
+
+const deleteImageIfNecessary = async (imagePath) => {
+	// if the image starts with defaolt dont delete it
+	if (!imagePath.includes('default-')) {
+	   try {
+		  await fs.promises.unlink(imagePath);
+		  console.log('File deleted successfully:', imagePath);
+	   } catch (err) {
+		  throw new PortfolioError(500, "Error deleting the associated image");
+	   }
+	} else {
+	   console.log('Image is default, not deleting:', imagePath);
+	}
+ };

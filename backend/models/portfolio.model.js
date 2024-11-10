@@ -198,9 +198,11 @@ const PortfolioSchema = new mongoose.Schema({
 		},
 		technologies: [
 			{
-				name: { type: TextSchema, default: ({
-					text: "Java Script"
-				}) },
+				name: {
+					type: TextSchema, default: ({
+						text: "Java Script"
+					})
+				},
 				image: {
 					type: ImageSchema, default: () => ({
 						url: "storage/technologies/default-technology.jpg"
@@ -279,5 +281,14 @@ const Portfolio = mongoose.model(
 	PortfolioSchema,
 	"portfolio"
 );
+
+export const presentation = { section: "presentationSection" };
+export const aboutMe = { section: "aboutMeSection" };
+export const experience = { section: "experienceSection", subSection: "experiences" };
+export const project = { section: "projectSection", subSection: "projects"  };
+export const education = { section: "educationSection", subSection: "educations"  };
+export const certificate = { section: "certificateSection", subSection: "certificates"  };
+export const technology = { section: "technologySection", subSection: "technologies"  };
+export const contact = { section: "contactSection" };
 
 export default Portfolio;
