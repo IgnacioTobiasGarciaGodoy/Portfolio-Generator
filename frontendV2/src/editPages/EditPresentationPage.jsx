@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditPresentationPage = () => {
   const { userName } = useParams();
-  const { presentationSection, editPresentationSection, fetchPresentationSection } = usePortfolioStore();
+  const { presentationSection, editSection, fetchPresentationSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -50,7 +50,7 @@ const EditPresentationPage = () => {
       rol,
       image,
     };
-    await editPresentationSection(userName, updatedPresentationSection);
+    await editSection(userName, "presentationSection", updatedPresentationSection, "edit/presentation");
     navigate(`/portfolio/${userName}`);
   };
 

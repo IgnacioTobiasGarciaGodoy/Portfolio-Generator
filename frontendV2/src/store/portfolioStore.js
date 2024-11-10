@@ -38,28 +38,30 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  editPresentationSection: async (userName, presentationSection) => {
+  editSection: async (userName, section, data, endpoint) => {
     set({ isLoading: true, error: null });
     try {
       const formData = new FormData();
-      formData.append('presentationSection', JSON.stringify(presentationSection));
-  
-      await axios.put(`${API_URL}/${userName}/edit/presentation`, formData, {
+      formData.append(section, JSON.stringify(data));
+
+      await axios.put(`${API_URL}/${userName}/${endpoint}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-      });
+      })
       set({
-        presentationSection,
-        isLoading: false,
+        data
       });
     } catch (error) {
       set({
         error:
           error.response?.data?.message ||
-          "Error editando Presentation",
-        isLoading: false,
+          `Error editando ${section}`
       });
+    } finally {
+      set ({
+        isLoading: false
+      })
     }
   },
 
@@ -84,25 +86,6 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  editAboutMeSection: async (userName, aboutMeSection) => {
-    set({ isLoading: true, error: null });
-    try {
-      await axios.put(`${API_URL}/${userName}/edit/aboutMe`, {
-        aboutMeSection,
-      });
-      set({
-        aboutMeSection,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message || "Error editando About Me",
-        isLoading: false,
-      });
-    }
-  },
-
   //* Funciones para CertificateSection
   fetchCertificateSection: async userName => {
     set({ isLoading: true, error: null });
@@ -119,27 +102,6 @@ export const usePortfolioStore = create(set => ({
         error:
           error.response?.data?.message ||
           "Error obteniendo certificados",
-        isLoading: false,
-      });
-    }
-  },
-
-  editCertificatesSection: async (userName, certificatesSection) => {
-    set({ isLoading: true, error: null });
-    try {
-      await axios.put(
-        `${API_URL}/${userName}/edit/certificatessection`,
-        { certificatesSection }
-      );
-      set({
-        certificateSection: certificatesSection, // Actualiza el estado con el objeto enviado
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error editando Certificados",
         isLoading: false,
       });
     }
@@ -237,25 +199,6 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  editContactSection: async (userName, contactData) => {
-    set({ isLoading: true, error: null });
-    try {
-      await axios.put(`${API_URL}/${userName}/edit/contact`, {
-        contactSection: contactData,
-      });
-      set(state => ({
-        contactSection: contactData,
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message || "Error al editar contacto",
-        isLoading: false,
-      });
-    }
-  },
-
   sendContactMessage: async (userName, formData, userEmail) => {
     set({ isLoading: true, error: null });
     try {
@@ -288,26 +231,6 @@ export const usePortfolioStore = create(set => ({
         error:
           error.response?.data?.message ||
           "Error obteniendo educación",
-        isLoading: false,
-      });
-    }
-  },
-
-  editEducationSection: async (userName, educationSection) => {
-    set({ isLoading: true, error: null });
-    try {
-      await axios.put(
-        `${API_URL}/${userName}/edit/educationsection`,
-        { educationSection }
-      );
-      set({
-        educationSection,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message || "Error editando Educación",
         isLoading: false,
       });
     }
@@ -400,27 +323,6 @@ export const usePortfolioStore = create(set => ({
         error:
           error.response?.data?.message ||
           "Error obteniendo experiencia",
-        isLoading: false,
-      });
-    }
-  },
-
-  editExperienceSection: async (userName, experienceSection) => {
-    set({ isLoading: true, error: null });
-    try {
-      await axios.put(
-        `${API_URL}/${userName}/edit/experiencesection`,
-        { experienceSection }
-      );
-      set({
-        experienceSection, // Actualiza el estado con el objeto enviado
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error editando Experience",
         isLoading: false,
       });
     }
@@ -522,25 +424,6 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  editProjectsSection: async (userName, projectsSection) => {
-    set({ isLoading: true, error: null });
-    try {
-      await axios.put(`${API_URL}/${userName}/edit/projectsection`, {
-        projectsSection,
-      });
-      set({
-        projectSection: projectsSection, // Actualiza el estado con el objeto enviado
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message || "Error editando Projects",
-        isLoading: false,
-      });
-    }
-  },
-
   addProject: async (userName, project) => {
     set({ isLoading: true, error: null });
     try {
@@ -633,27 +516,6 @@ export const usePortfolioStore = create(set => ({
         error:
           error.response?.data?.message ||
           "Error obteniendo tecnologías",
-        isLoading: false,
-      });
-    }
-  },
-
-  editTechnologiesSection: async (userName, technologiesSection) => {
-    set({ isLoading: true, error: null });
-    try {
-      await axios.put(
-        `${API_URL}/${userName}/edit/technologiessection`,
-        { technologiesSection }
-      );
-      set({
-        technologySection: technologiesSection, // Actualiza el estado con el objeto enviado
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error editando Technologies",
         isLoading: false,
       });
     }
