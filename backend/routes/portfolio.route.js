@@ -48,6 +48,10 @@ import {
 	presentationImage,
 	addProjectImage,
 	editProjectImage,
+	addCertificateImage,
+	editCertificateImage,
+	addTechnologyImage,
+	editTechnologyImage
 } from '../middleware/images.js';
 
 const router = express.Router();
@@ -84,21 +88,21 @@ router.delete("/:userName/delete/education/:id", verifyToken, authorizeOwner, de
 
 // Certificates
 router.get("/:userName/certificates", getAllCertificates);
-router.put("/:userName/edit/certificatessection", verifyToken, authorizeOwner, editCertificatesSection);
-router.post("/:userName/add/certificate", verifyToken, authorizeOwner, addCertificate);
-router.put("/:userName/edit/certificates/:id", verifyToken, authorizeOwner, editCertificate);
+router.put("/:userName/edit/certificatesection", verifyToken, authorizeOwner, defaultMulter.none(), editCertificatesSection);
+router.post("/:userName/add/certificate", verifyToken, authorizeOwner, addCertificateImage.single('image'), addCertificate);
+router.put("/:userName/edit/certificate/:id", verifyToken, authorizeOwner, editCertificateImage.single('image'), editCertificate);
 router.delete("/:userName/delete/certificate/:id", verifyToken, authorizeOwner, deleteCertificate);
 
 // Techonologies
 router.get("/:userName/technologies", getSelectedTechnologies);
-router.put("/:userName/edit/technologiessection", verifyToken, authorizeOwner, editTechnologiesSection);
-router.post("/:userName/add/technology", verifyToken, authorizeOwner, addTechnology);
-router.put("/:userName/edit/technology/:id", verifyToken, authorizeOwner, editTechnology);
+router.put("/:userName/edit/technologiessection", verifyToken, authorizeOwner, defaultMulter.none(), editTechnologiesSection);
+router.post("/:userName/add/technology", verifyToken, authorizeOwner, addTechnologyImage.single('image'), addTechnology);
+router.put("/:userName/edit/technology/:id", verifyToken, authorizeOwner, editTechnologyImage.single('image'), editTechnology);
 router.delete("/:userName/delete/technology/:id", verifyToken, authorizeOwner, deleteTechnology);
 
 // Contact
 router.post("/:userName/send-email", sendContactSectionEmail);
-router.get("/:userName/get-contact-info", getContact);
-router.put("/:userName/edit/contact", verifyToken, authorizeOwner, editContactSection);
+router.get("/:userName/contact", getContact);
+router.put("/:userName/edit/contact", verifyToken, authorizeOwner, defaultMulter.none(), editContactSection);
 
 export default router;

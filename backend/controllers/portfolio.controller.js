@@ -238,8 +238,8 @@ export const addProject = async (req, res) => {
 				})
 				.catch(err => {
 					res.status(500).json({ message: 'Error agregando proyecto', error: err });
-				});;
-		})
+				});
+		});
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
 	}
@@ -397,13 +397,14 @@ export const getAllCertificates = async (req, res) => {
 };
 
 export const editCertificatesSection = async (req, res) => {
-	const { certificatesSection } = req.body;
 	const { userName } = req.params;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		userPortfolio.certificateSection.sectionTitle = certificatesSection.sectionTitle;
+		const certificateSection = JSON.parse(req.body.certificateSection);
+
+		userPortfolio.certificateSection.sectionTitle.text = certificateSection.sectionTitle.text;
 
 		await userPortfolio.save();
 
@@ -414,21 +415,41 @@ export const editCertificatesSection = async (req, res) => {
 };
 
 export const addCertificate = async (req, res) => {
-	const { certificate } = req.body;
 	const { userName } = req.params;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
 
+		const certificateSection = JSON.parse(req.body.certificateSection);
+
 		userPortfolio.certificateSection.certificates.push({
-			name: certificate.name,
-			image: certificate.image,
-			description: certificate.description,
+			name: { text: certificateSection.certificate.name.text },
+			description: { text: certificateSection.certificate.description.text },
 		});
 
 		await userPortfolio.save();
 
-		res.status(201).json({ message: "Certificado agregado exitosamente" });
+		const certificate = userPortfolio.certificateSection.certificates[userPortfolio.certificateSection.certificates.length - 1];
+		const certificateId = certificate._id;
+
+		const ext = path.extname(req.imagePath)
+		const dir = path.dirname(req.imagePath);
+		const newPath = `${dir}/${userName}-${certificateId}${ext}`;
+		fs.rename(req.imagePath, newPath, err => {
+			if (err) {
+				return res.status(500).json({ message: 'Error renaming image', error: err });
+			}
+			certificate.image.url = newPath;
+			userPortfolio.save()
+				.then(() => {
+					res.status(200).json({
+						message: 'Certificado agregado exitosamente',
+					});
+				})
+				.catch(err => {
+					res.status(500).json({ message: 'Error agregando certificado', error: err });
+				});
+		});
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
 	}
@@ -436,25 +457,23 @@ export const addCertificate = async (req, res) => {
 
 export const editCertificate = async (req, res) => {
 	const { id } = req.params;
-	const { name, image, description } = req.body;
 	const { userName } = req.params;
+
 	try {
-		const userPortfolio = await Portfolio.findOne({
-			"user.userName": userName,
-		});
-		const certificate =
-			userPortfolio.certificateSection.certificates.id(id);
+		const userPortfolio = await findPortfolioByUserName(userName);
+		const certificate = userPortfolio.certificateSection.certificates.id(id);
 		if (!certificate) {
 			return res.status(404).json({ message: "Certificado no encontrado" });
 		}
-		certificate.name = name || certificate.name;
-		certificate.image = image || certificate.image;
-		certificate.description = description || certificate.description;
+
+		const certificateSection = JSON.parse(req.body.certificateSection);
+
+		certificate.name.text = certificateSection.certificate.name.text || certificate.name.text;
+		certificate.description.text = certificateSection.certificate.description.text || certificate.description.text;
+		certificate.image.url = req.imagePath || certificate.image.url;
+
 		await userPortfolio.save();
-		res.status(200).json({
-			message: "Certificado actualizado",
-			certificateSection: userPortfolio.certificateSection,
-		});
+		res.status(200).json({ message: "Certificado actualizado" });
 	} catch (error) {
 		res.status(500).json({ message: error.message });
 	}
@@ -493,13 +512,14 @@ export const getSelectedTechnologies = async (req, res) => {
 };
 
 export const editTechnologiesSection = async (req, res) => {
-	const { technologiesSection } = req.body;
 	const { userName } = req.params;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		userPortfolio.technologySection.sectionTitle = technologiesSection.sectionTitle;
+		const technologySection = JSON.parse(req.body.technologySection);
+
+		userPortfolio.technologySection.sectionTitle.text = technologySection.sectionTitle.text;
 
 		await userPortfolio.save();
 
@@ -510,26 +530,66 @@ export const editTechnologiesSection = async (req, res) => {
 };
 
 export const addTechnology = async (req, res) => {
-	const { technology } = req.body;
 	const { userName } = req.params;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
 
+		const technologySection = JSON.parse(req.body.technologySection);
+
 		userPortfolio.technologySection.technologies.push({
-			name: technology.name,
-			image: technology.image,
+			name: { text: technologySection.technology.name.text },
 		});
 
 		await userPortfolio.save();
 
-		res.status(201).json({ message: "Tecnología agregada exitosamente" });
+		const technology = userPortfolio.technologySection.technologies[userPortfolio.technologySection.technologies.length - 1];
+		const technologyId = technology._id;
+
+		const ext = path.extname(req.imagePath)
+		const dir = path.dirname(req.imagePath);
+		const newPath = `${dir}/${userName}-${technologyId}${ext}`;
+		fs.rename(req.imagePath, newPath, err => {
+			if (err) {
+				return res.status(500).json({ message: 'Error renaming image', error: err });
+			}
+			technology.image.url = newPath;
+			userPortfolio.save()
+				.then(() => {
+					res.status(200).json({
+						message: 'Tecnologia agregado exitosamente',
+					});
+				})
+				.catch(err => {
+					res.status(500).json({ message: 'Error agregando tecnologia', error: err });
+				});
+		});
 	} catch (error) {
 		res.status(error.status || 500).json({ message: error.message });
 	}
 };
 
 export const editTechnology = async (req, res) => {
+	const { id } = req.params;
+	const { userName } = req.params;
+
+	try {
+		const userPortfolio = await findPortfolioByUserName(userName);
+		const technology = userPortfolio.technologySection.technologies.id(id);
+		if (!technology) {
+			return res.status(404).json({ message: "Tecnologia no encontrada" });
+		}
+
+		const technologySection = JSON.parse(req.body.technologySection);
+
+		technology.name.text = technologySection.technology.name.text || technology.name.text;
+		technology.image.url = req.imagePath || technology.image.url;
+
+		await userPortfolio.save();
+		res.status(200).json({ message: "Tecnologia actualizada" });
+	} catch (error) {
+		res.status(500).json({ message: error.message });
+	}
 }
 
 export const deleteTechnology = async (req, res) => {
@@ -572,13 +632,31 @@ export const getContact = async (req, res) => {
 };
 
 export const editContactSection = async (req, res) => {
-	const { contactSection } = req.body;
 	const { userName } = req.params;
 
 	try {
 		const userPortfolio = await findPortfolioByUserName(userName);
 
-		userPortfolio.contactSection = contactSection;
+		const contactSection = JSON.parse(req.body.contactSection)
+		userPortfolio.contactSection.sectionTitle = contactSection.sectionTitle;
+
+		userPortfolio.contactSection.mailTitle = contactSection.mailTitle;
+		userPortfolio.contactSection.mail = contactSection.mail;
+
+		userPortfolio.contactSection.linkdinTitle = contactSection.linkdinTitle;
+		userPortfolio.contactSection.linkedin = contactSection.linkedin;
+
+		userPortfolio.contactSection.githubTitle = contactSection.githubTitle;
+		userPortfolio.contactSection.github = contactSection.github;
+
+		userPortfolio.contactSection.phoneTitle = contactSection.phoneTitle;
+		userPortfolio.contactSection.phone = contactSection.phone;
+
+		userPortfolio.contactSection.locationTitle = contactSection.locationTitle;
+		userPortfolio.contactSection.location = contactSection.location;
+
+		userPortfolio.contactSection.bodyText = contactSection.bodyText
+
 		await userPortfolio.save();
 
 		res.status(200).json({ message: "Información de contacto actualizada exitosamente" });

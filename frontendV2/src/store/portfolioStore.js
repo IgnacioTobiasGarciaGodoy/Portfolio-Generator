@@ -520,7 +520,7 @@ export const usePortfolioStore = create(set => ({
   editProjectsSection: async (userName, projectsSection) => {
     set({ isLoading: true, error: null });
     try {
-      await axios.put(`${API_URL}/${userName}/edit/projectssection`, {
+      await axios.put(`${API_URL}/${userName}/edit/projectsection`, {
         projectsSection,
       });
       set({
