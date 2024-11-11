@@ -30,7 +30,7 @@ const AddTechnologyForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addTechnology(userName, newTechnology);
+    await addItem(userName, '/add/technology', newTechnology, 'technologySection', 'technology');
     navigate(`/portfolio/${userName}`);
   };
 

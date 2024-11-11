@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const CertificatesSection = ({ userName }) => {
   const {
     certificateSection,
-    fetchCertificateSection,
+    fetchSection,
     deleteCertificate,
     isLoading,
     error,
@@ -28,7 +28,7 @@ const CertificatesSection = ({ userName }) => {
 
   useEffect(() => {
     if (userName) {
-      fetchCertificateSection(userName);
+      fetchSection(userName, "certificateSection", "/certificates");
     }
   }, [userName]);
 

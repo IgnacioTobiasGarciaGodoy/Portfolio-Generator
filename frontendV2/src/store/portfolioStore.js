@@ -18,23 +18,21 @@ export const usePortfolioStore = create(set => ({
   error: null,
 
   //* Funciones para PresentationSection
-  fetchPresentationSection: async userName => {
+  fetchSection: async (userName, sectionName, endpoint) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get(
-        `${API_URL}/${userName}/presentation`
-      );
+      const response = await axios.get(`${API_URL}/${userName}${endpoint}`);
       set({
-        presentationSection: response.data.presentationSection,
-        isLoading: false,
+        [sectionName]: response.data[sectionName],
       });
     } catch (error) {
       set({
-        error:
-          error.response?.data?.message ||
-          "Error obteniendo la presentación",
-        isLoading: false,
+        error: error.response?.data?.message || "Error obteniendo la presentación"
       });
+    } finally {
+      set({
+        isLoading: false
+      })
     }
   },
 
@@ -44,130 +42,62 @@ export const usePortfolioStore = create(set => ({
       const formData = new FormData();
       formData.append(section, JSON.stringify(data));
 
-      await axios.put(
-        `${API_URL}/${userName}/${endpoint}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.put(`${API_URL}/${userName}/${endpoint}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
       set({
-        data,
+        data
       });
     } catch (error) {
       set({
-        error:
-          error.response?.data?.message ||
-          `Error editando ${section}`,
+        error: error.response?.data?.message || `Error editando ${section}`
       });
     } finally {
       set({
-        isLoading: false,
+        isLoading: false
       });
     }
   },
 
-  editItem: async (userName, sectionId, editedData, sectionName, subSectionName, endpointPath) => {
+  editItem: async (userName, sectionId, endpointPath, editedData, sectionName, objectName) => {
     set({ isLoading: true, error: null });
     try {
       const formData = new FormData();
-      formData.append(
-        `${sectionName}`,
-        JSON.stringify({
-          [sectionName]: editedData,
-        })
-      );
-  
+      formData.append(sectionName, JSON.stringify({ [objectName]: editedData }));
+
       await axios.put(
-        `${API_URL}/${userName}/${endpointPath}/${sectionId}`,
+        `${API_URL}/${userName}${endpointPath}/${sectionId}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-  
-      set(state => ({
-        fetch
-      }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || `Error editando ${sectionName}`,
+        error: error.response?.data?.message || `Error editando ${sectionName}`
       });
     } finally {
       set({ isLoading: false });
     }
   },
-  
 
-  //* Funciones para AboutMeSection
-  fetchAboutMeSection: async userName => {
+  addItem: async (userName, endpointPath, itemData, sectionName, objectName) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get(
-        `${API_URL}/${userName}/aboutme`
-      );
-      set({
-        aboutMeSection: response.data.aboutMeSection,
-        isLoading: false,
+      const formData = new FormData();
+      formData.append(sectionName, JSON.stringify({ [objectName]: itemData }));
+
+      await axios.post(`${API_URL}/${userName}${endpointPath}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
       });
     } catch (error) {
       set({
-        error:
-          error.response?.data?.message ||
-          "Error obteniendo About Me",
-        isLoading: false,
+        error: error.response?.data?.message || `Error agregando item ${sectionName}`
       });
+    } finally {
+      set({ isLoading: false })
     }
   },
 
   //* Funciones para CertificateSection
-  fetchCertificateSection: async userName => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.get(
-        `${API_URL}/${userName}/certificates`
-      );
-      set({
-        certificateSection: response.data.certificateSection,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error obteniendo certificados",
-        isLoading: false,
-      });
-    }
-  },
-
-  addCertificate: async (userName, certificate) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.post(
-        `${API_URL}/${userName}/add/certificate`,
-        { certificate }
-      );
-      set(state => ({
-        certificateSection: {
-          ...state.certificateSection,
-          certificates: [
-            ...state.certificateSection.certificates,
-            response.data.certificate,
-          ],
-        },
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error al agregar certificado",
-        isLoading: false,
-      });
-    }
-  },
-
   deleteCertificate: async (userName, certificateId) => {
     try {
       await axios.delete(
@@ -188,73 +118,7 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  editCertificate: async (
-    userName,
-    certificateId,
-    editedCertificate
-  ) => {
-    set({ isLoading: true, error: null });
-    try {
-      const formData = new FormData();
-      formData.append(
-        "certificateSection",
-        JSON.stringify({
-          certificate: editedCertificate,
-        })
-      );
-
-      // Si necesitas enviar una imagen adicional, puedes añadirla aquí
-      // formData.append('image', selectedImage); // Ajusta si tienes lógica para manejar la imagen seleccionada
-
-      await axios.put(
-        `${API_URL}/${userName}/edit/certificate/${certificateId}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-
-      set(state => ({
-        certificateSection: {
-          ...state.certificateSection,
-          certificates: state.certificateSection.certificates.map(
-            cert =>
-              cert._id === certificateId
-                ? { ...cert, ...editedCertificate }
-                : cert
-          ),
-        },
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error editando certificado",
-        isLoading: false,
-      });
-    }
-  },
-
   //* Funciones para ContactSection
-  fetchContactSection: async userName => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.get(
-        `${API_URL}/${userName}/contact`
-      );
-      set({
-        contactSection: response.data.contactSection,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error obteniendo información de contacto",
-        isLoading: false,
-      });
-    }
-  },
-
   sendContactMessage: async (userName, formData, userEmail) => {
     set({ isLoading: true, error: null });
     try {
@@ -272,53 +136,6 @@ export const usePortfolioStore = create(set => ({
   },
 
   //* Funciones para EducationSection
-  fetchEducationSection: async userName => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.get(
-        `${API_URL}/${userName}/education`
-      );
-      set({
-        educationSection: response.data.educationSection,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error obteniendo educación",
-        isLoading: false,
-      });
-    }
-  },
-
-  addEducation: async (userName, education) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.post(
-        `${API_URL}/${userName}/add/education`,
-        { education }
-      );
-      set(state => ({
-        educationSection: {
-          ...state.educationSection,
-          educations: [
-            ...state.educationSection.educations,
-            response.data.education,
-          ],
-        },
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error al agregar educación",
-        isLoading: false,
-      });
-    }
-  },
-
   deleteEducation: async (userName, educationId) => {
     try {
       await axios.delete(
@@ -339,92 +156,7 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  editEducation: async (userName, educationId, editedEducation) => {
-    set({ isLoading: true, error: null });
-    try {
-      const formData = new FormData();
-      formData.append(
-        "educationSection",
-        JSON.stringify({
-          education: editedEducation,
-        })
-      );
-
-      await axios.put(
-        `${API_URL}/${userName}/edit/education/${educationId}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-
-      set(state => ({
-        educationSection: {
-          ...state.educationSection,
-          educations: state.educationSection.educations.map(edu =>
-            edu._id === educationId
-              ? { ...edu, ...editedEducation }
-              : edu
-          ),
-        },
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error al editar la educación",
-        isLoading: false,
-      });
-    }
-  },
-
   //* Funciones para ExperienceSection
-  fetchExperienceSection: async userName => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.get(
-        `${API_URL}/${userName}/experience`
-      );
-      set({
-        experienceSection: response.data.experienceSection,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error obteniendo experiencia",
-        isLoading: false,
-      });
-    }
-  },
-
-  addExperience: async (userName, experience) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.post(
-        `${API_URL}/${userName}/add/experience`,
-        { experience }
-      );
-      set(state => ({
-        experienceSection: {
-          ...state.experienceSection,
-          experiences: [
-            ...state.experienceSection.experiences,
-            response.data.experience,
-          ],
-        },
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error al agregar experiencia",
-        isLoading: false,
-      });
-    }
-  },
-
   deleteExperience: async (userName, experienceId) => {
     try {
       await axios.delete(
@@ -445,82 +177,7 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  editExperience: async (userName, experienceId, updatedData) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.put(
-        `${API_URL}/${userName}/update/experience/${experienceId}`,
-        updatedData
-      );
-      set(state => ({
-        experienceSection: {
-          ...state.experienceSection,
-          experiences: state.experienceSection.experiences.map(exp =>
-            exp._id === experienceId
-              ? { ...exp, ...updatedData }
-              : exp
-          ),
-        },
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error editando experiencia",
-        isLoading: false,
-      });
-    }
-  },
-
   //* Funciones para ProjectSection
-  fetchProjectSection: async userName => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.get(
-        `${API_URL}/${userName}/projects`
-      );
-      set({
-        projectSection: response.data.projectSection,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error obteniendo proyectos",
-        isLoading: false,
-      });
-    }
-  },
-
-  addProject: async (userName, project) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.post(
-        `${API_URL}/${userName}/add/project`,
-        { project }
-      );
-      set(state => ({
-        projectSection: {
-          ...state.projectSection,
-          projects: [
-            ...state.projectSection.projects,
-            response.data.project,
-          ],
-        },
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error al agregar proyecto",
-        isLoading: false,
-      });
-    }
-  },
-
   deleteProject: async (userName, projectId) => {
     try {
       await axios.delete(
@@ -541,83 +198,7 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  editProject: async (userName, projectId, updatedData) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.put(
-        `${API_URL}/${userName}/update/project/${projectId}`,
-        updatedData
-      );
-
-      set(state => ({
-        projectSection: {
-          ...state.projectSection,
-          projects: state.projectSection.projects.map(proj =>
-            proj._id === projectId
-              ? { ...proj, ...updatedData }
-              : proj
-          ),
-        },
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error al editar el proyecto",
-        isLoading: false,
-      });
-    }
-  },
-
   //* Funciones para TechnologySection
-  fetchTechnologySection: async userName => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.get(
-        `${API_URL}/${userName}/technologies`
-      );
-      set({
-        technologySection: response.data.technologySection,
-        isLoading: false,
-      });
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error obteniendo tecnologías",
-        isLoading: false,
-      });
-    }
-  },
-
-  addTechnology: async (userName, technology) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axios.post(
-        `${API_URL}/${userName}/add/technology`,
-        { technology }
-      );
-      set(state => ({
-        technologySection: {
-          ...state.technologySection,
-          technologies: [
-            ...state.technologySection.technologies,
-            response.data.technology,
-          ],
-        },
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({
-        error:
-          error.response?.data?.message ||
-          "Error al agregar tecnología",
-        isLoading: false,
-      });
-    }
-  },
-
   deleteTechnology: async (userName, technologyId) => {
     try {
       await axios.delete(

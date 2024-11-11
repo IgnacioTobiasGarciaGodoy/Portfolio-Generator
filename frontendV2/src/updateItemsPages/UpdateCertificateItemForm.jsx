@@ -6,7 +6,7 @@ const EditCertificateForm = () => {
   const { userName, certificateId } = useParams();
   const {
     certificateSection,
-    fetchCertificateSection,
+    fetchSection,
     editItem,
   } = usePortfolioStore();
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const EditCertificateForm = () => {
 
   useEffect(() => {
     if (!certificateSection) {
-      fetchCertificateSection(userName);
+      fetchSection(userName, "certificateSectio", "/certificates");
     } else {
       const certificate = certificateSection.certificates.find(
         cert => cert._id === certificateId
@@ -32,12 +32,7 @@ const EditCertificateForm = () => {
         });
       }
     }
-  }, [
-    certificateId,
-    certificateSection,
-    userName,
-    fetchCertificateSection,
-  ]);
+  }, [certificateId, certificateSection, userName, fetchSection]);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -62,7 +57,7 @@ const EditCertificateForm = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    await editItem(userName, certificateId, editedCertificate, 'certificateSection', `certificate` , 'edit/certificate');
+    await editItem(userName, certificateId, '/edit/certificate', editedCertificate, 'certificateSection', 'certificate');
     navigate(`/portfolio/${userName}`);
   };
 

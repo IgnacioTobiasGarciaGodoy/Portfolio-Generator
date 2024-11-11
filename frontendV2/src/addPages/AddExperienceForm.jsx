@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const AddExperienceForm = () => {
   const { userName } = useParams();
-  const { addExperience } = usePortfolioStore();
+  const { addItem } = usePortfolioStore();
   const navigate = useNavigate();
 
   const [newExperience, setNewExperience] = useState({
@@ -34,7 +34,7 @@ const AddExperienceForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addExperience(userName, newExperience);
+    await addItem(userName, '/add/experience', newExperience, 'experienceSection', 'experience');
     navigate(`/portfolio/${userName}`);
   };
 

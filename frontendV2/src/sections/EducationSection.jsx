@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const EducationSection = ({ userName }) => {
   const {
     educationSection,
-    fetchEducationSection,
+    fetchSection,
     deleteEducation,
     isLoading,
     error,
@@ -28,7 +28,7 @@ const EducationSection = ({ userName }) => {
 
   useEffect(() => {
     if (userName) {
-      fetchEducationSection(userName);
+      fetchSection(userName, "educationSection", "/education");
     }
   }, [userName]);
 

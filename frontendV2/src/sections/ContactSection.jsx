@@ -13,14 +13,14 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const contactSectionSection = ({ userName }) => {
-  const { contactSection, fetchContactSection, sendContactMessage, isLoading, error } = usePortfolioStore();
+  const { contactSection, fetchSection, sendContactMessage, isLoading, error } = usePortfolioStore();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
   const isOwner = isAuthenticated && user?.userName === userName;
 
   useEffect(() => {
     if (userName) {
-      fetchContactSection(userName);
+      fetchSection(userName, "contactSection", "/contact");
     }
   }, [userName]);
 

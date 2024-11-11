@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditExperiencePage = () => {
   const { userName } = useParams();
-  const { experienceSection, editSection, fetchExperienceSection } = usePortfolioStore();
+  const { experienceSection, editSection, fetchSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -20,9 +20,9 @@ const EditExperiencePage = () => {
 
   useEffect(() => {
     if (!experienceSection) {
-      fetchExperienceSection(userName);
+      fetchSection(userName, "experienceSection", "/experience");
     }
-  }, [userName, fetchExperienceSection, experienceSection]);
+  }, [userName, fetchSection, experienceSection]);
 
   useEffect(() => {
     // Si el usuario está autenticado y el userName en la URL no coincide, redirige

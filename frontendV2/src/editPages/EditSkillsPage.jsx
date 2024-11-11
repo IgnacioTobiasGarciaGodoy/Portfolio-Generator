@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditSkillsPage = () => {
   const { userName } = useParams();
-  const { technologySection, editSection, fetchTechnologySection } = usePortfolioStore();
+  const { technologySection, editSection, fetchSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -20,7 +20,7 @@ const EditSkillsPage = () => {
 
   useEffect(() => {
     if (!technologySection) {
-      fetchTechnologySection(userName);
+      fetchSection(userName, "technologySection", "/technologies");
     }
   }, [userName, fetchTechnologySection, technologySection]);
 

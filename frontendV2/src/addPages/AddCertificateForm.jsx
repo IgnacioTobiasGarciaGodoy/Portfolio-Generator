@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const AddCertificateForm = () => {
   const { userName } = useParams();
-  const { addCertificate } = usePortfolioStore();
+  const { addItem } = usePortfolioStore();
   const navigate = useNavigate();
 
   const [newCertificate, setNewCertificate] = useState({
@@ -29,14 +29,14 @@ const AddCertificateForm = () => {
     } else {
       setNewCertificate((prevCertificate) => ({
         ...prevCertificate,
-        [name]: value,
+        name: { text: value },
       }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addCertificate(userName, newCertificate);
+    await addItem(userName, '/add/certificate', newCertificate, 'certificateSection', 'certificate');
     navigate(`/portfolio/${userName}`);
   };
 
@@ -54,7 +54,7 @@ const AddCertificateForm = () => {
           <input
             type="text"
             name="name"
-            value={newCertificate.name}
+            value={newCertificate.name.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />
@@ -86,11 +86,11 @@ const AddCertificateForm = () => {
           Agregar Certificado
         </button>
         <button
-        onClick={handleCancel}
-        className="w-full mt-4 bg-red-600 text-white px-6 py-3 rounded hover:bg-red-700 font-semibold"
-      >
-        Cancelar
-      </button>
+          onClick={handleCancel}
+          className="w-full mt-4 bg-red-600 text-white px-6 py-3 rounded hover:bg-red-700 font-semibold"
+        >
+          Cancelar
+        </button>
       </form>
     </div>
   );

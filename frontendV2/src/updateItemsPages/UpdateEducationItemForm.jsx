@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditEducationForm = () => {
   const { userName, educationId } = useParams();
-  const { educationSection, editItem, fetchEducationSection } = usePortfolioStore();
+  const { educationSection, editItem, fetchSection } = usePortfolioStore();
   const navigate = useNavigate();
 
   const [editedEducation, setEditedEducation] = useState({
@@ -18,7 +18,7 @@ const EditEducationForm = () => {
 
   useEffect(() => {
     if (!educationSection) {
-      fetchEducationSection(userName);
+      fetchSection(userName, "educationSection", "/education");
     } else {
       const education = educationSection.educations.find(edu => edu._id === educationId);
       if (education) {
@@ -32,7 +32,7 @@ const EditEducationForm = () => {
         });
       }
     }
-  }, [educationId, educationSection, userName, fetchEducationSection]);
+  }, [educationId, educationSection, userName, fetchSection]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,7 +52,7 @@ const EditEducationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await editItem(userName, educationId, editedEducation, 'educationSection', `education`, 'edit/education');
+    await editItem(userName, educationId, '/edit/education', editedEducation, 'educationSection', 'education');
     navigate(`/portfolio/${userName}`);
   };
 

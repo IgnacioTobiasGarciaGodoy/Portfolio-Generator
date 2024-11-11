@@ -5,8 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditContactPage = () => {
   const { userName } = useParams();
-  const { contactSection, fetchContactSection, editSection } =
-    usePortfolioStore();
+  const { contactSection, fetchSection, editSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -41,7 +40,7 @@ const EditContactPage = () => {
   };
 
   useEffect(() => {
-    fetchContactSection(userName);
+    fetchSection(userName, "contactSection", "/contact");
   }, [userName, fetchContactSection]);
 
   useEffect(() => {

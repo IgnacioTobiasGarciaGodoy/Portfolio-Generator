@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const AddProjectForm = () => {
   const { userName } = useParams();
-  const { addProject } = usePortfolioStore();
+  const { addItem } = usePortfolioStore();
   const navigate = useNavigate();
 
   const [newProject, setNewProject] = useState({
@@ -35,7 +35,7 @@ const AddProjectForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addProject(userName, newProject);
+    await addItem(userName, '/add/project', newProject, 'projectSection', 'project');
     navigate(`/portfolio/${userName}`);
   };
 

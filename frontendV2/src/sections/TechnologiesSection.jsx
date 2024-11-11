@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const TechnologiesSection = ({ userName }) => {
   const {
     technologySection,
-    fetchTechnologySection,
+    fetchSection,
     deleteTechnology,
     isLoading,
     error,
@@ -28,7 +28,7 @@ const TechnologiesSection = ({ userName }) => {
 
   useEffect(() => {
     if (userName) {
-      fetchTechnologySection(userName);
+      fetchSection(userName, "technologySection", "/technologies");
     }
   }, [userName]);
 

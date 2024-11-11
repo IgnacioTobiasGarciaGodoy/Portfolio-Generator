@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 const ProjectsSection = ({ userName }) => {
   const {
     projectSection,
-    fetchProjectSection,
+    fetchSection,
     deleteProject,
     isLoading,
     error,
@@ -37,9 +37,9 @@ const ProjectsSection = ({ userName }) => {
 
   useEffect(() => {
     if (userName) {
-      fetchProjectSection(userName);
+      fetchSection(userName, "projectSection", "/projects");
     }
-  }, [userName, fetchProjectSection]);
+  }, [userName]);
 
   if (isLoading)
     return <p className="text-center">Cargando Proyectos...</p>;

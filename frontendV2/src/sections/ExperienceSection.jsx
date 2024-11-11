@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const ExperienceSection = ({ userName }) => {
   const {
     experienceSection,
-    fetchExperienceSection,
+    fetchSection,
     deleteExperience,
     isLoading,
     error,
@@ -28,7 +28,7 @@ const ExperienceSection = ({ userName }) => {
 
   useEffect(() => {
     if (userName) {
-      fetchExperienceSection(userName);
+      fetchSection(userName, "experienceSection", "/experience");
     }
   }, [userName]);
 

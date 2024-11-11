@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditPresentationPage = () => {
   const { userName } = useParams();
-  const { presentationSection, editSection, fetchPresentationSection } = usePortfolioStore();
+  const { presentationSection, editSection, fetchSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -33,9 +33,9 @@ const EditPresentationPage = () => {
 
   useEffect(() => {
     if (!presentationSection) {
-      fetchPresentationSection(userName);
+      fetchSection(userName, "presentationSection", "/presentation");
     }
-  }, [userName, fetchPresentationSection, presentationSection]);
+  }, [userName, fetchSection, presentationSection]);
 
   useEffect(() => {
     // Si el usuario está autenticado y el userName en la URL no coincide, redirige

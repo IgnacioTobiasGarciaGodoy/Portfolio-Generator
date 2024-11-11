@@ -8,7 +8,7 @@ import { baseUrl } from "../utils/connection.js"
 const presentationSectionSection = ({ userName }) => {
   const {
     presentationSection,
-    fetchPresentationSection,
+    fetchSection,
     isLoading,
     error,
   } = usePortfolioStore();
@@ -18,7 +18,7 @@ const presentationSectionSection = ({ userName }) => {
 
   useEffect(() => {
     if (userName) {
-      fetchPresentationSection(userName);
+      fetchSection(userName, "presentationSection", "/presentation");
     }
   }, [userName]);
 

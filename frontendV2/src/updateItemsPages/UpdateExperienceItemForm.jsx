@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditExperienceForm = () => {
   const { userName, experienceId } = useParams();
-  const { experienceSection, editExperience, fetchExperienceSection } = usePortfolioStore();
+  const { experienceSection, editItem, fetchSection } = usePortfolioStore();
   const navigate = useNavigate();
 
   // Estado local para almacenar los datos del formulario
@@ -20,7 +20,7 @@ const EditExperienceForm = () => {
   // Carga las experiencias si no están disponibles en el estado global
   useEffect(() => {
     if (!experienceSection) {
-      fetchExperienceSection(userName);
+      fetchSection(userName, "experienceSection", "/experience");
     } else {
       const experience = experienceSection.experiences.find(exp => exp._id === experienceId);
       if (experience) {
@@ -34,7 +34,7 @@ const EditExperienceForm = () => {
         });
       }
     }
-  }, [experienceId, experienceSection, userName, fetchExperienceSection]);
+  }, [experienceId, experienceSection, userName, fetchSection]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +54,7 @@ const EditExperienceForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await editExperience(userName, experienceId, editedExperience);
+    await editItem(userName, experienceId, '/edit/experience', editedExperience, 'experienceSection', 'experience');
     navigate(`/portfolio/${userName}`);
   };
 

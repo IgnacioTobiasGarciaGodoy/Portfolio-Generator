@@ -5,7 +5,7 @@ import { useAuthStore } from "../store/authStore";
 
 const EditAboutMePage = () => {
   const { userName } = useParams();
-  const { aboutMeSection, editSection, fetchAboutMeSection } = usePortfolioStore();
+  const { aboutMeSection, editSection, fetchSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -30,7 +30,7 @@ const EditAboutMePage = () => {
 
   useEffect(() => {
     if (!aboutMeSection) {
-      fetchAboutMeSection(userName);
+      fetchSection(userName, "aboutMeSection", "/aboutme");
     }
   }, [userName]);
 

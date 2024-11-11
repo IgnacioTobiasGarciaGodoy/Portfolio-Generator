@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditProjectForm = () => {
   const { userName, projectId } = useParams(); // Asegúrate de pasar 'projectId' desde la URL
-  const { projectSection, editProject, fetchProjectSection } = usePortfolioStore();
+  const { projectSection, editProject, fetchSection } = usePortfolioStore();
   const navigate = useNavigate();
 
   const [editedProject, setEditedProject] = useState({
@@ -20,7 +20,7 @@ const EditProjectForm = () => {
   // Cargar los datos del proyecto existente al montar el componente
   useEffect(() => {
     if (!projectSection) {
-      fetchProjectSection(userName); // Carga los proyectos si no están en el estado global
+      fetchSection(userName, "projectSection", "/projects");
     } else {
       // Encuentra el proyecto a editar
       const project = projectSection.projects.find(proj => proj._id === projectId);
@@ -34,7 +34,7 @@ const EditProjectForm = () => {
         });
       }
     }
-  }, [projectId, projectSection, userName, fetchProjectSection]);
+  }, [projectId, projectSection, userName, fetchSection]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +54,7 @@ const EditProjectForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await editProject(userName, projectId, editedProject); // Llama a la función para editar el proyecto
+    await editProject(userName, projectId, '/edit/project', editedProject, 'projectSection', 'project'); // Llama a la función para editar el proyecto
     navigate(`/portfolio/${userName}`);
   };
 

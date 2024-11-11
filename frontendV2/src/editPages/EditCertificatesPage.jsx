@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditCertificatesPage = () => {
   const { userName } = useParams();
-  const { certificateSection, editSection, fetchCertificateSection } = usePortfolioStore();
+  const { certificateSection, editSection, fetchSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -21,9 +21,9 @@ const EditCertificatesPage = () => {
 
   useEffect(() => {
     if (!certificateSection) {
-      fetchCertificateSection(userName);
+      fetchSection(userName, "certificateSectio", "/certificates");
     }
-  }, [userName, fetchCertificateSection, certificateSection]);
+  }, [userName, fetchSection, certificateSection]);
 
   useEffect(() => {
     // Si el usuario está autenticado y el userName en la URL no coincide, redirige
