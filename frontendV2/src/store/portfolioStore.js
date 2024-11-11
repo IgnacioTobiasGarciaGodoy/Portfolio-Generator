@@ -44,26 +44,60 @@ export const usePortfolioStore = create(set => ({
       const formData = new FormData();
       formData.append(section, JSON.stringify(data));
 
-      await axios.put(`${API_URL}/${userName}/${endpoint}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      await axios.put(
+        `${API_URL}/${userName}/${endpoint}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       set({
-        data
+        data,
       });
     } catch (error) {
       set({
         error:
           error.response?.data?.message ||
-          `Error editando ${section}`
+          `Error editando ${section}`,
       });
     } finally {
-      set ({
-        isLoading: false
-      })
+      set({
+        isLoading: false,
+      });
     }
   },
+
+  editItem: async (userName, sectionId, editedData, sectionName, subSectionName, endpointPath) => {
+    set({ isLoading: true, error: null });
+    try {
+      const formData = new FormData();
+      formData.append(
+        `${sectionName}`,
+        JSON.stringify({
+          [sectionName]: editedData,
+        })
+      );
+  
+      await axios.put(
+        `${API_URL}/${userName}/${endpointPath}/${sectionId}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+  
+      set(state => ({
+        fetch
+      }));
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || `Error editando ${sectionName}`,
+      });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  
 
   //* Funciones para AboutMeSection
   fetchAboutMeSection: async userName => {
@@ -154,36 +188,58 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  editCertificate: async (userName, certificateId, updatedData) => {
+  editCertificate: async (
+    userName,
+    certificateId,
+    editedCertificate
+  ) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.put(
-        `${API_URL}/${userName}/update/certificates/${certificateId}`,
-        updatedData
+      const formData = new FormData();
+      formData.append(
+        "certificateSection",
+        JSON.stringify({
+          certificate: editedCertificate,
+        })
       );
+
+      // Si necesitas enviar una imagen adicional, puedes añadirla aquí
+      // formData.append('image', selectedImage); // Ajusta si tienes lógica para manejar la imagen seleccionada
+
+      await axios.put(
+        `${API_URL}/${userName}/edit/certificate/${certificateId}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
       set(state => ({
         certificateSection: {
           ...state.certificateSection,
-          certificates: state.certificateSection.certificates.map(cert =>
-            cert._id === certificateId ? { ...cert, ...updatedData } : cert
+          certificates: state.certificateSection.certificates.map(
+            cert =>
+              cert._id === certificateId
+                ? { ...cert, ...editedCertificate }
+                : cert
           ),
         },
         isLoading: false,
       }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Error editando certificado",
+        error:
+          error.response?.data?.message ||
+          "Error editando certificado",
         isLoading: false,
       });
     }
-  },  
+  },
 
   //* Funciones para ContactSection
   fetchContactSection: async userName => {
     set({ isLoading: true, error: null });
     try {
       const response = await axios.get(
-        `${API_URL}/${userName}/get-contact-info`
+        `${API_URL}/${userName}/contact`
       );
       set({
         contactSection: response.data.contactSection,
@@ -213,7 +269,7 @@ export const usePortfolioStore = create(set => ({
       console.error("Error al enviar el mensaje:", error.message);
       set({ error: error.message });
     }
-  },  
+  },
 
   //* Funciones para EducationSection
   fetchEducationSection: async userName => {
@@ -283,30 +339,44 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  editEducation: async (userName, educationId, updatedData) => {
+  editEducation: async (userName, educationId, editedEducation) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.put(
-        `${API_URL}/${userName}/update/education/${educationId}`,
-        updatedData
+      const formData = new FormData();
+      formData.append(
+        "educationSection",
+        JSON.stringify({
+          education: editedEducation,
+        })
       );
+
+      await axios.put(
+        `${API_URL}/${userName}/edit/education/${educationId}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
       set(state => ({
         educationSection: {
           ...state.educationSection,
           educations: state.educationSection.educations.map(edu =>
-            edu._id === educationId ? { ...edu, ...updatedData } : edu
+            edu._id === educationId
+              ? { ...edu, ...editedEducation }
+              : edu
           ),
         },
         isLoading: false,
       }));
     } catch (error) {
       set({
-        error: error.response?.data?.message || "Error al editar la educación",
+        error:
+          error.response?.data?.message ||
+          "Error al editar la educación",
         isLoading: false,
       });
     }
   },
-  
+
   //* Funciones para ExperienceSection
   fetchExperienceSection: async userName => {
     set({ isLoading: true, error: null });

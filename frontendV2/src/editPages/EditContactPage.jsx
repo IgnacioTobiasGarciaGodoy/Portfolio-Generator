@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditContactPage = () => {
   const { userName } = useParams();
-  const { contactSection, fetchContactSection, editContactSection } =
+  const { contactSection, fetchContactSection, editSection } =
     usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ const EditContactPage = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    await editContactSection(userName, contactData);
+    await editSection(userName, "contactSection" , contactData, "edit/contact");
     navigate(`/portfolio/${userName}`);
   };
 

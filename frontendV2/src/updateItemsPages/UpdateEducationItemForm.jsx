@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditEducationForm = () => {
   const { userName, educationId } = useParams();
-  const { educationSection, editEducation, fetchEducationSection } = usePortfolioStore();
+  const { educationSection, editItem, fetchEducationSection } = usePortfolioStore();
   const navigate = useNavigate();
 
   const [editedEducation, setEditedEducation] = useState({
@@ -52,7 +52,7 @@ const EditEducationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await editEducation(userName, educationId, editedEducation);
+    await editItem(userName, educationId, editedEducation, 'educationSection', `education`, 'edit/education');
     navigate(`/portfolio/${userName}`);
   };
 

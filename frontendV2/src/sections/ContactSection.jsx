@@ -118,7 +118,7 @@ const contactSectionSection = ({ userName }) => {
               <ul className="flex mt-4 space-x-4">
                 <li className="bg-[#e6e6e6cf] h-10 w-10 rounded-full flex items-center justify-center shrink-0">
                   <a
-                    href={contactSection?.linkedin?.text || "#"}
+                    href={contactSection?.linkedin?.link || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -127,7 +127,7 @@ const contactSectionSection = ({ userName }) => {
                 </li>
                 <li className="bg-[#e6e6e6cf] h-10 w-10 rounded-full flex items-center justify-center shrink-0">
                   <a
-                    href={contactSection?.github?.text || "#"}
+                    href={contactSection?.github?.link || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

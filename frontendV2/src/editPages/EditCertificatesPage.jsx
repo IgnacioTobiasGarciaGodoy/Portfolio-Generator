@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditCertificatesPage = () => {
   const { userName } = useParams();
-  const { certificateSection, editCertificatesSection, fetchCertificateSection } = usePortfolioStore();
+  const { certificateSection, editSection, fetchCertificateSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -36,7 +36,7 @@ const EditCertificatesPage = () => {
     const updatedCertificatesSection = {
       sectionTitle,
     };
-    await editCertificatesSection(userName, updatedCertificatesSection);
+    await editSection(userName, "certificateSection" ,updatedCertificatesSection, "edit/certificatesection");
     navigate(`/portfolio/${userName}`);
   };
 

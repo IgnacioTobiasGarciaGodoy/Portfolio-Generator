@@ -73,13 +73,13 @@ const TechnologiesSection = ({ userName }) => {
               >
                 <div className="w-20 h-20 dark:bg-gray-800 flex items-center justify-center rounded-md">
                   <img
-                    src={tech.image?.image}
+                    src={tech.image?.url}
                     className="h-16 w-16 object-contain transition-all duration-300 rounded-lg filter grayscale hover:grayscale-0"
-                    alt={tech.name}
+                    alt={tech.name.text}
                   />
                 </div>
                 <p className="text-lg font-bold text-white dark:text-white mt-4">
-                  {tech.name}
+                  {tech.name.text}
                 </p>
                 {isOwner && (
                   <Trash2

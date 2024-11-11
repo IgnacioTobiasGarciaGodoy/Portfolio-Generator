@@ -72,12 +72,12 @@ const CertificatesSection = ({ userName }) => {
             >
               <img
                 className="rounded-t-lg"
-                src={cert.image?.image}
-                alt={cert.name}
+                src={cert.image?.url}
+                alt={cert.name.text}
               />
               <div className="p-5">
                 <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                  {cert.name}
+                  {cert.name.text}
                   {isOwner && (
                     <>
                     <FilePenLine 

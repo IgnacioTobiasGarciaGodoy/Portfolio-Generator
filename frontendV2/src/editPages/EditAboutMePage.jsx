@@ -5,7 +5,7 @@ import { useAuthStore } from "../store/authStore";
 
 const EditAboutMePage = () => {
   const { userName } = useParams();
-  const { aboutMeSection, editAboutMeSection, fetchAboutMeSection } = usePortfolioStore();
+  const { aboutMeSection, editSection, fetchAboutMeSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -46,7 +46,7 @@ const EditAboutMePage = () => {
       sectionTitle,
       bodyText,
     };
-    await editAboutMeSection(userName, updatedAboutMeSection);
+    await editSection(userName, "aboutMeSection", updatedAboutMeSection, "edit/aboutMe");
     navigate(`/portfolio/${userName}`);
   };
 

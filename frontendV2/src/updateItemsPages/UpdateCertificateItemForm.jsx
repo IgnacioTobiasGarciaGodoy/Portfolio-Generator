@@ -3,17 +3,17 @@ import { usePortfolioStore } from "../store/portfolioStore";
 import { useParams, useNavigate } from "react-router-dom";
 
 const EditCertificateForm = () => {
-  const { userName, certificateId } = useParams(); // Obtiene certificateId de la URL
+  const { userName, certificateId } = useParams();
   const {
     certificateSection,
     fetchCertificateSection,
-    editCertificate,
+    editItem,
   } = usePortfolioStore();
   const navigate = useNavigate();
 
   const [editedCertificate, setEditedCertificate] = useState({
-    name: "",
-    image: { image: "" },
+    name: { text: "" },
+    image: { url: "" },
     description: { text: "" },
   });
 
@@ -26,8 +26,8 @@ const EditCertificateForm = () => {
       );
       if (certificate) {
         setEditedCertificate({
-          name: certificate.name || "",
-          image: { image: certificate.image.image || "" },
+          name: { text: certificate.name.text || "" },
+          image: { url: certificate.image.url || "" },
           description: { text: certificate.description.text || "" },
         });
       }
@@ -45,7 +45,7 @@ const EditCertificateForm = () => {
     if (name === "image") {
       setEditedCertificate(prevCertificate => ({
         ...prevCertificate,
-        image: { image: value },
+        image: { url: value },
       }));
     } else if (name === "description") {
       setEditedCertificate(prevCertificate => ({
@@ -55,14 +55,14 @@ const EditCertificateForm = () => {
     } else {
       setEditedCertificate(prevCertificate => ({
         ...prevCertificate,
-        [name]: value,
+        name: { text: value },
       }));
     }
   };
 
   const handleSubmit = async e => {
     e.preventDefault();
-    await editCertificate(userName, certificateId, editedCertificate); // Llama a la función para editar el certificado
+    await editItem(userName, certificateId, editedCertificate, 'certificateSection', `certificate` , 'edit/certificate');
     navigate(`/portfolio/${userName}`);
   };
 
@@ -79,7 +79,7 @@ const EditCertificateForm = () => {
           <input
             type="text"
             name="name"
-            value={editedCertificate.name}
+            value={editedCertificate.name.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />
@@ -102,7 +102,7 @@ const EditCertificateForm = () => {
           <input
             type="text"
             name="image"
-            value={editedCertificate.image.image}
+            value={editedCertificate.image.url}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
             placeholder="URL de la imagen del certificado"

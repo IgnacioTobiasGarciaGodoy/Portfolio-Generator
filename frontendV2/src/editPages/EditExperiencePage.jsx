@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditExperiencePage = () => {
   const { userName } = useParams();
-  const { experienceSection, editExperienceSection, fetchExperienceSection } = usePortfolioStore();
+  const { experienceSection, editSection, fetchExperienceSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -35,7 +35,7 @@ const EditExperiencePage = () => {
     const updatedExperienceSection = {
       sectionTitle,
     };
-    await editExperienceSection(userName, updatedExperienceSection);
+    await editSection(userName, "experienceSection" ,updatedExperienceSection, "edit/experiencesection");
     navigate(`/portfolio/${userName}`);
   };
 
