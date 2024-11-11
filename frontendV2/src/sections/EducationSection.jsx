@@ -8,7 +8,7 @@ const EducationSection = ({ userName }) => {
   const {
     educationSection,
     fetchSection,
-    deleteEducation,
+    deleteItem,
     isLoading,
     error,
   } = usePortfolioStore();
@@ -22,7 +22,7 @@ const EducationSection = ({ userName }) => {
         "¿Estás seguro de que quieres eliminar esta educación?"
       )
     ) {
-      deleteEducation(userName, educationId);
+      deleteItem(userName, educationId, "/delete/education", "educationSection", "educations");
     }
   };
 

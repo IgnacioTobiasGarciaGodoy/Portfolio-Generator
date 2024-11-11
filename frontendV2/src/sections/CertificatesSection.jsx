@@ -8,7 +8,7 @@ const CertificatesSection = ({ userName }) => {
   const {
     certificateSection,
     fetchSection,
-    deleteCertificate,
+    deleteItem,
     isLoading,
     error,
   } = usePortfolioStore();
@@ -22,7 +22,7 @@ const CertificatesSection = ({ userName }) => {
         "¿Estás seguro de que quieres eliminar este certificado?"
       )
     ) {
-      deleteCertificate(userName, certificateId);
+      deleteItem(userName, certificateId, "/delete/certificate", "certificateSection", "certificates");
     }
   };
 

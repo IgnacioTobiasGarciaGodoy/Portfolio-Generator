@@ -8,7 +8,7 @@ const ExperienceSection = ({ userName }) => {
   const {
     experienceSection,
     fetchSection,
-    deleteExperience,
+    deleteItem,
     isLoading,
     error,
   } = usePortfolioStore();
@@ -22,7 +22,7 @@ const ExperienceSection = ({ userName }) => {
         "¿Estás seguro de que quieres eliminar esta experiencia?"
       )
     ) {
-      deleteExperience(userName, experienceId);
+      deleteItem(userName, experienceId, "/delete/experience", "experienceSection", "experiences");
     }
   };
 

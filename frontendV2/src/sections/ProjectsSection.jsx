@@ -16,7 +16,7 @@ const ProjectsSection = ({ userName }) => {
   const {
     projectSection,
     fetchSection,
-    deleteProject,
+    deleteItem,
     isLoading,
     error,
   } = usePortfolioStore();
@@ -31,7 +31,7 @@ const ProjectsSection = ({ userName }) => {
         "¿Estás seguro de que quieres eliminar este proyecto?"
       )
     ) {
-      deleteProject(userName, projectId);
+      deleteItem(userName, projectId, "/delete/project", "projectSection", "projects");
     }
   };
 

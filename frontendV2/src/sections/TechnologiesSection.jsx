@@ -8,7 +8,7 @@ const TechnologiesSection = ({ userName }) => {
   const {
     technologySection,
     fetchSection,
-    deleteTechnology,
+    deleteItem,
     isLoading,
     error,
   } = usePortfolioStore();
@@ -22,7 +22,7 @@ const TechnologiesSection = ({ userName }) => {
         "¿Estás seguro de que quieres eliminar esta tecnología?"
       )
     ) {
-      deleteTechnology(userName, technologyId);
+      deleteItem(userName, technologyId, "/delete/technology", "technologySection", "technologies");
     }
   };
 
