@@ -22,7 +22,7 @@ const EditSkillsPage = () => {
     if (!technologySection) {
       fetchSection(userName, "technologySection", "/technologies");
     }
-  }, [userName, fetchTechnologySection, technologySection]);
+  }, [userName, fetchSection, technologySection]);
 
   useEffect(() => {
     // Si el usuario está autenticado y el userName en la URL no coincide, redirige

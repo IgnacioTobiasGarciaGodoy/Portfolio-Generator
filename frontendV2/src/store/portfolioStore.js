@@ -35,11 +35,15 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  editSection: async (userName, section, data, endpoint) => {
+  editSection: async (userName, section, data, endpoint, image) => {
     set({ isLoading: true, error: null });
     try {
       const formData = new FormData();
       formData.append(section, JSON.stringify(data));
+
+      if (image instanceof File) {
+        formData.append('image', image);
+      }
 
       await axios.put(`${API_URL}/${userName}/${endpoint}`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
@@ -83,6 +87,10 @@ export const usePortfolioStore = create(set => ({
     try {
       const formData = new FormData();
       formData.append(sectionName, JSON.stringify({ [objectName]: itemData }));
+
+      if (itemData.image instanceof File) {
+        formData.append('image', itemData.image);
+      }
 
       await axios.post(`${API_URL}/${userName}${endpointPath}`, formData, {
         headers: { "Content-Type": "multipart/form-data" }

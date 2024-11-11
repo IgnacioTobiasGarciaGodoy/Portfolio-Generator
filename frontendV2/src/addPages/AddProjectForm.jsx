@@ -11,19 +11,19 @@ const AddProjectForm = () => {
     name: "",
     description: "",
     image: {
-      image: "/path/to/image",
+      url: "/path/to/image",
     },
     demoLink: "",
     gitHubLink: "",
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "image") {
+    const { name, value, files } = e.target;
+  
+    if (name === "image" && files && files[0]) {
       setNewProject((prevProject) => ({
         ...prevProject,
-        image: { image: value },
+        image: files[0],
       }));
     } else {
       setNewProject((prevProject) => ({
@@ -31,25 +31,35 @@ const AddProjectForm = () => {
         [name]: value,
       }));
     }
-  };
+  };  
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    await addItem(userName, '/add/project', newProject, 'projectSection', 'project');
+    await addItem(
+      userName,
+      "/add/project",
+      newProject,
+      "projectSection",
+      "project"
+    );
     navigate(`/portfolio/${userName}`);
   };
 
   const handleCancel = async e => {
     e.preventDefault();
     navigate(`/portfolio/${userName}`);
-  }
+  };
 
   return (
     <div className="max-w-3xl mx-auto mt-12 p-8 bg-gray-800 rounded-lg shadow-md">
-      <h1 className="text-3xl text-white font-bold mb-6">Agregar Nuevo Proyecto</h1>
+      <h1 className="text-3xl text-white font-bold mb-6">
+        Agregar Nuevo Proyecto
+      </h1>
       <form onSubmit={handleSubmit}>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Nombre del Proyecto</label>
+          <label className="block text-gray-300 mb-2">
+            Nombre del Proyecto
+          </label>
           <input
             type="text"
             name="name"
@@ -59,7 +69,9 @@ const AddProjectForm = () => {
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Descripción</label>
+          <label className="block text-gray-300 mb-2">
+            Descripción
+          </label>
           <textarea
             name="description"
             value={newProject.description}
@@ -68,7 +80,9 @@ const AddProjectForm = () => {
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Enlace de Demo</label>
+          <label className="block text-gray-300 mb-2">
+            Enlace de Demo
+          </label>
           <input
             type="text"
             name="demoLink"
@@ -78,7 +92,9 @@ const AddProjectForm = () => {
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Enlace de GitHub</label>
+          <label className="block text-gray-300 mb-2">
+            Enlace de GitHub
+          </label>
           <input
             type="text"
             name="gitHubLink"
@@ -88,14 +104,15 @@ const AddProjectForm = () => {
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Imagen del Proyecto</label>
+          <label className="block text-gray-300 mb-2">
+            Imagen del Proyecto
+          </label>
           <input
-            type="text"
+            type="file"
+            accept="image/*"
             name="image"
-            value={newProject.image.image}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
-            placeholder="URL de la imagen"
           />
         </div>
         <button
@@ -105,11 +122,11 @@ const AddProjectForm = () => {
           Agregar Proyecto
         </button>
         <button
-        onClick={handleCancel}
-        className="w-full mt-4 bg-red-600 text-white px-6 py-3 rounded hover:bg-red-700 font-semibold"
-      >
-        Cancelar
-      </button>
+          onClick={handleCancel}
+          className="w-full mt-4 bg-red-600 text-white px-6 py-3 rounded hover:bg-red-700 font-semibold"
+        >
+          Cancelar
+        </button>
       </form>
     </div>
   );

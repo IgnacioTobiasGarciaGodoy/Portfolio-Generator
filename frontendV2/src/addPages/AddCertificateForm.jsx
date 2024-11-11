@@ -9,17 +9,17 @@ const AddCertificateForm = () => {
 
   const [newCertificate, setNewCertificate] = useState({
     name: "",
-    image: { image: "" },
+    image: { url: "" },
     description: { text: "" },
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "image") {
+    const { name, value, files } = e.target;
+  
+    if (name === "image" && files && files[0]) {
       setNewCertificate((prevCertificate) => ({
         ...prevCertificate,
-        image: { image: value },
+        image: files[0],
       }));
     } else if (name === "description") {
       setNewCertificate((prevCertificate) => ({
@@ -32,25 +32,35 @@ const AddCertificateForm = () => {
         name: { text: value },
       }));
     }
-  };
+  };  
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    await addItem(userName, '/add/certificate', newCertificate, 'certificateSection', 'certificate');
+    await addItem(
+      userName,
+      "/add/certificate",
+      newCertificate,
+      "certificateSection",
+      "certificate"
+    );
     navigate(`/portfolio/${userName}`);
   };
 
   const handleCancel = async e => {
     e.preventDefault();
     navigate(`/portfolio/${userName}`);
-  }
+  };
 
   return (
     <div className="max-w-3xl mx-auto mt-12 p-8 bg-gray-800 rounded-lg shadow-md">
-      <h1 className="text-3xl text-white font-bold mb-6">Agregar Nuevo Certificado</h1>
+      <h1 className="text-3xl text-white font-bold mb-6">
+        Agregar Nuevo Certificado
+      </h1>
       <form onSubmit={handleSubmit}>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Nombre del Certificado</label>
+          <label className="block text-gray-300 mb-2">
+            Nombre del Certificado
+          </label>
           <input
             type="text"
             name="name"
@@ -60,7 +70,9 @@ const AddCertificateForm = () => {
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Descripción</label>
+          <label className="block text-gray-300 mb-2">
+            Descripción
+          </label>
           <textarea
             name="description"
             value={newCertificate.description.text}
@@ -69,14 +81,15 @@ const AddCertificateForm = () => {
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">URL de la Imagen</label>
+          <label className="block text-gray-300 mb-2">
+            Imagen del Certificado
+          </label>
           <input
-            type="text"
+            type="file"
+            accept="image/*"
             name="image"
-            value={newCertificate.image.image}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
-            placeholder="URL de la imagen del certificado"
           />
         </div>
         <button

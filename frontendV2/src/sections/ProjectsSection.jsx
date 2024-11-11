@@ -11,6 +11,7 @@ import {
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
+import { baseUrl } from "../utils/connection.js"
 
 const ProjectsSection = ({ userName }) => {
   const {
@@ -102,8 +103,9 @@ const ProjectsSection = ({ userName }) => {
                 )}
                 <img
                   src={
-                    project.image?.url ||
-                    "/placeholder.svg?height=400&width=600"
+                    projectSection
+                      ? `${baseUrl}${project.image.url}`
+                      : "/public/assets/default/project.jpg"
                   }
                   alt={project.name?.text || "Nombre del proyecto"}
                   className="w-full h-full object-cover object-center"

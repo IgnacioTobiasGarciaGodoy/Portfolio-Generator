@@ -3,6 +3,7 @@ import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
 import { Pencil, Plus, Trash2, FilePenLine } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { baseUrl } from "../utils/connection.js"
 
 const CertificatesSection = ({ userName }) => {
   const {
@@ -72,7 +73,11 @@ const CertificatesSection = ({ userName }) => {
             >
               <img
                 className="rounded-t-lg"
-                src={cert.image?.url}
+                src={
+                  certificateSection
+                    ? `${baseUrl}${cert.image.url}`
+                    : "/public/assets/default/certificate.jpg"
+                }
                 alt={cert.name.text}
               />
               <div className="p-5">

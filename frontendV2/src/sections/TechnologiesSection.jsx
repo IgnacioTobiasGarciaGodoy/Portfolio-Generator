@@ -3,6 +3,7 @@ import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { baseUrl } from "../utils/connection.js"
 
 const TechnologiesSection = ({ userName }) => {
   const {
@@ -73,7 +74,11 @@ const TechnologiesSection = ({ userName }) => {
               >
                 <div className="w-20 h-20 dark:bg-gray-800 flex items-center justify-center rounded-md">
                   <img
-                    src={tech.image?.url}
+                    src={
+                      technologySection
+                        ? `${baseUrl}${tech.image?.url}`
+                        : "/public/assets/default/technology.jpg"
+                    }
                     className="h-16 w-16 object-contain transition-all duration-300 rounded-lg filter grayscale hover:grayscale-0"
                     alt={tech.name.text}
                   />
