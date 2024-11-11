@@ -11,12 +11,13 @@ import {
 import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
+import { baseUrl } from "../utils/connection.js"
 
 const ProjectsSection = ({ userName }) => {
   const {
     projectSection,
-    fetchProjectSection,
-    deleteProject,
+    fetchSection,
+    deleteItem,
     isLoading,
     error,
   } = usePortfolioStore();
@@ -31,15 +32,15 @@ const ProjectsSection = ({ userName }) => {
         "¿Estás seguro de que quieres eliminar este proyecto?"
       )
     ) {
-      deleteProject(userName, projectId);
+      deleteItem(userName, projectId, "/delete/project", "projectSection", "projects");
     }
   };
 
   useEffect(() => {
     if (userName) {
-      fetchProjectSection(userName);
+      fetchSection(userName, "projectSection", "/projects");
     }
-  }, [userName, fetchProjectSection]);
+  }, [userName]);
 
   if (isLoading)
     return <p className="text-center">Cargando Proyectos...</p>;
@@ -50,9 +51,7 @@ const ProjectsSection = ({ userName }) => {
     <section className="w-full pb-8">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl text-white font-bold text-left dark:text-white mt-8 mb-4">
-          {projectSection
-            ? projectSection.sectionTitle.text
-            : "Projects Section"}
+          {projectSection?.sectionTitle?.text || "Projects Section"}
           {isOwner && (
             <>
               <Pencil
@@ -104,10 +103,11 @@ const ProjectsSection = ({ userName }) => {
                 )}
                 <img
                   src={
-                    project.image?.image ||
-                    "/placeholder.svg?height=400&width=600"
+                    projectSection
+                      ? `${baseUrl}${project.image.url}`
+                      : "/public/assets/default/project.jpg"
                   }
-                  alt={project.name || "Nombre del proyecto"}
+                  alt={project.name?.text || "Nombre del proyecto"}
                   className="w-full h-full object-cover object-center"
                 />
                 <div
@@ -118,33 +118,32 @@ const ProjectsSection = ({ userName }) => {
                   }`}
                 >
                   <h3 className="text-white text-xl font-semibold mb-2">
-                    {project.name || "Nombre del proyecto"}
+                    {project.name?.text || "Nombre del proyecto"}
                   </h3>
                   <p className="text-gray-300 text-sm text-center mb-4">
-                    {project.description ||
-                      "Descripción del proyecto"}
+                    {project.description?.text || "Descripción del proyecto"}
                   </p>
                   <div className="flex space-x-4">
-                    {project.demoLink && (
+                    {project.demoLink?.link && (
                       <a
-                        href={project.demoLink}
+                        href={project.demoLink.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full flex items-center"
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
-                        Ver Proyecto
+                        {project.demoLink.text || "Ver Proyecto"}
                       </a>
                     )}
-                    {project.gitHubLink && (
+                    {project.gitHubLink?.link && (
                       <a
-                        href={project.gitHubLink}
+                        href={project.gitHubLink.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-gray-700 hover:bg-gray-800 text-white py-2 px-4 rounded-full flex items-center"
                       >
                         <Github className="w-4 h-4 mr-2" />
-                        Código Fuente
+                        {project.gitHubLink.text || "Código Fuente"}
                       </a>
                     )}
                   </div>

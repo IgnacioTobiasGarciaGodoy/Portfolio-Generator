@@ -3,12 +3,13 @@ import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
 import { Pencil, Plus, Trash2, FilePenLine } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { baseUrl } from "../utils/connection.js"
 
 const CertificatesSection = ({ userName }) => {
   const {
     certificateSection,
-    fetchCertificateSection,
-    deleteCertificate,
+    fetchSection,
+    deleteItem,
     isLoading,
     error,
   } = usePortfolioStore();
@@ -22,13 +23,13 @@ const CertificatesSection = ({ userName }) => {
         "¿Estás seguro de que quieres eliminar este certificado?"
       )
     ) {
-      deleteCertificate(userName, certificateId);
+      deleteItem(userName, certificateId, "/delete/certificate", "certificateSection", "certificates");
     }
   };
 
   useEffect(() => {
     if (userName) {
-      fetchCertificateSection(userName);
+      fetchSection(userName, "certificateSection", "/certificates");
     }
   }, [userName]);
 
@@ -72,12 +73,16 @@ const CertificatesSection = ({ userName }) => {
             >
               <img
                 className="rounded-t-lg"
-                src={cert.image?.image}
-                alt={cert.name}
+                src={
+                  certificateSection
+                    ? `${baseUrl}${cert.image.url}`
+                    : "/public/assets/default/certificate.jpg"
+                }
+                alt={cert.name.text}
               />
               <div className="p-5">
                 <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                  {cert.name}
+                  {cert.name.text}
                   {isOwner && (
                     <>
                     <FilePenLine 

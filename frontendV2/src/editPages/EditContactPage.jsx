@@ -5,8 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditContactPage = () => {
   const { userName } = useParams();
-  const { contactSection, fetchContactSection, editContactSection } =
-    usePortfolioStore();
+  const { contactSection, fetchSection, editSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -41,8 +40,8 @@ const EditContactPage = () => {
   };
 
   useEffect(() => {
-    fetchContactSection(userName);
-  }, [userName, fetchContactSection]);
+    fetchSection(userName, "contactSection", "/contact");
+  }, [userName, fetchSection]);
 
   useEffect(() => {
     if (contactSection) {
@@ -72,7 +71,7 @@ const EditContactPage = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    await editContactSection(userName, contactData);
+    await editSection(userName, "contactSection" , contactData, "edit/contact");
     navigate(`/portfolio/${userName}`);
   };
 

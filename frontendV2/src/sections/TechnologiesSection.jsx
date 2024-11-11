@@ -3,12 +3,13 @@ import { usePortfolioStore } from "../store/portfolioStore";
 import { useAuthStore } from "../store/authStore";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { baseUrl } from "../utils/connection.js"
 
 const TechnologiesSection = ({ userName }) => {
   const {
     technologySection,
-    fetchTechnologySection,
-    deleteTechnology,
+    fetchSection,
+    deleteItem,
     isLoading,
     error,
   } = usePortfolioStore();
@@ -22,13 +23,13 @@ const TechnologiesSection = ({ userName }) => {
         "¿Estás seguro de que quieres eliminar esta tecnología?"
       )
     ) {
-      deleteTechnology(userName, technologyId);
+      deleteItem(userName, technologyId, "/delete/technology", "technologySection", "technologies");
     }
   };
 
   useEffect(() => {
     if (userName) {
-      fetchTechnologySection(userName);
+      fetchSection(userName, "technologySection", "/technologies");
     }
   }, [userName]);
 
@@ -73,13 +74,17 @@ const TechnologiesSection = ({ userName }) => {
               >
                 <div className="w-20 h-20 dark:bg-gray-800 flex items-center justify-center rounded-md">
                   <img
-                    src={tech.image?.image}
+                    src={
+                      technologySection
+                        ? `${baseUrl}${tech.image?.url}`
+                        : "/public/assets/default/technology.jpg"
+                    }
                     className="h-16 w-16 object-contain transition-all duration-300 rounded-lg filter grayscale hover:grayscale-0"
-                    alt={tech.name}
+                    alt={tech.name.text}
                   />
                 </div>
                 <p className="text-lg font-bold text-white dark:text-white mt-4">
-                  {tech.name}
+                  {tech.name.text}
                 </p>
                 {isOwner && (
                   <Trash2

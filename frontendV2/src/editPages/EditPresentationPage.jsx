@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditPresentationPage = () => {
   const { userName } = useParams();
-  const { presentationSection, editPresentationSection, fetchPresentationSection } = usePortfolioStore();
+  const { presentationSection, editSection, fetchSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -28,14 +28,16 @@ const EditPresentationPage = () => {
   });
 
   const [image, setImage] = useState({
-    text: presentationSection?.image?.image || "/assets/images/defaultPictures/stockProfilePicture.jpg",
+    url:
+      presentationSection?.image?.url ||
+      "/assets/default/presentation.jpg",
   });
 
   useEffect(() => {
     if (!presentationSection) {
-      fetchPresentationSection(userName);
+      fetchSection(userName, "presentationSection", "/presentation");
     }
-  }, [userName, fetchPresentationSection, presentationSection]);
+  }, [userName, fetchSection, presentationSection]);
 
   useEffect(() => {
     // Si el usuario está autenticado y el userName en la URL no coincide, redirige
@@ -48,43 +50,58 @@ const EditPresentationPage = () => {
     const updatedPresentationSection = {
       name,
       rol,
-      image,
     };
-    await editPresentationSection(userName, updatedPresentationSection);
+
+    await editSection( userName, "presentationSection", updatedPresentationSection, "edit/presentation", image);
     navigate(`/portfolio/${userName}`);
   };
 
   const handleCancel = async e => {
     e.preventDefault();
     navigate(`/portfolio/${userName}`);
-  }
+  };
 
   return (
     <div className="max-w-3xl mx-auto mt-12 p-8 bg-gray-800 rounded-lg shadow-md">
-      <h1 className="text-3xl text-white font-bold mb-6">Editar "Presentación"</h1>
-      
+      <h1 className="text-3xl text-white font-bold mb-6">
+        Editar "Presentación"
+      </h1>
+
       {/* Campo de Nombre */}
       <div className="mb-6">
         <label className="block text-gray-300 mb-2">Nombre</label>
         <input
           type="text"
           value={name.text}
-          onChange={(e) => setName({ ...name, text: e.target.value })}
+          onChange={e => setName({ ...name, text: e.target.value })}
           className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
         />
       </div>
-      
+
       {/* Campo de Rol */}
       <div className="mb-6">
         <label className="block text-gray-300 mb-2">Rol</label>
         <input
           type="text"
           value={rol.text}
-          onChange={(e) => setRol({ ...rol, text: e.target.value })}
+          onChange={e => setRol({ ...rol, text: e.target.value })}
           className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
         />
       </div>
-      
+
+       {/* Campo para seleccionar una imagen */}
+       <div className="mb-6">
+        <label className="block text-gray-300 mb-2">
+          Seleccionar Imagen
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={e => setImage(e.target.files[0])}
+          className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
+        />
+      </div>
+
       <button
         onClick={handleSave}
         className="w-full mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 font-semibold"

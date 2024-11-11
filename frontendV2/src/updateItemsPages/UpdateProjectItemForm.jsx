@@ -4,112 +4,129 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditProjectForm = () => {
   const { userName, projectId } = useParams(); // Asegúrate de pasar 'projectId' desde la URL
-  const { projectSection, editProject, fetchProjectSection } = usePortfolioStore();
+  const { projectSection, editItem, fetchSection } =
+    usePortfolioStore();
   const navigate = useNavigate();
 
   const [editedProject, setEditedProject] = useState({
-    name: "",
-    description: "",
-    image: {
-      image: "",
-    },
-    demoLink: "",
-    gitHubLink: "",
-  });
+    name: { text: "" },
+    description: { text: "" },
+    image: { url: "" },
+    demoLink: { text: "" },
+    gitHubLink: { text: "" },
+  });  
 
-  // Cargar los datos del proyecto existente al montar el componente
   useEffect(() => {
     if (!projectSection) {
-      fetchProjectSection(userName); // Carga los proyectos si no están en el estado global
+      fetchSection(userName, "projectSection", "/projects");
     } else {
-      // Encuentra el proyecto a editar
-      const project = projectSection.projects.find(proj => proj._id === projectId);
+      const project = projectSection.projects.find(
+        proj => proj._id === projectId
+      );
       if (project) {
         setEditedProject({
-          name: project.name || "",
-          description: project.description || "",
-          image: { image: project.image.image || "" },
-          demoLink: project.demoLink || "",
-          gitHubLink: project.gitHubLink || "",
+          name: { text: project.name.text || "" },
+          description: { text: project.description.text || "" },
+          image: { url: project.image.url || "" },
+          demoLink: { text: project.demoLink.text || "" },
+          gitHubLink: { text: project.gitHubLink.text || "" },
         });
       }
     }
-  }, [projectId, projectSection, userName, fetchProjectSection]);
+  }, [projectId, projectSection, userName, fetchSection]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "image") {
+    const { name, value, files } = e.target;
+    
+    if (name === "image" && files && files[0]) {
       setEditedProject((prevProject) => ({
         ...prevProject,
-        image: { image: value },
+        image: files[0],
       }));
     } else {
       setEditedProject((prevProject) => ({
         ...prevProject,
-        [name]: value,
+        [name]: { ...prevProject[name], text: value },
       }));
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    await editProject(userName, projectId, editedProject); // Llama a la función para editar el proyecto
+    await editItem(
+      userName,
+      projectId,
+      "/edit/project",
+      editedProject,
+      "projectSection",
+      "project"
+    );
     navigate(`/portfolio/${userName}`);
   };
 
   return (
     <div className="max-w-3xl mx-auto mt-12 p-8 bg-gray-800 rounded-lg shadow-md">
-      <h1 className="text-3xl text-white font-bold mb-6">Editar Proyecto</h1>
+      <h1 className="text-3xl text-white font-bold mb-6">
+        Editar Proyecto
+      </h1>
       <form onSubmit={handleSubmit}>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Nombre del Proyecto</label>
+          <label className="block text-gray-300 mb-2">
+            Nombre del Proyecto
+          </label>
           <input
             type="text"
             name="name"
-            value={editedProject.name}
+            value={editedProject.name.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Descripción</label>
+          <label className="block text-gray-300 mb-2">
+            Descripción
+          </label>
           <textarea
             name="description"
-            value={editedProject.description}
+            value={editedProject.description.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Enlace de Demo</label>
+          <label className="block text-gray-300 mb-2">
+            Enlace de Demo
+          </label>
           <input
             type="text"
             name="demoLink"
-            value={editedProject.demoLink}
+            value={editedProject.demoLink.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Enlace de GitHub</label>
+          <label className="block text-gray-300 mb-2">
+            Enlace de GitHub
+          </label>
           <input
             type="text"
             name="gitHubLink"
-            value={editedProject.gitHubLink}
+            value={editedProject.gitHubLink.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-300 mb-2">Imagen del Proyecto</label>
+          <label className="block text-gray-300 mb-2">
+            Imagen del Proyecto
+          </label>
           <input
-            type="text"
+            type="file"
+            accept="image/*"
             name="image"
-            value={editedProject.image.image}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
-            placeholder="URL de la imagen"
           />
         </div>
         <button

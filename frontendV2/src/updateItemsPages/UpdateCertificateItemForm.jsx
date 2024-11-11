@@ -3,66 +3,56 @@ import { usePortfolioStore } from "../store/portfolioStore";
 import { useParams, useNavigate } from "react-router-dom";
 
 const EditCertificateForm = () => {
-  const { userName, certificateId } = useParams(); // Obtiene certificateId de la URL
+  const { userName, certificateId } = useParams();
   const {
     certificateSection,
-    fetchCertificateSection,
-    editCertificate,
+    fetchSection,
+    editItem,
   } = usePortfolioStore();
   const navigate = useNavigate();
 
   const [editedCertificate, setEditedCertificate] = useState({
-    name: "",
-    image: { image: "" },
+    name: { text: "" },
+    image: { url: "" },
     description: { text: "" },
   });
 
   useEffect(() => {
     if (!certificateSection) {
-      fetchCertificateSection(userName);
+      fetchSection(userName, "certificateSectio", "/certificates");
     } else {
       const certificate = certificateSection.certificates.find(
         cert => cert._id === certificateId
       );
       if (certificate) {
         setEditedCertificate({
-          name: certificate.name || "",
-          image: { image: certificate.image.image || "" },
+          name: { text: certificate.name.text || "" },
+          image: { url: certificate.image.url || "" },
           description: { text: certificate.description.text || "" },
         });
       }
     }
-  }, [
-    certificateId,
-    certificateSection,
-    userName,
-    fetchCertificateSection,
-  ]);
+  }, [certificateId, certificateSection, userName, fetchSection]);
 
   const handleChange = e => {
-    const { name, value } = e.target;
+    const { name, value, files } = e.target;
 
-    if (name === "image") {
+    if (name === "image" && files && files[0]) {
       setEditedCertificate(prevCertificate => ({
         ...prevCertificate,
-        image: { image: value },
-      }));
-    } else if (name === "description") {
-      setEditedCertificate(prevCertificate => ({
-        ...prevCertificate,
-        description: { text: value },
+        image: files[0],
       }));
     } else {
       setEditedCertificate(prevCertificate => ({
         ...prevCertificate,
-        [name]: value,
+        [name]: { text: value },
       }));
-    }
+    } 
   };
 
   const handleSubmit = async e => {
     e.preventDefault();
-    await editCertificate(userName, certificateId, editedCertificate); // Llama a la función para editar el certificado
+    await editItem(userName, certificateId, '/edit/certificate', editedCertificate, 'certificateSection', 'certificate');
     navigate(`/portfolio/${userName}`);
   };
 
@@ -79,7 +69,7 @@ const EditCertificateForm = () => {
           <input
             type="text"
             name="name"
-            value={editedCertificate.name}
+            value={editedCertificate.name.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />
@@ -97,15 +87,14 @@ const EditCertificateForm = () => {
         </div>
         <div className="mb-6">
           <label className="block text-gray-300 mb-2">
-            URL de la Imagen
+            Imagen del Proyecto
           </label>
           <input
-            type="text"
+            type="file"
+            accept="image/*"
             name="image"
-            value={editedCertificate.image.image}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
-            placeholder="URL de la imagen del certificado"
           />
         </div>
         <button

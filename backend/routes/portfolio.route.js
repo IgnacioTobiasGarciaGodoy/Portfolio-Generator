@@ -1,87 +1,109 @@
 import express from "express";
+import multer from "multer";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { authorizeOwner } from "../middleware/authorizeOwner.js";
-import { 
-  getAboutMe,
-  editAboutMe,
-  getAllCertificates,
-  editCertificatesSection,
-  addCertificate,
-  updateCertificate,
-  deleteCertificate,
-  sendContactSectionEmail,
-  getContact,
-  editContactSection,
-  getAllEducation,
-  editEducationSection,
-  addEducation, 
-  updateEducation,
-  deleteEducation,
-  getAllExperience,
-  addExperience,
-  updateExperience,
-  editExperienceSection,
-  deleteExperience,
-  getPresentation,
-  editPresentationSection,
-  getAllProjects,
-  editProjectsSection,
-  addProject,
-  updateProject,
-  deleteProject,
-  getSelectedTechnologies,
-  editTechnologiesSection,
-  addTechnology,
-  deleteTechnology
- } from "../controllers/portfolio.controller.js";
+import {
+	editPresentationSection,
+
+	editAboutMe,
+
+	editExperienceSection,
+	addExperience,
+	editExperience,
+
+	editProjectSection,
+	addProject,
+	editProject,
+
+	editEducationSection,
+	addEducation,
+	editEducation,
+
+	editCertificatesSection,
+	addCertificate,
+	editCertificate,
+
+	editTechnologiesSection,
+	addTechnology,
+	editTechnology,
+
+	sendContactSectionEmail,
+	editContactSection,
+
+	getSection,
+	deleteSectionItem,
+} from "../controllers/portfolio.controller.js";
+
+import {
+	presentationImage,
+	addProjectImage,
+	editProjectImage,
+	addCertificateImage,
+	editCertificateImage,
+	addTechnologyImage,
+	editTechnologyImage
+} from '../middleware/images.js';
+
+import {
+	presentation,
+	aboutMe,
+	experience,
+	project,
+	education,
+	certificate,
+	technology,
+	contact,
+} from '../models/portfolio.model.js'
 
 const router = express.Router();
+const defaultMulter = multer()
+
+// Presentation
+router.get("/:userName/presentation", (req, res) => getSection(req, res, presentation.section));
+router.put("/:userName/edit/presentation", verifyToken, authorizeOwner, presentationImage.single('image'), editPresentationSection);
 
 // About Me
-router.get("/:userName/aboutme", getAboutMe);
-router.put("/:userName/edit/aboutMe", verifyToken, authorizeOwner, editAboutMe);
+router.get("/:userName/aboutme", (req, res) => getSection(req, res, aboutMe.section));
+router.put("/:userName/edit/aboutMe", verifyToken, authorizeOwner, defaultMulter.none(), editAboutMe);
+
+// Experience
+router.get("/:userName/experience", (req, res) => getSection(req, res, experience.section));
+router.put("/:userName/edit/experiencesection", verifyToken, authorizeOwner, defaultMulter.none(), editExperienceSection);
+router.post("/:userName/add/experience", verifyToken, authorizeOwner, defaultMulter.none(), addExperience);
+router.put("/:userName/edit/experience/:id", verifyToken, authorizeOwner, defaultMulter.none(), editExperience);
+router.delete("/:userName/delete/experience/:id", verifyToken, authorizeOwner, (req, res) => deleteSectionItem(req, res, experience.section, experience.subSection));
+
+// Projects
+router.get("/:userName/projects", (req, res) => getSection(req, res, project.section));
+router.put("/:userName/edit/projectsection", verifyToken, authorizeOwner, defaultMulter.none(), editProjectSection);
+router.post("/:userName/add/project", verifyToken, authorizeOwner, addProjectImage.single('image'), addProject);
+router.put("/:userName/edit/project/:id", verifyToken, authorizeOwner, editProjectImage.single('image'), editProject);
+router.delete("/:userName/delete/project/:id", verifyToken, authorizeOwner, (req, res) => deleteSectionItem(req, res, project.section, project.subSection));
+
+// Education
+router.get("/:userName/education", (req, res) => getSection(req, res, education.section));
+router.put("/:userName/edit/educationsection", verifyToken, authorizeOwner, defaultMulter.none(), editEducationSection);
+router.post("/:userName/add/education", verifyToken, authorizeOwner, defaultMulter.none(), addEducation);
+router.put("/:userName/edit/education/:id", verifyToken, authorizeOwner, defaultMulter.none(), editEducation);
+router.delete("/:userName/delete/education/:id", verifyToken, authorizeOwner, (req, res) => deleteSectionItem(req, res, education.section, education.subSection));
 
 // Certificates
-router.get("/:userName/certificates", getAllCertificates);
-router.put("/:userName/edit/certificatessection", verifyToken, authorizeOwner, editCertificatesSection);
-router.post("/:userName/add/certificate", verifyToken, authorizeOwner, addCertificate);
-router.put("/:userName/update/certificates/:id", verifyToken, authorizeOwner, updateCertificate);
-router.delete("/:userName/delete/certificate/:id", verifyToken, authorizeOwner, deleteCertificate);
+router.get("/:userName/certificates", (req, res) => getSection(req, res, certificate.section));
+router.put("/:userName/edit/certificatesection", verifyToken, authorizeOwner, defaultMulter.none(), editCertificatesSection);
+router.post("/:userName/add/certificate", verifyToken, authorizeOwner, addCertificateImage.single('image'), addCertificate);
+router.put("/:userName/edit/certificate/:id", verifyToken, authorizeOwner, editCertificateImage.single('image'), editCertificate);
+router.delete("/:userName/delete/certificate/:id", verifyToken, authorizeOwner, (req, res) => deleteSectionItem(req, res, certificate.section, certificate.subSection));
+
+// Techonologies
+router.get("/:userName/technologies", (req, res) => getSection(req, res, technology.section));
+router.put("/:userName/edit/technologiessection", verifyToken, authorizeOwner, defaultMulter.none(), editTechnologiesSection);
+router.post("/:userName/add/technology", verifyToken, authorizeOwner, addTechnologyImage.single('image'), addTechnology);
+router.put("/:userName/edit/technology/:id", verifyToken, authorizeOwner, editTechnologyImage.single('image'), editTechnology);
+router.delete("/:userName/delete/technology/:id", verifyToken, authorizeOwner, (req, res) => deleteSectionItem(req, res, technology.section, technology.subSection));
 
 // Contact
 router.post("/:userName/send-email", sendContactSectionEmail);
-router.get("/:userName/get-contact-info", getContact);
-router.put("/:userName/edit/contact", verifyToken, authorizeOwner, editContactSection);
-
-// Education
-router.get("/:userName/education", getAllEducation);
-router.put("/:userName/edit/educationsection", verifyToken, authorizeOwner, editEducationSection);
-router.post("/:userName/add/education", verifyToken, authorizeOwner, addEducation);
-router.put("/:userName/update/education/:id", verifyToken, authorizeOwner, updateEducation);
-router.delete("/:userName/delete/education/:id", verifyToken, authorizeOwner, deleteEducation);
-
-// Experience
-router.get("/:userName/experience", getAllExperience);
-router.put("/:userName/edit/experiencesection", verifyToken, authorizeOwner, editExperienceSection);
-router.post("/:userName/add/experience", verifyToken, authorizeOwner, addExperience);
-router.put("/:userName/update/experience/:id", verifyToken, authorizeOwner, updateExperience);
-router.delete("/:userName/delete/experience/:id", verifyToken, authorizeOwner, deleteExperience);
-
-// Presentation
-router.get("/:userName/presentation", getPresentation);
-router.put("/:userName/edit/presentation", verifyToken, authorizeOwner, editPresentationSection);
-
-// Projects
-router.get("/:userName/projects", getAllProjects);
-router.put("/:userName/edit/projectssection", verifyToken, authorizeOwner, editProjectsSection);
-router.post("/:userName/add/project", verifyToken, authorizeOwner, addProject);
-router.put("/:userName/update/project/:id", verifyToken, authorizeOwner, updateProject);
-router.delete("/:userName/delete/project/:id", verifyToken, authorizeOwner, deleteProject);
-
-// Techonologies
-router.get("/:userName/technologies", getSelectedTechnologies);
-router.put("/:userName/edit/technologiessection", verifyToken, authorizeOwner, editTechnologiesSection);
-router.post("/:userName/add/technology", verifyToken, authorizeOwner, addTechnology);
-router.delete("/:userName/delete/technology/:id", verifyToken, authorizeOwner, deleteTechnology);
+router.get("/:userName/contact", (req, res) => getSection(req, res, contact.section));
+router.put("/:userName/edit/contact", verifyToken, authorizeOwner, defaultMulter.none(), editContactSection);
 
 export default router;

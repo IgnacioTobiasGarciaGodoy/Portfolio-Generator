@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const EditProjectsPage = () => {
   const { userName } = useParams();
-  const { projectSection, editProjectsSection, fetchProjectSection } = usePortfolioStore();
+  const { projectSection, editSection, fetchSection } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -20,9 +20,9 @@ const EditProjectsPage = () => {
 
   useEffect(() => {
     if (!projectSection) {
-      fetchProjectSection(userName);
+      fetchSection(userName, "projectSection", "/projects");
     }
-  }, [userName, fetchProjectSection, projectSection]);
+  }, [userName, fetchSection, projectSection]);
 
   useEffect(() => {
     // Si el usuario está autenticado y el userName en la URL no coincide, redirige
@@ -35,7 +35,7 @@ const EditProjectsPage = () => {
     const updatedProjectsSection = {
       sectionTitle,
     };
-    await editProjectsSection(userName, updatedProjectsSection);
+    await editSection(userName, "projectSection" ,updatedProjectsSection, "edit/projectsection");
     navigate(`/portfolio/${userName}`);
   };
 

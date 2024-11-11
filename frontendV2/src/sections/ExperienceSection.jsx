@@ -7,8 +7,8 @@ import { useNavigate } from "react-router-dom";
 const ExperienceSection = ({ userName }) => {
   const {
     experienceSection,
-    fetchExperienceSection,
-    deleteExperience,
+    fetchSection,
+    deleteItem,
     isLoading,
     error,
   } = usePortfolioStore();
@@ -22,13 +22,13 @@ const ExperienceSection = ({ userName }) => {
         "¿Estás seguro de que quieres eliminar esta experiencia?"
       )
     ) {
-      deleteExperience(userName, experienceId);
+      deleteItem(userName, experienceId, "/delete/experience", "experienceSection", "experiences");
     }
   };
 
   useEffect(() => {
     if (userName) {
-      fetchExperienceSection(userName);
+      fetchSection(userName, "experienceSection", "/experience");
     }
   }, [userName]);
 

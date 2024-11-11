@@ -7,8 +7,8 @@ import { useNavigate } from "react-router-dom";
 const EducationSection = ({ userName }) => {
   const {
     educationSection,
-    fetchEducationSection,
-    deleteEducation,
+    fetchSection,
+    deleteItem,
     isLoading,
     error,
   } = usePortfolioStore();
@@ -22,13 +22,13 @@ const EducationSection = ({ userName }) => {
         "¿Estás seguro de que quieres eliminar esta educación?"
       )
     ) {
-      deleteEducation(userName, educationId);
+      deleteItem(userName, educationId, "/delete/education", "educationSection", "educations");
     }
   };
 
   useEffect(() => {
     if (userName) {
-      fetchEducationSection(userName);
+      fetchSection(userName, "educationSection", "/education");
     }
   }, [userName]);
 

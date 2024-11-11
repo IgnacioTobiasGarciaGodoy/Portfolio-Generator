@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Pencil } from "lucide-react";
 
 const AboutMeSection = ({ userName }) => {
-  const { aboutMeSection, fetchAboutMeSection, isLoading, error } =
+  const { aboutMeSection, fetchSection, isLoading, error } =
     usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ const AboutMeSection = ({ userName }) => {
 
   useEffect(() => {
     if (userName) {
-      fetchAboutMeSection(userName);
+      fetchSection(userName, "aboutMeSection", "/aboutme");
     }
   }, [userName]);
 
