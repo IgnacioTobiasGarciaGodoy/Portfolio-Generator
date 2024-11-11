@@ -8,13 +8,11 @@ const AddProjectForm = () => {
   const navigate = useNavigate();
 
   const [newProject, setNewProject] = useState({
-    name: "",
-    description: "",
-    image: {
-      url: "/path/to/image",
-    },
-    demoLink: "",
-    gitHubLink: "",
+    name: { text: "" },
+    description: { text: "" },
+    image: { url: "" },
+    demoLink: { text: "" },
+    gitHubLink: { text: "" },
   });
 
   const handleChange = (e) => {
@@ -28,10 +26,11 @@ const AddProjectForm = () => {
     } else {
       setNewProject((prevProject) => ({
         ...prevProject,
-        [name]: value,
+        [name]: { text: value },
       }));
     }
-  };  
+  };
+  
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -63,7 +62,7 @@ const AddProjectForm = () => {
           <input
             type="text"
             name="name"
-            value={newProject.name}
+            value={newProject.name.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />
@@ -74,7 +73,7 @@ const AddProjectForm = () => {
           </label>
           <textarea
             name="description"
-            value={newProject.description}
+            value={newProject.description.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />
@@ -86,7 +85,7 @@ const AddProjectForm = () => {
           <input
             type="text"
             name="demoLink"
-            value={newProject.demoLink}
+            value={newProject.demoLink.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />
@@ -98,7 +97,7 @@ const AddProjectForm = () => {
           <input
             type="text"
             name="gitHubLink"
-            value={newProject.gitHubLink}
+            value={newProject.gitHubLink.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />

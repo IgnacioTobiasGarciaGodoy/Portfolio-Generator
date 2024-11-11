@@ -41,7 +41,7 @@ const EditContactPage = () => {
 
   useEffect(() => {
     fetchSection(userName, "contactSection", "/contact");
-  }, [userName, fetchContactSection]);
+  }, [userName, fetchSection]);
 
   useEffect(() => {
     if (contactSection) {

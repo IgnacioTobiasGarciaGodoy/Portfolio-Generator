@@ -68,6 +68,10 @@ export const usePortfolioStore = create(set => ({
       const formData = new FormData();
       formData.append(sectionName, JSON.stringify({ [objectName]: editedData }));
 
+      if (editedData.image instanceof File) {
+        formData.append('image', editedData.image);
+      }
+
       await axios.put(
         `${API_URL}/${userName}${endpointPath}/${sectionId}`,
         formData,

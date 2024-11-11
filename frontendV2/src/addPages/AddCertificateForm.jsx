@@ -8,7 +8,7 @@ const AddCertificateForm = () => {
   const navigate = useNavigate();
 
   const [newCertificate, setNewCertificate] = useState({
-    name: "",
+    name: { text: "" },
     image: { url: "" },
     description: { text: "" },
   });

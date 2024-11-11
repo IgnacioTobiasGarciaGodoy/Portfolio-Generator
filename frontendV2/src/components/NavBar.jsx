@@ -1,12 +1,10 @@
 import { useAuthStore } from "../store/authStore";
-import { useNavigate } from "react-router-dom"; // Importa useNavigate
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { baseUrl } from "../utils/connection.js"
-import { usePortfolioStore } from "../store/portfolioStore.js";
+import { User } from 'lucide-react';
 
 const NavBar = () => {
-  const { user, logout } = useAuthStore();
-  const { presentationSection } = usePortfolioStore();
+  const { logout } = useAuthStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -44,15 +42,7 @@ const NavBar = () => {
             aria-haspopup="true"
           >
             <span className="sr-only">Abrir menú de usuario</span>
-            <img
-              className="w-10 h-10 rounded-full object-cover"
-              src={
-                presentationSection
-                  ? `${baseUrl}${presentationSection.image.url}`
-                  : "/assets/default/presentation.jpg"
-              }
-              alt={`${user?.name || "Usuario"} Avatar`}
-            />
+            <User className="text-white"></User>
           </button>
 
           {/* Dropdown */}

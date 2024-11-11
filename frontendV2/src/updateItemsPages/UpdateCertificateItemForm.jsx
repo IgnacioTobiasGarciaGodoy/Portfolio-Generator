@@ -35,24 +35,19 @@ const EditCertificateForm = () => {
   }, [certificateId, certificateSection, userName, fetchSection]);
 
   const handleChange = e => {
-    const { name, value } = e.target;
+    const { name, value, files } = e.target;
 
-    if (name === "image") {
+    if (name === "image" && files && files[0]) {
       setEditedCertificate(prevCertificate => ({
         ...prevCertificate,
-        image: { url: value },
-      }));
-    } else if (name === "description") {
-      setEditedCertificate(prevCertificate => ({
-        ...prevCertificate,
-        description: { text: value },
+        image: files[0],
       }));
     } else {
       setEditedCertificate(prevCertificate => ({
         ...prevCertificate,
-        name: { text: value },
+        [name]: { text: value },
       }));
-    }
+    } 
   };
 
   const handleSubmit = async e => {
@@ -92,15 +87,14 @@ const EditCertificateForm = () => {
         </div>
         <div className="mb-6">
           <label className="block text-gray-300 mb-2">
-            URL de la Imagen
+            Imagen del Proyecto
           </label>
           <input
-            type="text"
+            type="file"
+            accept="image/*"
             name="image"
-            value={editedCertificate.image.url}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
-            placeholder="URL de la imagen del certificado"
           />
         </div>
         <button

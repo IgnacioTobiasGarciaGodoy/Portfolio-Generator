@@ -8,7 +8,7 @@ const AddTechnologyForm = () => {
   const navigate = useNavigate();
 
   const [newTechnology, setNewTechnology] = useState({
-    name: "",
+    name: { text: "" },
     image: { url: "" },
   });
 
@@ -23,7 +23,7 @@ const AddTechnologyForm = () => {
     } else {
       setNewTechnology((prevTechnology) => ({
         ...prevTechnology,
-        [name]: value,
+        [name]: {text: value},
       }));
     }
   };
@@ -58,7 +58,7 @@ const AddTechnologyForm = () => {
           <input
             type="text"
             name="name"
-            value={newTechnology.name}
+            value={newTechnology.name.text}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-600 rounded bg-gray-900 text-white"
           />
