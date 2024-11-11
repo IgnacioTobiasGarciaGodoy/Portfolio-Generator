@@ -1,5 +1,6 @@
 # Dependencias de Node.js
 node_modules/
+storage/
 
 # Archivos de logs
 logs
