@@ -1,29 +1,28 @@
 import { useAuthStore } from "../store/authStore";
-import { Link, useNavigate } from "react-router-dom"; // Importa useNavigate
+import { useNavigate } from "react-router-dom"; // Importa useNavigate
 import { useState } from "react";
+import { baseUrl } from "../utils/connection.js"
+import { usePortfolioStore } from "../store/portfolioStore.js";
 
 const NavBar = () => {
-  const { user, logout, presentation } = useAuthStore();
+  const { user, logout } = useAuthStore();
+  const { presentationSection } = usePortfolioStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const navigate = useNavigate(); // Inicializa useNavigate
-  const defaultImage =
-    "/assets/images/defaults/profile-picture-1.png";
-  const profileImage = presentation?.image?.image || defaultImage;
+  const navigate = useNavigate();
 
-  // Función para alternar la visibilidad del menú
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
-  // Función de logout con redirección a login
   const handleLogout = async () => {
-    await logout(); // Llama a la función logout del store para limpiar los datos
-    navigate("/login", { replace: true }); // Redirige a la página de login
+    await logout();
+    navigate("/login", { replace: true });
   };
 
   return (
     <nav className="bg-gray-900 border-b border-gray-600 fixed top-0 left-0 w-full z-50">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto p-4">
+        
         {/* Logo */}
         <a href="/" className="flex items-center space-x-3">
           <img
@@ -35,6 +34,7 @@ const NavBar = () => {
 
         {/* Menú de usuario */}
         <div className="relative flex items-center ml-auto">
+          
           {/* Botón del menú */}
           <button
             type="button"
@@ -46,7 +46,11 @@ const NavBar = () => {
             <span className="sr-only">Abrir menú de usuario</span>
             <img
               className="w-10 h-10 rounded-full object-cover"
-              src={profileImage}
+              src={
+                presentationSection
+                  ? `${baseUrl}${presentationSection.image.url}`
+                  : "/assets/default/presentation.jpg"
+              }
               alt={`${user?.name || "Usuario"} Avatar`}
             />
           </button>
