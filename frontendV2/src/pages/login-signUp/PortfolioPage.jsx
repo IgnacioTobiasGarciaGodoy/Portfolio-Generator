@@ -1,16 +1,16 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 
-import AboutMeSection from "../sections/AboutMeSection"
-import ExperienceSection from "../sections/ExperienceSection"
-import PresentationSection from "../sections/PresentationSection"
-import ProjectsSection from "../sections/ProjectsSection"
-import EducationSection from "../sections/EducationSection"
-import CertificatesSection from "../sections/CertificatesSection"
-import TechnologiesSection from "../sections/TechnologiesSection"
-import ContactSection from "../sections/ContactSection"
-import NavBar from "../components/NavBar";
-import { useAuthStore } from "../store/authStore";
+import AboutMeSection from "../../sections/AboutMeSection"
+import ExperienceSection from "../../sections/ExperienceSection"
+import PresentationSection from "../../sections/PresentationSection"
+import ProjectsSection from "../../sections/ProjectsSection"
+import EducationSection from "../../sections/EducationSection"
+import CertificatesSection from "../../sections/CertificatesSection"
+import TechnologiesSection from "../../sections/TechnologiesSection"
+import ContactSection from "../../sections/ContactSection"
+import NavBar from "../../components/NavBar";
+import { useAuthStore } from "../../store/authStore";
 
 const PortfolioPage = () => {
   const { userName } = useParams();

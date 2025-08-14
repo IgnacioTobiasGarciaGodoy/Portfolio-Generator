@@ -1,8 +1,8 @@
 import { motion } from "framer-motion"
 import { useState } from "react"
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../../store/authStore";
 import { ArrowLeft, Loader, Mail } from "lucide-react";
-import Input from "../components/input";
+import Input from "../../components/input";
 import { Link } from "react-router-dom";
 
 const ForgotPasswordPage = () => {
