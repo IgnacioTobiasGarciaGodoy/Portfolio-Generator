@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePortfolioStore } from "../store/portfolioStore";
+import { usePortfolioStore } from "../../store/portfolioStore";
 import { useParams, useNavigate } from "react-router-dom";
 
 const AddExperienceForm = () => {

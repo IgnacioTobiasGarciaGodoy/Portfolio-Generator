@@ -2,35 +2,35 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
 
-import SignUpPage from "./pages/SignUpPage"
-import LoginPage from "./pages/LoginPage"
-import EmailVerification from "./pages/EmailVerificationPage.jsx"
-import Portfolio from "./pages/PortfolioPage.jsx";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
+import SignUpPage from "./pages/login-signUp/SignUpPage.jsx"
+import LoginPage from "./pages/login-signUp/LoginPage"
+import EmailVerification from "./pages/login-signUp/EmailVerificationPage.jsx"
+import Portfolio from "./pages/login-signUp/PortfolioPage.jsx";
+import ForgotPasswordPage from "./pages/login-signUp/ForgotPasswordPage.jsx";
 
-import EditPresentationPage from "./editPages/EditPresentationPage.jsx"
-import EditAboutMePage from "./editPages/EditAboutMePage.jsx"
-import EditExperiencePage from "./editPages/EditExperiencePage.jsx"
-import EditProjectsPage from "./editPages/EditProjectsPage.jsx"
-import EditEducationPage from "./editPages/EditEducationPage.jsx"
-import EditCertificatesPage from "./editPages/EditCertificatesPage.jsx"
-import EditSkillsPage from "./editPages/EditSkillsPage.jsx"
-import EditContactPage from "./editPages/EditContactPage.jsx"
+import EditPresentationPage from "./pages/editPages/EditPresentationPage.jsx"
+import EditAboutMePage from "./pages/editPages/EditAboutMePage.jsx"
+import EditExperiencePage from "./pages/editPages/EditExperiencePage.jsx"
+import EditProjectsPage from "./pages/editPages/EditProjectsPage.jsx"
+import EditEducationPage from "./pages/editPages/EditEducationPage.jsx"
+import EditCertificatesPage from "./pages/editPages/EditCertificatesPage.jsx"
+import EditSkillsPage from "./pages/editPages/EditSkillsPage.jsx"
+import EditContactPage from "./pages/editPages/EditContactPage.jsx"
 
-import AddExperienceForm from "./addPages/AddExperienceForm.jsx"
-import AddProjectForm from "./addPages/AddProjectForm.jsx"
-import AddEducationForm from "./addPages/AddEducationForm.jsx"
-import AddCertificateForm from "./addPages/AddCertificateForm.jsx"
-import AddTechnologyForm from "./addPages/AddTechnologyForm.jsx"
+import AddExperienceForm from "./pages/addPages/AddExperienceForm.jsx"
+import AddProjectForm from "./pages/addPages/AddProjectForm.jsx"
+import AddEducationForm from "./pages/addPages/AddEducationForm.jsx"
+import AddCertificateForm from "./pages/addPages/AddCertificateForm.jsx"
+import AddTechnologyForm from "./pages/addPages/AddTechnologyForm.jsx"
 
-import UpdateExperienceItemForm from "./updateItemsPages/UpdateExperienceItemForm.jsx"
-import UpdateProjectItemForm from "./updateItemsPages/UpdateProjectItemForm.jsx"
-import UpdateEducationItemForm from "./updateItemsPages/UpdateEducationItemForm.jsx"
-import UpdateCertificateItemForm from "./updateItemsPages/UpdateCertificateItemForm.jsx"
+import UpdateExperienceItemForm from "./pages/updateItemsPages/UpdateExperienceItemForm.jsx"
+import UpdateProjectItemForm from "./pages/updateItemsPages/UpdateProjectItemForm.jsx"
+import UpdateEducationItemForm from "./pages/updateItemsPages/UpdateEducationItemForm.jsx"
+import UpdateCertificateItemForm from "./pages/updateItemsPages/UpdateCertificateItemForm.jsx"
 
 import { useAuthStore } from "./store/authStore.js";
 import LoadingSpinner from "./components/LoadingSpinner.jsx";
-import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
+import ResetPasswordPage from "./pages/login-signUp/ResetPasswordPage.jsx";
 import ProtectedRoute from "./utils/ProtectedRoute.jsx"
 import NavBar from "./components/NavBar.jsx";
 
@@ -44,7 +44,7 @@ function App() {
   if (isCheckingAuth) return <LoadingSpinner />
 
   return (
-    <div className={`min-h-screen bg-white dark:bg-black flex items-center justify-center relative overflow-hidden`}>
+    <div className="min-h-screen bg-white dark:bg-[#24272C] relative pt-16">
       <NavBar />
       <Routes>
         {/* Ruteo para el portafolio */}

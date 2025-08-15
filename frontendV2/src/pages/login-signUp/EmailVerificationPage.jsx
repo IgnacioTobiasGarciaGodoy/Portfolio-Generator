@@ -1,174 +1,153 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import Button from "../../components/Button";
 import { useAuthStore } from "../../store/authStore";
 import toast from "react-hot-toast";
 
 const EmailVerificationPage = () => {
-  
-  const { error, isLoading, verifyEmail} = useAuthStore()
-  
-  // Estado para almacenar los 6 dígitos del código de verificación
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
-  
-  // Referencias a los campos de entrada para manejar el enfoque de manera programática, por ejemplo, para cambiar el enfoque de un campo a otro
-  // Esto permite, por ejemplo, que al escribir en un campo o al borrar,
-  // el código pueda Mover el enfoque a otro input o
-  // Retroceder el enfoque al campo anterior si el usuario presiona borrar en un campo vacío
-  const inputRefs = useRef([]);
-  
-  // Hook para redirigir a otras rutas
+  const { error, isLoading, verifyEmail } = useAuthStore();
   const navigate = useNavigate();
 
-  // La función handleChange se encarga de manejar los cambios en los campos de entrada (inputs) de un código de verificación.
-  // Se llama cada vez que se escribe o pega un valor en uno de los campos de entrada (input)
-  // La función recibe dos parámetros -> La posición del campo de entrada que está cambiando y el valor que el usuario ha ingresado en ese campo.
+  // 6 dígitos del código
+  const [code, setCode] = useState(["", "", "", "", "", ""]);
+  // refs de inputs
+  const inputRefs = useRef([]);
+  // guard para evitar doble envío cuando se autocompleta
+  const isSubmittingRef = useRef(false);
+
+  const setDigit = (index, val) => {
+    setCode(prev => {
+      const next = [...prev];
+      next[index] = val;
+      return next;
+    });
+  };
+
+  // escribir / pegar 1 dígito
   const handleChange = (index, value) => {
-    const newCode = [...code];
+    const v = value.replace(/\D/g, "");
+    if (!v) return setDigit(index, "");
 
-    //* Manejo de Pegar Varios Dígitos (por ejemplo, al pegar todo el código de una vez)
-    
-    // Verifica si el usuario ha pegado varios caracteres a la vez
-    if (value.length > 1) {
-      // Toma los primeros 6 caracteres del valor pegado y los convierte en un array (pastedCode)
-      const pastedCode = value.slice(0, 6).split("");
-      // Itera a través de los 6 espacios de newCode y asigna los caracteres de pastedCode uno a uno.
-      // Si pastedCode no tiene un carácter en una posición (undefined), coloca una cadena vacía ("").
-      for (let i = 0; i < 6; i++) {
-        newCode[i] = pastedCode[i] || "";
-      }
-      // Actualiza el estado code con los valores del array newCode. 
-      // Esto asegura que todos los campos se llenen de una sola vez si el usuario pega un código completo.
-      setCode(newCode);
-
-      //* Enfocar el último input no vacío o el primero vacío -> Es decir que se mueva automaticamente al siguiente espacio
-      // Encuentra la última posición en el array newCode que tiene un valor distinto de una cadena vacía. 
-      // Esto indica el último dígito que el usuario ha ingresado o pegado
-      const lastFilledIndex = newCode.findLastIndex(
-        digit => digit !== ""
-      );
-      // Determina cuál debe ser el próximo campo de entrada a enfocar
-      const focusIndex =
-        // Si el último campo lleno está antes del final (index < 5), enfoca el siguiente
-        // Si todos los campos están llenos, enfoca el último campo (índice 5).
-        lastFilledIndex < 5 ? lastFilledIndex + 1 : 5;
-        // Usa las referencias (refs) de los campos de entrada para mover el enfoque al campo adecuado
-        inputRefs.current[focusIndex].focus();
-        //* Manejo de Entrada de un Solo Carácter (por ejemplo, al escribir un dígito a la vez)
-        // Este bloque se ejecuta cuando el usuario ingresa un solo carácter
-    } else {
-      // Actualiza el array newCode en la posición index con el valor ingresado.
-      newCode[index] = value;
-      // Actualiza el estado code con los valores del array newCode.
-      setCode(newCode);
-
-      // Si se ingresó un valor válido (value) y no estamos en el último campo (index < 5), mueve el enfoque al siguiente campo.
-      if (value && index < 5) {
-        inputRefs.current[index + 1].focus();
-      }
-    }
+    setDigit(index, v[0]);
+    if (index < 5) inputRefs.current[index + 1]?.focus();
   };
 
-  // Manejar la tecla de retroceso para mover el enfoque al input anterior
-  // Dos parametros -> La posición actual del campo de entrada que está siendo editado y el evento que se dispara cuando el usuario presiona una tecla
   const handleKeyDown = (index, e) => {
-    // e.key === "Backspace": Verifica si la tecla presionada es "Backspace"
-    
-    // !code[index]: Verifica si el campo de entrada actual está vacío. 
-    //Esto significa que el usuario ya borró el carácter en este campo, y si sigue presionando "Backspace", 
-    // el siguiente paso es moverse al campo anterior.
-
-    // index > 0: Asegura que la función no intente mover el enfoque a un campo anterior cuando ya está en el primer campo (índice 0)
     if (e.key === "Backspace" && !code[index] && index > 0) {
-      
-      // inputRefs: Es un array de referencias (refs) que apuntan a los campos de entrada (inputs) del código de verificación.
-
-      // current[index - 1]: Se refiere al campo de entrada que está justo antes del campo actual 
-      //(por ejemplo, si el usuario está en el índice 3 y presiona "Backspace", index - 1 será 2).
-
-      // .focus();: Mueve el enfoque del cursor al campo de entrada anterior. 
-      // Esto permite al usuario borrar el contenido del campo anterior si presiona "Backspace" en un campo vacío.
-      
-      inputRefs.current[index - 1].focus();
+      inputRefs.current[index - 1]?.focus();
+    }
+    if (e.key === "ArrowLeft" && index > 0) {
+      e.preventDefault();
+      inputRefs.current[index - 1]?.focus();
+    }
+    if (e.key === "ArrowRight" && index < 5) {
+      e.preventDefault();
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
-  // La función handleSubmit se encarga de gestionar el envío del formulario de verificación de email.
-  // Cuando el usuario completa el código de verificación y presiona el botón "Verify Email", 
-  // esta función se ejecuta para enviar el código al backend y verificarlo.
-  const handleSubmit = async (e) => {
-    // Previene el comportamiento por defecto del formulario HTML, que es recargar la página cuando se envía
+  // pegar varios dígitos
+  const handlePaste = (e) => {
+    const paste = (e.clipboardData || window.clipboardData).getData("text");
+    const digits = paste.replace(/\D/g, "").slice(0, 6).split("");
+    if (!digits.length) return;
     e.preventDefault();
-    
-    // Une todos los valores del array code en una sola cadena. El array code contiene los dígitos ingresados en los 6 campos de entrada.
-    // join(""): Combina los elementos del array sin ningún separador entre ellos.
+
+    const filled = Array(6).fill("");
+    digits.forEach((d, i) => (filled[i] = d));
+    setCode(filled);
+
+    const last = Math.min(digits.length, 6) - 1;
+    inputRefs.current[last >= 0 ? last : 0]?.focus();
+  };
+
+  // envío manual (botón)
+  const handleSubmit = async (e) => {
+    e?.preventDefault?.();
     const verificationCode = code.join("");
-    
+
+    if (verificationCode.length !== 6) return;
+
     try {
-      const response = await verifyEmail(verificationCode);
-      navigate(`/portfolio/${response.user.userName}`);
-      toast.success("Email verificado exitosamente!")
-    } catch (error) {
-      console.log(error)
+      isSubmittingRef.current = true;
+      const res = await verifyEmail(verificationCode);
+      toast.success("¡Email verificado exitosamente!");
+      navigate(`/portfolio/${res.user.userName}`);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 
-  // Auto enviar cuando todos los campos de código estén completos
+  // auto‑enviar cuando están completos (evita duplicar con el guard)
   useEffect(() => {
-    if (code.every(digit => digit !== "")) {
-      handleSubmit(new Event("submit")); // Enviar el formulario
+    if (code.every((d) => d !== "") && !isSubmittingRef.current) {
+      handleSubmit();
     }
   }, [code]);
 
   return (
-    <div className="max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden">
-      <motion.div
-        initial={{ opacity: 0, y: -50 }} // Estado inicial para la animación
-        animate={{ opacity: 1, y: 0 }} // Estado final para la animación
-        transition={{ duration: 0.5 }} // Duración de la animación
-        className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-2xl p-8 w-full max-w-md"
+    <div className="min-h-[calc(100svh-4rem)] bg-white dark:bg-[#24272C] flex items-center justify-center p-6">
+      <div
+        className="
+          w-[min(92vw,1100px)] p-8 sm:p-12 flex flex-col items-center text-center rounded-[58px]
+          bg-slate-50 
+          dark:bg-[#24272C]
+          shadow-[-5px_-5px_15px_#b8b8b8,5px_5px_15px_#ffffff]
+          dark:shadow-[-18px_-18px_36px_rgba(255,255,255,0.25),18px_18px_36px_rgba(0,0,0,0.25)]
+        "
       >
-        <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-blue-400 to-sky-500 text-transparent bg-clip-text">
-          Verificar tu email
-        </h2>
-        <p className="text-center text-gray-300 mb-6">
-        Ingresa el código de 6 dígitos enviado a tu dirección de correo electrónico.
-        </p>
+        <div className="space-y-1 mb-6">
+          <h2 className="text-3xl font-poppins text-center dark:text-white">
+            Verificar tu Correo
+          </h2>
+          <p className="text-lg font-poppins text-gray-600 dark:text-gray-300">
+            Ingresa el código de 6 dígitos enviado a tu correo electrónico.
+          </p>
+        </div>
 
-        {/* Formulario para ingresar el código */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex justify-between">
-            {/* Generar inputs para cada dígito del código */}
+        <form onSubmit={handleSubmit} className="space-y-6" onPaste={handlePaste}>
+          <div className="flex gap-5">
             {code.map((digit, index) => (
               <input
                 key={index}
-                ref={el => (inputRefs.current[index] = el)} // Referencias a cada input
+                ref={(el) => (inputRefs.current[index] = el)}
                 type="text"
-                maxLength="6"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={1}
                 value={digit}
-                onChange={e => handleChange(index, e.target.value)}
-                onKeyDown={e => handleKeyDown(index, e)}
-                className="w-12 h-12 text-center text-2xl font-bold bg-gray-700 text-white border-2 border-gray-600 rounded-lg focus:border-blue-500 focus:outline-none"
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                autoComplete="one-time-code"
+                className={`
+                  w-16 h-16 text-center font-poppins text-xl outline-none rounded-[24px]
+                  transition-shadow duration-300
+
+                  /* Light */
+                  bg-slate-50 text-gray-800
+                  shadow-[-10px_-10px_20px_rgba(255,255,255,0.25),10px_10px_20px_rgba(0,0,0,0.25)]
+                  focus:shadow-[-10px_-10px_20px_rgba(255,255,255,0.25)_inset,10px_10px_20px_rgba(0,0,0,0.25)_inset]
+
+                  /* Dark */
+                  dark:bg-[#24272C] dark:text-gray-100
+                  dark:shadow-[-10px_-10px_20px_rgba(255,255,255,0.25),10px_10px_20px_rgba(0,0,0,0.25)]
+                  dark:focus:shadow-[-10px_-10px_20px_rgba(255,255,255,0.25)_inset,10px_10px_20px_rgba(0,0,0,0.25)_inset]
+                `}
               />
             ))}
           </div>
 
-          {/* Mostrar los posibles errores */}
-          {error && <p className="text-red-500 text-center">{error}</p>}
+         {error && (
+            <p className="text-red-500 font-poppins font-semibold mb-2">{error}</p>
+          )}
 
-          {/* Botón para verificar */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            type="submit"
-            disabled={isLoading || code.some(digit => !digit)} // Deshabilitar si está cargando o si hay campos vacíos
-            className="w-full bg-gradient-to-r from-blue-500 to-sky-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:from-blue-600 hover:to-sky-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50"
-          >
-            {/* Cambiar texto según el estado de carga */}
-            {isLoading ? "Verificando..." : "Verificar Correo"}{" "}
-          </motion.button>
+          <Button type="submit" disabled={isLoading || code.some((d) => !d)}>
+            {isLoading ? "Verificando..." : "Verificar Correo"}
+          </Button>
         </form>
-      </motion.div>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { usePortfolioStore } from "../store/portfolioStore";
-import { useAuthStore } from "../store/authStore";
+import { usePortfolioStore } from "../../store/portfolioStore";
+import { useAuthStore } from "../../store/authStore";
 import { useParams, useNavigate } from "react-router-dom";
 
 const EditPresentationPage = () => {

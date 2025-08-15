@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { usePortfolioStore } from "../store/portfolioStore";
+import { usePortfolioStore } from "../../store/portfolioStore";
 import { useParams, useNavigate } from "react-router-dom";
 
 const EditProjectForm = () => {

@@ -45,12 +45,17 @@ const PasswordStrengthMeter = ({ password }) => {
   const strength = getStrength(password); // Obtener la fuerza de la contraseña
 
   // Función para determinar el color según la fuerza
-  const getColor = (strength) => {
-    if (strength === 0) return "bg-red-500"; // Muy débil
-    if (strength === 1) return "bg-red-400"; // Débil
-    if (strength === 2) return "bg-yellow-500"; // Buena
-    if (strength === 3) return "bg-yellow-400"; // Muy buena
-    return "bg-green-500"; // Excelente
+  const getColor = (index) => {
+    switch (index) {
+      case 0:
+        return "bg-gradient-to-r from-[#F87171] to-[#F97316]";
+      case 1:
+        return "bg-gradient-to-r from-[#F97316] to-[#EAB308]";
+      case 2:
+        return "bg-gradient-to-r from-[#EAB308] to-[#22C55E]";
+      case 3:
+        return "bg-gradient-to-r from-[#22C55E] to-[#105F2D]";
+    }
   };
 
   // Función para mostrar texto descriptivo de la fuerza de la contraseña
@@ -74,9 +79,9 @@ const PasswordStrengthMeter = ({ password }) => {
         {[...Array(4)].map((_, index) => (
           <div
             key={index}
-            className={`h-1 w-1/4 rounded-full transition-colors duration-300 
-              ${index < strength ? getColor(strength) : "bg-gray-600"}
-            `}
+            className={`h-1 w-1/4 rounded-full transition-all duration-300 
+        ${index < strength ? getColor(index) : "bg-gray-600"}
+      `}
           />
         ))}
       </div>

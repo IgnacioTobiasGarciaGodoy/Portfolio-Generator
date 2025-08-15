@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import Button from "../../components/Button";
 import { useAuthStore } from "../../store/authStore";
 import { useNavigate, useParams } from "react-router-dom";
 import Input from "../../components/input";
@@ -35,20 +35,27 @@ const ResetPasswordPage = () => {
 	};
 
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 20 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.5 }}
-			className='max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden'
-		>
-			<div className='p-8'>
-				<h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-blue-400 to-sky-500 text-transparent bg-clip-text'>
+		<div className="min-h-[calc(100svh-4rem)] bg-white dark:bg-[#24272C] flex items-center justify-center p-6">
+			<div
+				className="
+                    w-[min(92vw,1100px)] border-transparent  p-8 sm:p-12 flex flex-col items-center text-center rounded-[58px]
+                    bg-slate-50 
+                    dark:bg-[#24272C]
+                    shadow-[-5px_-5px_15px_#b8b8b8,5px_5px_15px_#ffffff]
+                    dark:shadow-[-18px_-18px_36px_rgba(255,255,255,0.25),18px_18px_36px_rgba(0,0,0,0.25)]
+                  "
+			>
+				<h2 className="text-3xl font-poppins text-center dark:text-white mb-6">
 					Cambiar contraseña
 				</h2>
-				{error && <p className='text-red-500 text-sm mb-4'>{error}</p>}
-				{message && <p className='text-blue-500 text-sm mb-4'>{message}</p>}
+				{error && (
+					<p className="text-red-600 font-poppins font-semibold mb-2">{error}</p>
+				)}
+				{message && (
+					<p className="text-black dark:text-white font-poppins font-semibold mb-2">{message}</p>
+				)}
 
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={handleSubmit} className="mt-6 w-full max-w-lg mx-auto flex flex-col gap-6">
 					<Input
 						icon={Lock}
 						type='password'
@@ -67,18 +74,12 @@ const ResetPasswordPage = () => {
 						required
 					/>
 
-					<motion.button
-						whileHover={{ scale: 1.02 }}
-						whileTap={{ scale: 0.98 }}
-						className='w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-sky-600 text-white font-bold rounded-lg shadow-lg hover:from-blue-600 hover:to-sky-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200'
-						type='submit'
-						disabled={isLoading}
-					>
-						{isLoading ? "Reseteando..." : "Establecer nueva contraseña"}
-					</motion.button>
+					<Button type="submit" disabled={isLoading}>
+            {isLoading ? "Reseteando..." : "Cambiar"}
+          </Button>
 				</form>
 			</div>
-		</motion.div>
+		</div>
 	);
 };
 export default ResetPasswordPage;
