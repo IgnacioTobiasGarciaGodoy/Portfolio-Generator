@@ -5,7 +5,6 @@ import { authorizeOwner } from "../middleware/authorizeOwner.js";
 import {
 	editPresentationSection,
 	editAboutMe,
-	editProjectSection,
 	addProject,
 	editProject,
 	getSection,
@@ -49,7 +48,6 @@ router.delete("/:userName/delete/career/:id", verifyToken, authorizeOwner, (req,
 
 // Projects
 router.get("/:userName/projects", (req, res) => getSection(req, res, project.section));
-router.put("/:userName/edit/projectsection", verifyToken, authorizeOwner, defaultMulter.none(), editProjectSection);
 router.post("/:userName/add/project", verifyToken, authorizeOwner, addProjectImage.single("image"), addProject);
 router.put("/:userName/edit/project/:id", verifyToken, authorizeOwner, editProjectImage.single("image"), editProject);
 router.delete("/:userName/delete/project/:id", verifyToken, authorizeOwner, (req, res) => deleteSectionItem(req, res, project.section, project.subSection));
@@ -59,4 +57,4 @@ router.get("/:userName/skills", (req, res) => getSection(req, res, skills.sectio
 router.post("/:userName/add/skill", verifyToken, authorizeOwner, defaultMulter.none(), addSkill);
 router.delete("/:userName/delete/skill", verifyToken, authorizeOwner, defaultMulter.none(), deleteSkill);
 
-export default router;
+export default router

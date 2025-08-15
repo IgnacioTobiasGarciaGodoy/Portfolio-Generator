@@ -15,9 +15,10 @@ app.use(express.json()); //* Parsea automáticamente las solicitudes con formato
 app.use(cookieParser()); //* Parsea las cookies de la solicitud
 
 app.use('/storage', express.static('storage'));
-
 app.use("/portfolio", portfolioRouter);
 app.use("/auth", authRouter);
+
+process.env.PUBLIC_URL = process.env.PUBLIC_URL || "http://localhost:4000";
 
 app.listen(PORT, () => {
   connectDB();

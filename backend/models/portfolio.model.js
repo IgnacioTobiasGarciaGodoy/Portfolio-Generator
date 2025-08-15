@@ -12,7 +12,7 @@ const PresentationSectionSchema = new mongoose.Schema({
 }, { _id: false });
 
 const AboutMeSectionSchema = new mongoose.Schema({
-  text: { type: String, required: true, trim: true }, // Obligatorio
+  text: { type: String, required: true, trim: true },
 }, { _id: false });
 
 const CareerItemSchema = new mongoose.Schema({

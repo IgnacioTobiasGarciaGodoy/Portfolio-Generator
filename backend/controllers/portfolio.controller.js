@@ -23,22 +23,43 @@ const findPortfolioByUserName = async (userName) => {
   return userPortfolio;
 };
 
-const renameFile = (oldPath, userName, itemId, updateReferenceCallback) => {
-  const ext = path.extname(oldPath);
-  const dir = path.dirname(oldPath);
-  const newPath = `${dir}/${userName}-${itemId}${ext}`;
+const toPublicUrl = (relPath) => {
+  const base = process.env.PUBLIC_URL || "http://localhost:4000";
+  return `${base}/${relPath.replace(/\\/g, "/")}`;
+};
 
-  fs.rename(oldPath, newPath, (err) => {
-    if (err) return updateReferenceCallback({ success: false, error: err });
-    updateReferenceCallback({ success: true, newPath });
+const renameFile = (oldRelPath, userName, itemId, done) => {
+  const ext = path.extname(oldRelPath);
+  const dir = path.dirname(oldRelPath);
+  const newRelPath = `${dir}/${userName}-${itemId}${ext}`;
+
+  fs.rename(oldRelPath, newRelPath, (err) => {
+    if (err) return done({ success: false, error: err });
+    const newPublicUrl = toPublicUrl(newRelPath);
+    done({ success: true, newRelPath, newPublicUrl });   // 👈 devolvés URL pública
   });
 };
 
-const deleteImageIfNecessary = async (imagePath) => {
-  if (!imagePath || imagePath.includes("default-")) return;
+const fromPublicUrlToRelPath = (url) => {
   try {
-    await fs.promises.unlink(imagePath);
-  } catch (_err) {
+    const base = process.env.PUBLIC_URL || "http://localhost:4000";
+    // Si ya es URL absoluta, tomá el pathname; si no, devolvés tal cual
+    if (/^https?:\/\//i.test(url)) {
+      const u = new URL(url);
+      return u.pathname.replace(/^\/+/, ""); // "storage/..." sin barra inicial
+    }
+    return url;
+  } catch {
+    return url;
+  }
+};
+
+const deleteImageIfNecessary = async (imageUrlOrPath) => {
+  if (!imageUrlOrPath || imageUrlOrPath.includes("default-")) return;
+  const relPath = fromPublicUrlToRelPath(imageUrlOrPath);
+  try {
+    await fs.promises.unlink(relPath);
+  } catch {
     throw new PortfolioError(500, "Error deleting the associated image");
   }
 };
@@ -89,27 +110,33 @@ export const deleteSectionItem = async (req, res, section, subSection) => {
 /** =================== PRESENTATION =================== **/
 export const editPresentationSection = async (req, res) => {
   const { userName } = req.params;
+
   try {
     const userPortfolio = await findPortfolioByUserName(userName);
 
-    // soporta ambos: multipart (string) o JSON directo
+    // Soportar request como string JSON o JSON plano
     const payload = typeof req.body.presentationSection === "string"
       ? JSON.parse(req.body.presentationSection)
       : req.body.presentationSection;
 
-    const { fullName, role, githubUrl, linkedinUrl } = payload || {};
+    if (!payload || typeof payload !== "object") {
+      return res.status(400).json({ message: "presentationSection inválido" });
+    }
 
-    if (fullName) userPortfolio.presentationSection.fullName = fullName;
-    if (role !== undefined) userPortfolio.presentationSection.role = role;
-    if (githubUrl !== undefined) userPortfolio.presentationSection.githubUrl = githubUrl;
-    if (linkedinUrl !== undefined) userPortfolio.presentationSection.linkedinUrl = linkedinUrl;
+    const { fullName, role, githubUrl, linkedinUrl } = payload;
 
-    // si vino imagen del middleware
-    if (req.imagePath) {
-      userPortfolio.presentationSection.photoUrl = req.imagePath;
+    if (fullName !== undefined)   userPortfolio.presentationSection.fullName   = fullName;
+    if (role !== undefined)       userPortfolio.presentationSection.role       = role;
+    if (githubUrl !== undefined)  userPortfolio.presentationSection.githubUrl  = githubUrl;
+    if (linkedinUrl !== undefined)userPortfolio.presentationSection.linkedinUrl= linkedinUrl;
+
+    // si Multer subió archivo, usá la URL pública ya preparada por el middleware
+    if (req.imagePublicUrl) {
+      userPortfolio.presentationSection.photoUrl = req.imagePublicUrl;
     }
 
     await userPortfolio.save();
+
     res.status(200).json({ message: "Sección 'Presentation' actualizada exitosamente" });
   } catch (error) {
     res.status(error.status || 500).json({ message: error.message });
@@ -205,26 +232,6 @@ export const editCareerItem = async (req, res) => {
 };
 
 /** =================== PROJECTS =================== **/
-export const editProjectSection = async (req, res) => {
-  const { userName } = req.params;
-  try {
-    const userPortfolio = await findPortfolioByUserName(userName);
-
-    const payload = typeof req.body.projectSection === "string"
-      ? JSON.parse(req.body.projectSection)
-      : req.body.projectSection;
-
-    if (Array.isArray(payload?.projects)) {
-      userPortfolio.projectSection.projects = payload.projects;
-      await userPortfolio.save();
-    }
-
-    res.status(200).json({ message: "Sección 'Projects' actualizada exitosamente" });
-  } catch (error) {
-    res.status(error.status || 500).json({ message: error.message });
-  }
-};
-
 export const addProject = async (req, res) => {
   const { userName } = req.params;
   try {
@@ -239,31 +246,30 @@ export const addProject = async (req, res) => {
       return res.status(400).json({ message: "name y description son obligatorios" });
     }
 
-    const projectDoc = {
+    userPortfolio.projectSection.projects.push({
       name: p.name,
       description: p.description,
       demoUrl: p.demoUrl,
       githubUrl: p.githubUrl,
       technologies: Array.isArray(p.technologies) ? p.technologies : [],
       imageUrl: undefined,
-    };
-
-    userPortfolio.projectSection.projects.push(projectDoc);
+    });
     await userPortfolio.save();
 
     const project = userPortfolio.projectSection.projects[userPortfolio.projectSection.projects.length - 1];
     const projectId = project._id;
 
-    if (!req.imagePath) {
+    // si no vino imagen -> listo
+    if (!req.fileRelPath) {
       return res.status(201).json({ message: "Proyecto agregado exitosamente" });
     }
 
-    // Renombrar archivo y actualizar imageUrl
-    renameFile(req.imagePath, userName, projectId, async (result) => {
+    // renombrar archivo y guardar URL pública
+    renameFile(req.fileRelPath, userName, projectId, async (result) => {
       if (!result.success) {
         return res.status(500).json({ message: "Error renaming image", error: result.error });
       }
-      project.imageUrl = result.newPath;
+      project.imageUrl = result.newPublicUrl;   // 👈 URL pública http(s)://...
       try {
         await userPortfolio.save();
         res.status(201).json({ message: "Proyecto agregado exitosamente" });
@@ -295,7 +301,10 @@ export const editProject = async (req, res) => {
     if (p.githubUrl !== undefined) project.githubUrl = p.githubUrl;
     if (Array.isArray(p.technologies)) project.technologies = p.technologies;
 
-    if (req.imagePath) project.imageUrl = req.imagePath;
+    // 👇 guardá URL pública si llegó imagen nueva
+    if (req.imagePublicUrl) {
+      project.imageUrl = req.imagePublicUrl;
+    }
 
     await userPortfolio.save();
     res.status(200).json({ message: "Proyecto actualizado exitosamente" });
@@ -310,25 +319,54 @@ export const addSkill = async (req, res) => {
   try {
     const p = await findPortfolioByUserName(userName);
 
-    const skill =
-      (typeof req.body.skill === "string" && req.body.skill) ||
-      (typeof req.body.skillsSection === "string"
-        ? JSON.parse(req.body.skillsSection)?.skill
-        : req.body.skillsSection?.skill);
+    // 1) Leer desde varias formas válidas
+    const parseMaybeJson = (x) => {
+      if (typeof x === "string") {
+        try { return JSON.parse(x); } catch { return undefined; }
+      }
+      return x;
+    };
 
-    const value = typeof skill === "string" ? skill.trim() : "";
-    if (!value) return res.status(400).json({ message: "skill es requerido" });
-    if (value.length > 60) return res.status(400).json({ message: "skill demasiado largo (máx 60)" });
+    const body = req.body || {};
+    const ss = parseMaybeJson(body.skillsSection);
 
-    const exists = p.skillsSection.skills.some(s => s.toLowerCase() === value.toLowerCase());
-    if (exists) {
-      return res.status(200).json({ message: "Skill ya existente", skillsSection: p.skillsSection });
+    let incoming =
+      Array.isArray(body.skills) ? body.skills :
+      Array.isArray(ss?.skills) ? ss.skills :
+      body.skill ? [body.skill] :
+      ss?.skill ? [ss.skill] : [];
+
+    // 2) Normalizar: strings, trim, no vacíos, máx 60 chars
+    incoming = incoming
+      .filter(s => typeof s === "string")
+      .map(s => s.trim())
+      .filter(s => s.length > 0 && s.length <= 60);
+
+    if (incoming.length === 0) {
+      return res.status(400).json({ message: "Debes enviar 'skill' o 'skills' (array de strings)" });
     }
 
-    p.skillsSection.skills.push(value);
-    await p.save();
+    // 3) Dedupe (case-insensitive) y evitar duplicados con lo existente
+    const existingLower = new Set(p.skillsSection.skills.map(s => s.toLowerCase()));
+    const uniqueIncoming = Array.from(
+      new Map(incoming.map(s => [s.toLowerCase(), s])).values()
+    );
 
-    res.status(201).json({ message: "Skill agregado", skillsSection: p.skillsSection });
+    const toAdd = uniqueIncoming.filter(s => !existingLower.has(s.toLowerCase()));
+
+    if (toAdd.length > 0) {
+      p.skillsSection.skills.push(...toAdd);
+      await p.save();
+    }
+
+    return res.status(201).json({
+      message: toAdd.length
+        ? `Se agregaron ${toAdd.length} skill(s)`
+        : "Sin cambios (todas ya existían)",
+      added: toAdd,
+      skipped: uniqueIncoming.filter(s => !toAdd.includes(s)),
+      skillsSection: p.skillsSection,
+    });
   } catch (e) {
     res.status(e.status || 500).json({ message: e.message });
   }

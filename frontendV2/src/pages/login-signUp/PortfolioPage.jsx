@@ -16,13 +16,13 @@ const PortfolioPage = () => {
 
   const SECTIONS = [
     PresentationSection,
-    AboutMeSection,
-    ExperienceSection,
-    ProjectsSection,
-    EducationSection,
-    CertificatesSection,
-    TechnologiesSection,
-    ContactSection
+    // AboutMeSection,
+    // ExperienceSection,
+    // ProjectsSection,
+    // EducationSection,
+    // CertificatesSection,
+    // TechnologiesSection,
+    // ContactSection
   ]
 
   return (
@@ -37,10 +37,6 @@ const PortfolioPage = () => {
                 <div className="flex justify-start mt-4">
                   <Section userName={userName} />
                 </div>
-
-                {Section === PresentationSection && (
-                  <div className="w-2/3 mx-auto border-b border-gray-300 mt-8"></div>
-                )}
               </section>
             ))}
           </div>
