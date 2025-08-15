@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import { useAuthStore } from "../../store/authStore";
 import toast from "react-hot-toast";
+import Container from "../../components/Container";
 
 const EmailVerificationPage = () => {
   const { error, isLoading, verifyEmail } = useAuthStore();
@@ -88,16 +89,7 @@ const EmailVerificationPage = () => {
   }, [code]);
 
   return (
-    <div className="min-h-[calc(100svh-4rem)] bg-white dark:bg-[#24272C] flex items-center justify-center p-6">
-      <div
-        className="
-          w-[min(92vw,1100px)] p-8 sm:p-12 flex flex-col items-center text-center rounded-[58px]
-          bg-slate-50 
-          dark:bg-[#24272C]
-          shadow-[-5px_-5px_15px_#b8b8b8,5px_5px_15px_#ffffff]
-          dark:shadow-[-18px_-18px_36px_rgba(255,255,255,0.25),18px_18px_36px_rgba(0,0,0,0.25)]
-        "
-      >
+    <Container>
         <div className="space-y-1 mb-6">
           <h2 className="text-3xl font-poppins text-center dark:text-white">
             Verificar tu Correo
@@ -124,13 +116,11 @@ const EmailVerificationPage = () => {
                 className={`
                   w-16 h-16 text-center font-poppins text-xl outline-none rounded-[24px]
                   transition-shadow duration-300
-
-                  /* Light */
+                  
                   bg-slate-50 text-gray-800
                   shadow-[-10px_-10px_20px_rgba(255,255,255,0.25),10px_10px_20px_rgba(0,0,0,0.25)]
                   focus:shadow-[-10px_-10px_20px_rgba(255,255,255,0.25)_inset,10px_10px_20px_rgba(0,0,0,0.25)_inset]
 
-                  /* Dark */
                   dark:bg-[#24272C] dark:text-gray-100
                   dark:shadow-[-10px_-10px_20px_rgba(255,255,255,0.25),10px_10px_20px_rgba(0,0,0,0.25)]
                   dark:focus:shadow-[-10px_-10px_20px_rgba(255,255,255,0.25)_inset,10px_10px_20px_rgba(0,0,0,0.25)_inset]
@@ -147,8 +137,7 @@ const EmailVerificationPage = () => {
             {isLoading ? "Verificando..." : "Verificar Correo"}
           </Button>
         </form>
-      </div>
-    </div>
+    </Container>
   );
 };
 
