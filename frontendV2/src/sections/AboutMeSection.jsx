@@ -5,8 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Pencil } from "lucide-react";
 
 const AboutMeSection = ({ userName }) => {
-  const { aboutMeSection, fetchSection, isLoading, error } =
-    usePortfolioStore();
+  const { aboutMeSection, fetchSection, isLoading, error } = usePortfolioStore();
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -22,24 +21,16 @@ const AboutMeSection = ({ userName }) => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div>
-      <h2 className="text-4xl text-white font-bold dark:text-white mt-8">
-        {aboutMeSection?.sectionTitle?.text || "About Me Section"}
-        {isOwner && (
-          <Pencil
-            onClick={() =>
-              navigate(`/portfolio/${userName}/edit-aboutme`)
-            }
-            className="ml-4 inline-block cursor-pointer text-white hover:text-blue-600"
-            size={24}
-          />
-        )}
-      </h2>
-      <p className="text-lg font-medium text-gray-300 dark:text-white mt-4 leading-relaxed max-w-7xl">
-        {aboutMeSection?.bodyText?.text ||
-          "No hay información disponible sobre mí."}
-      </p>
-    </div>
+    <section className="relative w-full min-h-screen grid place-items-center pb-8">
+      <div className="w-full">
+        <h2 className="font-poppins text-4xl text-dark font-bold dark:text-white mt-8">
+          Acerca de mí
+        </h2>
+        <p className="font-poppins text-lg font-light text-dark dark:text-white mt-4 leading-relaxed max-w-7xl">
+          {aboutMeSection?.text ?? ""}
+        </p>
+      </div>
+    </section>
   );
 };
 

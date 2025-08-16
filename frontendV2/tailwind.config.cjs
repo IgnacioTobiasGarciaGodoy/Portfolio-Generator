@@ -5,7 +5,8 @@ module.exports = {
     extend: {
       fontFamily: {
         logo: ['"Montserrat Alternates"', 'sans-serif'],
-        poppins: ["Poppins", "sans-serif"]
+        poppins: ["Poppins", "sans-serif"],
+        jakarta:["Plus Jakarta Sans", "sans-serif"]
       },
     },
   },
