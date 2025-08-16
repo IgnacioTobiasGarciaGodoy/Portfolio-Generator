@@ -21,7 +21,7 @@ const AboutMeSection = ({ userName }) => {
   if (error) return <p>{error}</p>;
 
   return (
-    <section className="relative w-full min-h-screen grid place-items-center pb-8">
+    <section className="relative w-full min-h-screen grid place-items-center pb-80">
       <div className="w-full">
         <h2 className="font-poppins text-4xl text-dark font-bold dark:text-white mt-8">
           Acerca de mí

@@ -18,14 +18,14 @@ const PortfolioPage = () => {
     CareerSection,
     ProjectsSection,
     // TechnologiesSection,
-    // ContactSection
+    ContactSection
   ]
 
   return (
     <>
       {isAuthenticated && <NavBar />}
       {/* Contenedor central + gutters responsivos */}
-      <main className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {SECTIONS.map((Section, index) => (
           <Section key={index} userName={userName} />
         ))}

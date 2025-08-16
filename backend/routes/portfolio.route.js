@@ -12,7 +12,8 @@ import {
 	addCareerItem,
 	editCareerItem,
 	addSkill,
-	deleteSkill
+	deleteSkill,
+	sendEmail
 } from "../controllers/portfolio.controller.js";
 
 import {
@@ -56,5 +57,8 @@ router.delete("/:userName/delete/project/:id", verifyToken, authorizeOwner, (req
 router.get("/:userName/skills", (req, res) => getSection(req, res, skills.section));
 router.post("/:userName/add/skill", verifyToken, authorizeOwner, defaultMulter.none(), addSkill);
 router.delete("/:userName/delete/skill", verifyToken, authorizeOwner, defaultMulter.none(), deleteSkill);
+
+// Contact
+router.post("/:userName/sendemail", sendEmail);
 
 export default router

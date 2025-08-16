@@ -135,13 +135,10 @@ export const usePortfolioStore = create(set => ({
     }
   },
 
-  sendContactMessage: async (userName, formData, userEmail) => {
+  sendContactMessage: async (userName, formData) => {
     set({ isLoading: true, error: null });
     try {
-      await axios.post(`${API_URL}/${userName}/send-email`, {
-        formData,
-        userEmail,
-      });
+      await axios.post(`${API_URL}/${userName}/sendemail`, { formData });
       set(state => ({ isLoading: false }));
       toast.success("Mensaje enviado correctamente");
     } catch (error) {
