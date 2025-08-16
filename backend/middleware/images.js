@@ -1,141 +1,84 @@
-import multer from 'multer';
-import path from 'path';
-import Portfolio from "../models/portfolio.model.js";
+// middleware/images.js (actualizado)
+import multer from "multer";
+import path from "path";
+import User from "../models/user.model.js";
 
-const presentationImage = multer({
-	storage: multer.diskStorage({
-		destination: (req, file, cb) => {
-			req.imageBasePath = "storage/presentation";
-			cb(null, req.imageBasePath);
-		},
-		filename: async (req, file, cb) => {
-			const { userName } = req.params;
-			const sectionId = await Portfolio.findOne(
-				{ "user.userName": userName },
-				{ "presentationSection._id": 1 } // Only includes presentationSection._id in the result
-			).lean();
+// helper para armar URL pública
+const toPublicUrl = (relPath) => {
+  const base = process.env.PUBLIC_URL || "http://localhost:4000";
+  // normalizar separadores en Windows
+  const norm = relPath.replace(/\\/g, "/");
+  return `${base}/${norm}`;
+};
 
-			const id = sectionId?.presentationSection?._id;
+/** ---------- PRESENTATION PHOTO ---------- **/
+export const presentationImage = multer({
+  storage: multer.diskStorage({
+    destination: (req, _file, cb) => {
+      // Asegúrate de que existan las carpetas: storage/presentation
+      req.imageBasePath = "storage/presentation";
+      cb(null, req.imageBasePath);
+    },
+    filename: async (req, file, cb) => {
+      try {
+        const { userName } = req.params;
 
-			// Generate the filename: "userId-sectionId.extension"
-			const ext = path.extname(file.originalname); // Get the file extension
-			const filename = `${userName}-${id}${ext}`;
+        // Verificá que el user exista (evita que cualquiera suba con cualquier :userName)
+        const user = await User.findOne({ userName }).select("_id userName").lean();
+        if (!user) return cb(new Error("Usuario no encontrado"), null);
 
-			req.imagePath = `${req.imageBasePath}/${filename}`;
-			cb(null, filename);
-		}
-	})
+        const ext = path.extname(file.originalname);
+        const filename = `${userName}-avatar${ext}`;
+
+        const relPath = `${req.imageBasePath}/${filename}`;
+        req.fileRelPath = relPath;
+        req.imagePublicUrl = toPublicUrl(relPath);
+
+        cb(null, filename);
+      } catch (err) {
+        cb(err, null);
+      }
+    }
+  })
 });
 
-const addProjectImage = multer({
-	storage: multer.diskStorage({
-		destination: (req, file, cb) => {
-			req.imageBasePath = "storage/projects";
-			cb(null, req.imageBasePath);
-		},
-		filename: async (req, file, cb) => {
-			// Generate temp file name
-			const ext = path.extname(file.originalname);
-			const filename = `temp${ext}`;
+/** ---------- PROYECTOS (si los usás con imagen) ---------- **/
+export const addProjectImage = multer({
+  storage: multer.diskStorage({
+    destination: (req, _file, cb) => {
+      req.imageBasePath = "storage/projects";
+      cb(null, req.imageBasePath);
+    },
+    filename: async (req, file, cb) => {
+      const { userName } = req.params;
+      const ext = path.extname(file.originalname);
+      const filename = `${userName}-temp${ext}`;
 
-			req.imagePath = `${req.imageBasePath}/${filename}`;
-			cb(null, filename);
-		}
-	})
+      const relPath = `${req.imageBasePath}/${filename}`;
+      req.fileRelPath = relPath;
+      req.imagePublicUrl = toPublicUrl(relPath);
+
+      cb(null, filename);
+    }
+  })
 });
 
-const editProjectImage = multer({
-	storage: multer.diskStorage({
-		destination: (req, file, cb) => {
-			req.imageBasePath = "storage/projects";
-			cb(null, req.imageBasePath);
-		},
-		filename: async (req, file, cb) => {
-			const { id, userName } = req.params;
+export const editProjectImage = multer({
+  storage: multer.diskStorage({
+    destination: (req, _file, cb) => {
+      req.imageBasePath = "storage/projects";
+      cb(null, req.imageBasePath);
+    },
+    filename: async (req, file, cb) => {
+      const { id, userName } = req.params;
+      const ext = path.extname(file.originalname);
+      const filename = `${userName}-${id}${ext}`;
 
+      const relPath = `${req.imageBasePath}/${filename}`;
+      req.fileRelPath = relPath;
+      req.imagePublicUrl = toPublicUrl(relPath);
 
-			// Generate the filename: "userId-sectionId.extension"
-			const ext = path.extname(file.originalname); // Get the file extension
-			const filename = `${userName}-${id}${ext}`;
-
-			req.imagePath = `${req.imageBasePath}/${filename}`;
-			cb(null, filename);
-		}
-	})
+      cb(null, filename);
+    }
+  })
 });
-
-const addCertificateImage = multer({
-	storage: multer.diskStorage({
-		destination: (req, file, cb) => {
-			req.imageBasePath = "storage/certificates";
-			cb(null, req.imageBasePath);
-		},
-		filename: async (req, file, cb) => {
-			// Generate temp file name
-			const ext = path.extname(file.originalname);
-			const filename = `temp${ext}`;
-
-			req.imagePath = `${req.imageBasePath}/${filename}`;
-			cb(null, filename);
-		}
-	})
-});
-
-const editCertificateImage = multer({
-	storage: multer.diskStorage({
-		destination: (req, file, cb) => {
-			req.imageBasePath = "storage/certificates";
-			cb(null, req.imageBasePath);
-		},
-		filename: async (req, file, cb) => {
-			const { id, userName } = req.params;
-
-
-			// Generate the filename: "userId-sectionId.extension"
-			const ext = path.extname(file.originalname); // Get the file extension
-			const filename = `${userName}-${id}${ext}`;
-
-			req.imagePath = `${req.imageBasePath}/${filename}`;
-			cb(null, filename);
-		}
-	})
-});
-
-const addTechnologyImage = multer({
-	storage: multer.diskStorage({
-		destination: (req, file, cb) => {
-			req.imageBasePath = "storage/technologies";
-			cb(null, req.imageBasePath);
-		},
-		filename: async (req, file, cb) => {
-			// Generate temp file name
-			const ext = path.extname(file.originalname);
-			const filename = `temp${ext}`;
-
-			req.imagePath = `${req.imageBasePath}/${filename}`;
-			cb(null, filename);
-		}
-	})
-});
-
-const editTechnologyImage = multer({
-	storage: multer.diskStorage({
-		destination: (req, file, cb) => {
-			req.imageBasePath = "storage/technologies";
-			cb(null, req.imageBasePath);
-		},
-		filename: async (req, file, cb) => {
-			const { id, userName } = req.params;
-
-
-			// Generate the filename: "userId-sectionId.extension"
-			const ext = path.extname(file.originalname); // Get the file extension
-			const filename = `${userName}-${id}${ext}`;
-
-			req.imagePath = `${req.imageBasePath}/${filename}`;
-			cb(null, filename);
-		}
-	})
-});
-
-export { presentationImage, addProjectImage, editProjectImage, addCertificateImage, editCertificateImage, addTechnologyImage, editTechnologyImage };
