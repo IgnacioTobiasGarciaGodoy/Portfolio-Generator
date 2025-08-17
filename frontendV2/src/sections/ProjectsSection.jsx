@@ -14,6 +14,8 @@ import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 import { baseUrl } from "../utils/connection.js"
 import Button from "../components/Button.jsx";
+import Tag from "../components/Tag.jsx";
+import NeoButton from "../components/NeoButton.jsx";
 
 const ProjectsSection = ({ userName }) => {
   const { projectSection, fetchSection, deleteItem, isLoading, error } = usePortfolioStore();
@@ -80,15 +82,13 @@ const ProjectsSection = ({ userName }) => {
 
         <div className="flex flex-wrap items-center justify-center gap-4 py-10 px-2 overflow-x-auto">
           {filteredButtons.map((text, i) => (
-            <motion.button
-              key={i}
-              initial={{ opacity: i === 0 ? 1 : 0.5, scale: i === 0 ? 1.2 : 1 }}
-              ref={el => buttonsRef.current[i] = el}
+            <NeoButton
               onClick={() => { setTech(text); setIndex(i); }}
-              className="border border-yellow-500 rounded-xl px-4 py-2 text-sm font-poppins font-medium tracking-wider text-gray-800 dark:text-gray-400 whitespace-nowrap"
+              size="lg"
+              selected={i === index}
             >
               {text}
-            </motion.button>
+            </NeoButton>
           ))}
         </div>
 

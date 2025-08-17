@@ -36,12 +36,11 @@ const contactSectionSection = ({ userName }) => {
 
   return (
 
-    <section className="relative w-full min-h-screen grid place-items-center pb-20">
-      <div className="w-full space-y-16">
-        <DividerWithText text="Contactame" size="4xl" bold={true} />
-      </div>
+    <section className="relative w-full grid place-items-center pb-20">
 
-      <form onSubmit={handleSubmit} className="mt-6 w-full max-w-lg mx-auto flex flex-col gap-6">
+      <DividerWithText text="Contactame" size="4xl" bold={true} />
+
+      <form onSubmit={handleSubmit} className="mt-12 w-full max-w-lg mx-auto flex flex-col gap-6">
         <Input
           name="name"
           type="text"
