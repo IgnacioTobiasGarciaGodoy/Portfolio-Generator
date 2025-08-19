@@ -37,7 +37,6 @@ const Input = forwardRef(function Input(
         </div>
       )}
 
-      {/* Campo */}
       <Comp
         ref={ref}
         {...props}
@@ -45,7 +44,6 @@ const Input = forwardRef(function Input(
         className={as === "textarea" ? textareaCls : inputCls}
       />
 
-      {/* Toggle de password (solo si type=password y as=input) */}
       {isPassword && (
         <button
           type="button"
