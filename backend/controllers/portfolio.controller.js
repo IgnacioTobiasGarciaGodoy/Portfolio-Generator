@@ -1,5 +1,6 @@
 import Portfolio from "../models/portfolio.model.js";
 import User from "../models/user.model.js";
+import { sendContactEmail } from "../nodemailer/emails.js"
 import fs from "fs";
 import path from "path";
 
@@ -125,10 +126,10 @@ export const editPresentationSection = async (req, res) => {
 
     const { fullName, role, githubUrl, linkedinUrl } = payload;
 
-    if (fullName !== undefined)   userPortfolio.presentationSection.fullName   = fullName;
-    if (role !== undefined)       userPortfolio.presentationSection.role       = role;
-    if (githubUrl !== undefined)  userPortfolio.presentationSection.githubUrl  = githubUrl;
-    if (linkedinUrl !== undefined)userPortfolio.presentationSection.linkedinUrl= linkedinUrl;
+    if (fullName !== undefined) userPortfolio.presentationSection.fullName = fullName;
+    if (role !== undefined) userPortfolio.presentationSection.role = role;
+    if (githubUrl !== undefined) userPortfolio.presentationSection.githubUrl = githubUrl;
+    if (linkedinUrl !== undefined) userPortfolio.presentationSection.linkedinUrl = linkedinUrl;
 
     // si Multer subió archivo, usá la URL pública ya preparada por el middleware
     if (req.imagePublicUrl) {
@@ -332,9 +333,9 @@ export const addSkill = async (req, res) => {
 
     let incoming =
       Array.isArray(body.skills) ? body.skills :
-      Array.isArray(ss?.skills) ? ss.skills :
-      body.skill ? [body.skill] :
-      ss?.skill ? [ss.skill] : [];
+        Array.isArray(ss?.skills) ? ss.skills :
+          body.skill ? [body.skill] :
+            ss?.skill ? [ss.skill] : [];
 
     // 2) Normalizar: strings, trim, no vacíos, máx 60 chars
     incoming = incoming
@@ -400,5 +401,33 @@ export const deleteSkill = async (req, res) => {
     res.status(200).json({ message: "Skill eliminada", skillsSection: p.skillsSection });
   } catch (e) {
     res.status(e.status || 500).json({ message: e.message });
+  }
+};
+
+/** =================== CONTACT =================== **/
+export const sendEmail = async (req, res) => {
+  const { userName } = req.params;
+  const { formData } = req.body;
+
+  try {
+    if (!formData?.name || !formData?.email || !formData?.subject || !formData?.message) {
+      return res.status(400).json({ message: "Faltan campos en el formulario" });
+    }
+
+    const owner = await User.findOne({ userName }).select("email");
+    if (!owner) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    await sendContactEmail(
+      formData.name,
+      formData.email,
+      formData.subject,
+      formData.message,
+      owner.email
+    );
+
+    res.status(200).json({ message: "Email de contacto enviado exitosamente" });
+  } catch (error) {
+    console.error("sendEmail error:", error);
+    res.status(500).json({ message: error.message || "Error al enviar email" });
   }
 };

@@ -1,11 +1,9 @@
 import { useParams } from "react-router-dom";
 import AboutMeSection from "../../sections/AboutMeSection"
-import ExperienceSection from "../../sections/ExperienceSection"
+import CareerSection from "../../sections/CareerSection"
 import PresentationSection from "../../sections/PresentationSection"
 import ProjectsSection from "../../sections/ProjectsSection"
-import EducationSection from "../../sections/EducationSection"
-import CertificatesSection from "../../sections/CertificatesSection"
-import TechnologiesSection from "../../sections/TechnologiesSection"
+import SkillsSection from "../../sections/SkillsSection"
 import ContactSection from "../../sections/ContactSection"
 import NavBar from "../../components/NavBar";
 import { useAuthStore } from "../../store/authStore";
@@ -16,31 +14,21 @@ const PortfolioPage = () => {
 
   const SECTIONS = [
     PresentationSection,
-    // AboutMeSection,
-    // ExperienceSection,
-    // ProjectsSection,
-    // EducationSection,
-    // CertificatesSection,
-    // TechnologiesSection,
-    // ContactSection
+    AboutMeSection,
+    CareerSection,
+    ProjectsSection,
+    SkillsSection,
+    ContactSection
   ]
 
   return (
     <>
-      {isAuthenticated && (
-        <NavBar/>
-      )}
-      <div className="flex justify-center">
-        <div className="w-full max-w-5xl px-4">         
-            {SECTIONS.map((Section, index) => (
-              <section key={index} className="relative w-full min-h-screen flex flex-col justify-center pb-8">
-                <div className="flex justify-start mt-4">
-                  <Section userName={userName} />
-                </div>
-              </section>
-            ))}
-          </div>
-      </div>
+      {isAuthenticated && <NavBar />}
+      <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        {SECTIONS.map((Section, index) => (
+          <Section key={index} userName={userName} />
+        ))}
+      </main>
     </>
   );
 };
